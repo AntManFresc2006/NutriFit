@@ -1,0 +1,16 @@
+# Carpeta de compilación de Maven
+target/
+
+# Logs
+*.log
+
+# Archivos del IDE
+*.iml
+.idea/
+.vscode/
+
+# Archivos temporales de sistema
+.DS_Store
+
+# Dependencias si las tienes empaquetadas localmente
+*.jar

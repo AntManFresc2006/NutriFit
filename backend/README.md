@@ -3,7 +3,7 @@
 Pasos rápidos para desarrollar y arrancar el backend localmente.
 
 Requisitos:
-- JDK 21 (o superior)
+- JDK 17 (o superior)
 - Maven 3.6+
 
 1) Construir:

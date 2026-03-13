@@ -1,0 +1,5 @@
+# Backend build output
+target/
+
+# Local profile with credentials (keep out of git if you add real secrets)
+application-local.properties

@@ -49,4 +49,42 @@ public class AlimentoApiClient {
 
         return alimentos;
     }
+
+    public void create(AlimentoFx alimento) throws IOException, InterruptedException {
+    String json = """
+            {
+              "nombre": "%s",
+              "porcionG": %s,
+              "kcalPor100g": %s,
+              "proteinasG": %s,
+              "grasasG": %s,
+              "carbosG": %s,
+              "fuente": "%s"
+            }
+            """.formatted(
+            escapeJson(alimento.getNombre()),
+            alimento.getPorcionG(),
+            alimento.getKcalPor100g(),
+            alimento.getProteinasG(),
+            alimento.getGrasasG(),
+            alimento.getCarbosG(),
+            escapeJson(alimento.getFuente())
+    );
+
+    HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+
+    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+    if (response.statusCode() < 200 || response.statusCode() >= 300) {
+        throw new IOException("Error al crear alimento. Código HTTP: " + response.statusCode() + " - " + response.body());
+    }
+}
+
+private String escapeJson(String value) {
+    return value == null ? "" : value.replace("\"", "\\\"");
+}
 }

@@ -76,12 +76,31 @@ public class FoodController {
 
     @FXML
     private void onNuevo() {
+        limpiarFormulario();
         statusLabel.setText("Formulario listo para nuevo alimento");
     }
 
     @FXML
     private void onGuardar() {
-        statusLabel.setText("Guardar aún no implementado");
+        try {
+            AlimentoFx alimento = new AlimentoFx();
+            alimento.setNombre(nombreField.getText().trim());
+            alimento.setPorcionG(Double.parseDouble(porcionField.getText().trim()));
+            alimento.setKcalPor100g(Double.parseDouble(kcalField.getText().trim()));
+            alimento.setProteinasG(Double.parseDouble(proteinasField.getText().trim()));
+            alimento.setGrasasG(Double.parseDouble(grasasField.getText().trim()));
+            alimento.setCarbosG(Double.parseDouble(carbosField.getText().trim()));
+            alimento.setFuente(fuenteField.getText().trim());
+
+            apiClient.create(alimento);
+            cargarAlimentos();
+            limpiarFormulario();
+            statusLabel.setText("Alimento creado correctamente");
+        } catch (NumberFormatException e) {
+            statusLabel.setText("Revisa los campos numéricos del formulario");
+        } catch (Exception e) {
+            statusLabel.setText("Error al guardar: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -93,4 +112,35 @@ public class FoodController {
     private void onRecargar() {
         cargarAlimentos();
     }
+
+    private void limpiarFormulario() {
+        nombreField.clear();
+        porcionField.clear();
+        kcalField.clear();
+        proteinasField.clear();
+        grasasField.clear();
+        carbosField.clear();
+        fuenteField.clear();
+    }
+
+    @FXML
+    private TextField nombreField;
+
+    @FXML
+    private TextField porcionField;
+
+    @FXML
+    private TextField kcalField;
+
+    @FXML
+    private TextField proteinasField;
+
+    @FXML
+    private TextField grasasField;
+
+    @FXML
+    private TextField carbosField;
+
+    @FXML
+    private TextField fuenteField;
 }

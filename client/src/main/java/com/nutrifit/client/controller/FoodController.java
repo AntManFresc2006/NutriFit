@@ -157,12 +157,19 @@ public class FoodController {
         foodTable.getSelectionModel().clearSelection();
         alimentoSeleccionado = null;
         limpiarFormulario();
+        nombreField.requestFocus();
         statusLabel.setText("Formulario listo para nuevo alimento");
     }
 
     @FXML
     private void onGuardar() {
         try {
+            String errorValidacion = validarFormulario();
+            if (errorValidacion != null) {
+                statusLabel.setText(errorValidacion);
+                return;
+            }
+
             AlimentoFx alimento = leerFormulario();
 
             if (alimentoSeleccionado == null) {
@@ -178,8 +185,6 @@ public class FoodController {
             limpiarFormulario();
             alimentoSeleccionado = null;
             foodTable.getSelectionModel().clearSelection();
-        } catch (NumberFormatException e) {
-            statusLabel.setText("Revisa los campos numéricos del formulario");
         } catch (Exception e) {
             statusLabel.setText("Error al guardar: " + e.getMessage());
         }
@@ -220,5 +225,69 @@ public class FoodController {
         grasasField.clear();
         carbosField.clear();
         fuenteField.clear();
+    }
+
+    private String validarFormulario() {
+        if (nombreField.getText() == null || nombreField.getText().trim().isEmpty()) {
+            nombreField.requestFocus();
+            return "El nombre es obligatorio";
+        }
+
+        try {
+            double porcion = Double.parseDouble(porcionField.getText().trim());
+            if (porcion <= 0) {
+                porcionField.requestFocus();
+                return "La porción debe ser mayor que 0";
+            }
+        } catch (NumberFormatException e) {
+            porcionField.requestFocus();
+            return "La porción debe ser un número válido";
+        }
+
+        try {
+            double kcal = Double.parseDouble(kcalField.getText().trim());
+            if (kcal < 0) {
+                kcalField.requestFocus();
+                return "Las kcal no pueden ser negativas";
+            }
+        } catch (NumberFormatException e) {
+            kcalField.requestFocus();
+            return "Las kcal deben ser un número válido";
+        }
+
+        try {
+            double proteinas = Double.parseDouble(proteinasField.getText().trim());
+            if (proteinas < 0) {
+                proteinasField.requestFocus();
+                return "Las proteínas no pueden ser negativas";
+            }
+        } catch (NumberFormatException e) {
+            proteinasField.requestFocus();
+            return "Las proteínas deben ser un número válido";
+        }
+
+        try {
+            double grasas = Double.parseDouble(grasasField.getText().trim());
+            if (grasas < 0) {
+                grasasField.requestFocus();
+                return "Las grasas no pueden ser negativas";
+            }
+        } catch (NumberFormatException e) {
+            grasasField.requestFocus();
+            return "Las grasas deben ser un número válido";
+        }
+
+        try {
+            double carbos = Double.parseDouble(carbosField.getText().trim());
+            if (carbos < 0) {
+                carbosField.requestFocus();
+                return "Los carbohidratos no pueden ser negativos";
+            }
+        } catch (NumberFormatException e) {
+            carbosField.requestFocus();
+            return "Los carbohidratos deben ser un número válido";
+        }
+
+        return null;
     }
 }

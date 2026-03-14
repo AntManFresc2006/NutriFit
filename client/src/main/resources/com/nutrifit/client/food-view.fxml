@@ -35,12 +35,15 @@
                                    promptText="Buscar alimento..."
                                    HBox.hgrow="ALWAYS"
                                    style="-fx-background-radius: 10; -fx-padding: 10; -fx-font-size: 14px;"/>
-                        <Button text="Buscar"
-                                onAction="#onBuscar"
-                                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
-                        <Button text="Recargar"
-                                onAction="#onRecargar"
-                                style="-fx-background-color: #334155; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+                        <Button fx:id="buscarButton"
+        text="Buscar"
+        onAction="#onBuscar"
+        style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+<Button fx:id="recargarButton"
+        text="Recargar"
+        onAction="#onRecargar"
+        style="-fx-background-color: #334155; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
                     </HBox>
 
                     <TableView fx:id="foodTable" VBox.vgrow="ALWAYS" style="-fx-background-radius: 12;">
@@ -110,15 +113,20 @@
                     </GridPane>
 
                     <HBox spacing="10">
-                        <Button text="Nuevo"
-                                onAction="#onNuevo"
-                                style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
-                        <Button text="Guardar"
-                                onAction="#onGuardar"
-                                style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
-                        <Button text="Eliminar"
-                                onAction="#onEliminar"
-                                style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+                        <Button fx:id="nuevoButton"
+        text="Nuevo"
+        onAction="#onNuevo"
+        style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+<Button fx:id="guardarButton"
+        text="Guardar"
+        onAction="#onGuardar"
+        style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+<Button fx:id="eliminarButton"
+        text="Eliminar"
+        onAction="#onEliminar"
+        style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
                     </HBox>
                 </VBox>
 

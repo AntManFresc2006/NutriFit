@@ -2,7 +2,9 @@ package com.nutrifit.client.controller;
 
 import com.nutrifit.client.model.AlimentoFx;
 import com.nutrifit.client.service.AlimentoApiClient;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -69,6 +71,21 @@ public class FoodController {
     @FXML
     private Label statusLabel;
 
+    @FXML
+    private Button buscarButton;
+
+    @FXML
+    private Button recargarButton;
+
+    @FXML
+    private Button nuevoButton;
+
+    @FXML
+    private Button guardarButton;
+
+    @FXML
+    private Button eliminarButton;
+
     private final AlimentoApiClient apiClient = new AlimentoApiClient();
     private AlimentoFx alimentoSeleccionado;
 
@@ -98,15 +115,67 @@ public class FoodController {
     }
 
     /**
+     * Ejecuta una tarea en segundo plano para evitar bloquear la interfaz.
+     */
+    private void ejecutarEnSegundoPlano(Task<?> task, String mensajeCargando) {
+    setControlesDeshabilitados(true);
+    statusLabel.setText(mensajeCargando);
+
+    task.stateProperty().addListener((obs, oldState, newState) -> {
+        switch (newState) {
+            case SUCCEEDED, FAILED, CANCELLED -> setControlesDeshabilitados(false);
+        }
+    });
+
+    task.setOnFailed(event -> {
+        Throwable error = task.getException();
+        statusLabel.setText("Error: " + (error != null ? error.getMessage() : "Error desconocido"));
+    });
+
+    Thread hilo = new Thread(task);
+    hilo.setDaemon(true);
+    hilo.start();
+}
+
+    /**
+     * Habilita o deshabilita los controles principales de la pantalla mientras se
+     * ejecuta una tarea.
+     */
+    private void setControlesDeshabilitados(boolean deshabilitados) {
+        searchField.setDisable(deshabilitados);
+        foodTable.setDisable(deshabilitados);
+        nombreField.setDisable(deshabilitados);
+        porcionField.setDisable(deshabilitados);
+        kcalField.setDisable(deshabilitados);
+        proteinasField.setDisable(deshabilitados);
+        grasasField.setDisable(deshabilitados);
+        carbosField.setDisable(deshabilitados);
+        fuenteField.setDisable(deshabilitados);
+
+        buscarButton.setDisable(deshabilitados);
+        recargarButton.setDisable(deshabilitados);
+        nuevoButton.setDisable(deshabilitados);
+        guardarButton.setDisable(deshabilitados);
+        eliminarButton.setDisable(deshabilitados);
+    }
+
+    /**
      * Carga los alimentos desde la API y actualiza la tabla.
      */
     private void cargarAlimentos() {
-        try {
-            foodTable.getItems().setAll(apiClient.getAll());
+        Task<java.util.List<AlimentoFx>> task = new Task<>() {
+            @Override
+            protected java.util.List<AlimentoFx> call() throws Exception {
+                return apiClient.getAll();
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            foodTable.getItems().setAll(task.getValue());
             statusLabel.setText("Alimentos cargados correctamente");
-        } catch (Exception e) {
-            statusLabel.setText("Error al cargar alimentos: " + e.getMessage());
-        }
+        });
+
+        ejecutarEnSegundoPlano(task, "Cargando alimentos...");
     }
 
     /**
@@ -137,96 +206,11 @@ public class FoodController {
         return alimento;
     }
 
-    @FXML
-    private void onBuscar() {
-        try {
-            String query = searchField.getText().trim();
-            if (query.isEmpty()) {
-                cargarAlimentos();
-            } else {
-                foodTable.getItems().setAll(apiClient.search(query));
-                statusLabel.setText("Búsqueda completada");
-            }
-        } catch (Exception e) {
-            statusLabel.setText("Error al buscar: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void onNuevo() {
-        foodTable.getSelectionModel().clearSelection();
-        alimentoSeleccionado = null;
-        limpiarFormulario();
-        nombreField.requestFocus();
-        statusLabel.setText("Formulario listo para nuevo alimento");
-    }
-
-    @FXML
-    private void onGuardar() {
-        try {
-            String errorValidacion = validarFormulario();
-            if (errorValidacion != null) {
-                statusLabel.setText(errorValidacion);
-                return;
-            }
-
-            AlimentoFx alimento = leerFormulario();
-
-            if (alimentoSeleccionado == null) {
-                apiClient.create(alimento);
-                statusLabel.setText("Alimento creado correctamente");
-            } else {
-                alimento.setId(alimentoSeleccionado.getId());
-                apiClient.update(alimento);
-                statusLabel.setText("Alimento actualizado correctamente");
-            }
-
-            cargarAlimentos();
-            limpiarFormulario();
-            alimentoSeleccionado = null;
-            foodTable.getSelectionModel().clearSelection();
-        } catch (Exception e) {
-            statusLabel.setText("Error al guardar: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void onEliminar() {
-        try {
-            if (alimentoSeleccionado == null) {
-                statusLabel.setText("Selecciona un alimento para eliminar");
-                return;
-            }
-
-            apiClient.delete(alimentoSeleccionado.getId());
-            cargarAlimentos();
-            limpiarFormulario();
-            statusLabel.setText("Alimento eliminado correctamente");
-            alimentoSeleccionado = null;
-            foodTable.getSelectionModel().clearSelection();
-        } catch (Exception e) {
-            statusLabel.setText("Error al eliminar: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void onRecargar() {
-        cargarAlimentos();
-    }
-
     /**
-     * Limpia todos los campos del formulario.
+     * Valida los campos del formulario antes de enviar datos al backend.
+     *
+     * @return mensaje de error si algo no es válido, o null si todo está correcto
      */
-    private void limpiarFormulario() {
-        nombreField.clear();
-        porcionField.clear();
-        kcalField.clear();
-        proteinasField.clear();
-        grasasField.clear();
-        carbosField.clear();
-        fuenteField.clear();
-    }
-
     private String validarFormulario() {
         if (nombreField.getText() == null || nombreField.getText().trim().isEmpty()) {
             nombreField.requestFocus();
@@ -289,5 +273,130 @@ public class FoodController {
         }
 
         return null;
+    }
+
+    @FXML
+    private void onBuscar() {
+        String query = searchField.getText().trim();
+
+        if (query.isEmpty()) {
+            cargarAlimentos();
+            return;
+        }
+
+        Task<java.util.List<AlimentoFx>> task = new Task<>() {
+            @Override
+            protected java.util.List<AlimentoFx> call() throws Exception {
+                return apiClient.search(query);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            foodTable.getItems().setAll(task.getValue());
+            statusLabel.setText("Búsqueda completada");
+        });
+
+        ejecutarEnSegundoPlano(task, "Buscando alimentos...");
+    }
+
+    @FXML
+    private void onNuevo() {
+        foodTable.getSelectionModel().clearSelection();
+        alimentoSeleccionado = null;
+        limpiarFormulario();
+        nombreField.requestFocus();
+        statusLabel.setText("Formulario listo para nuevo alimento");
+    }
+
+    @FXML
+    private void onGuardar() {
+        String errorValidacion = validarFormulario();
+        if (errorValidacion != null) {
+            statusLabel.setText(errorValidacion);
+            return;
+        }
+
+        AlimentoFx alimento;
+        try {
+            alimento = leerFormulario();
+        } catch (Exception e) {
+            statusLabel.setText("Error al leer el formulario");
+            return;
+        }
+
+        final boolean esNuevo = (alimentoSeleccionado == null);
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                if (alimentoSeleccionado == null) {
+                    apiClient.create(alimento);
+                } else {
+                    alimento.setId(alimentoSeleccionado.getId());
+                    apiClient.update(alimento);
+                }
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            cargarAlimentos();
+            limpiarFormulario();
+            alimentoSeleccionado = null;
+            foodTable.getSelectionModel().clearSelection();
+            statusLabel.setText(esNuevo
+                    ? "Alimento creado correctamente"
+                    : "Alimento actualizado correctamente");
+        });
+
+        String mensaje = alimentoSeleccionado == null ? "Guardando nuevo alimento..." : "Actualizando alimento...";
+        ejecutarEnSegundoPlano(task, mensaje);
+    }
+
+    @FXML
+    private void onEliminar() {
+        if (alimentoSeleccionado == null) {
+            statusLabel.setText("Selecciona un alimento para eliminar");
+            return;
+        }
+
+        long id = alimentoSeleccionado.getId();
+        String nombre = alimentoSeleccionado.getNombre();
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                apiClient.delete(id);
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            cargarAlimentos();
+            limpiarFormulario();
+            alimentoSeleccionado = null;
+            foodTable.getSelectionModel().clearSelection();
+            statusLabel.setText("Alimento eliminado correctamente: " + nombre);
+        });
+
+        ejecutarEnSegundoPlano(task, "Eliminando alimento...");
+    }
+
+    @FXML
+    private void onRecargar() {
+        cargarAlimentos();
+    }
+
+    /**
+     * Limpia todos los campos del formulario.
+     */
+    private void limpiarFormulario() {
+        nombreField.clear();
+        porcionField.clear();
+        kcalField.clear();
+        proteinasField.clear();
+        grasasField.clear();
+        carbosField.clear();
+        fuenteField.clear();
     }
 }

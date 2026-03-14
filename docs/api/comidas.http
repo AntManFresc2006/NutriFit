@@ -19,5 +19,5 @@ Content-Type: application/json
   "gramos": 120
 }
 
-### Listar items de una comida
+### Listar items enriquecidos de una comida
 GET http://localhost:8080/api/comidas/1/items

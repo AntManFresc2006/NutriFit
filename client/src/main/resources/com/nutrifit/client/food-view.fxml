@@ -44,14 +44,14 @@
 
                     <TableView fx:id="foodTable" VBox.vgrow="ALWAYS" style="-fx-background-radius: 12;">
                         <columns>
-                            <TableColumn text="ID" prefWidth="60"/>
-                            <TableColumn text="Nombre" prefWidth="220"/>
-                            <TableColumn text="Porción (g)" prefWidth="110"/>
-                            <TableColumn text="Kcal/100g" prefWidth="110"/>
-                            <TableColumn text="Proteínas" prefWidth="100"/>
-                            <TableColumn text="Grasas" prefWidth="90"/>
-                            <TableColumn text="Carbos" prefWidth="90"/>
-                            <TableColumn text="Fuente" prefWidth="100"/>
+                            <TableColumn fx:id="idColumn" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="nombreColumn" text="Nombre" prefWidth="220"/>
+                            <TableColumn fx:id="porcionColumn" text="Porción (g)" prefWidth="110"/>
+                            <TableColumn fx:id="kcalColumn" text="Kcal/100g" prefWidth="110"/>
+                            <TableColumn fx:id="proteinasColumn" text="Proteínas" prefWidth="100"/>
+                            <TableColumn fx:id="grasasColumn" text="Grasas" prefWidth="90"/>
+                            <TableColumn fx:id="carbosColumn" text="Carbos" prefWidth="90"/>
+                            <TableColumn fx:id="fuenteColumn" text="Fuente" prefWidth="100"/>
                         </columns>
                     </TableView>
                 </VBox>

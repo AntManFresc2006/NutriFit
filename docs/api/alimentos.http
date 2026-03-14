@@ -2,7 +2,7 @@
 GET http://localhost:8080/api/alimentos
 
 ### Buscar alimentos
-GET http://localhost:8080/api/alimentos?q=pollo
+GET http://localhost:8080/api/alimentos?q=arroz
 
 ### Obtener alimento por id
 GET http://localhost:8080/api/alimentos/1

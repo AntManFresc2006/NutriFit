@@ -4,9 +4,11 @@ import com.nutrifit.client.model.AlimentoFx;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -23,10 +25,6 @@ public class AlimentoApiClient {
 
     /**
      * Solicita al backend la lista completa de alimentos.
-     *
-     * @return lista de alimentos adaptados al modelo JavaFX
-     * @throws IOException si ocurre un error de comunicación
-     * @throws InterruptedException si la petición es interrumpida
      */
     public List<AlimentoFx> getAll() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
@@ -35,36 +33,30 @@ public class AlimentoApiClient {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        validarRespuesta(response, "Error al obtener alimentos");
+        return parseAlimentos(response.body());
+    }
+
+    /**
+     * Busca alimentos por nombre usando el parámetro q del backend.
+     */
+    public List<AlimentoFx> search(String query) throws IOException, InterruptedException {
+        String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "?q=" + encoded))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        validarRespuesta(response, "Error al buscar alimentos");
         return parseAlimentos(response.body());
     }
 
     /**
      * Envía al backend un nuevo alimento en formato JSON.
-     *
-     * @param alimento datos del alimento a crear
-     * @throws IOException si la petición falla o el backend devuelve un error
-     * @throws InterruptedException si la petición es interrumpida
      */
     public void create(AlimentoFx alimento) throws IOException, InterruptedException {
-        String json = """
-                {
-                  "nombre": "%s",
-                  "porcionG": %s,
-                  "kcalPor100g": %s,
-                  "proteinasG": %s,
-                  "grasasG": %s,
-                  "carbosG": %s,
-                  "fuente": "%s"
-                }
-                """.formatted(
-                escapeJson(alimento.getNombre()),
-                alimento.getPorcionG(),
-                alimento.getKcalPor100g(),
-                alimento.getProteinasG(),
-                alimento.getGrasasG(),
-                alimento.getCarbosG(),
-                escapeJson(alimento.getFuente())
-        );
+        String json = toJson(alimento);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
@@ -73,18 +65,41 @@ public class AlimentoApiClient {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        validarRespuesta(response, "Error al crear alimento");
+    }
 
-        if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new IOException("Error al crear alimento. Código HTTP: " + response.statusCode() + " - " + response.body());
-        }
+    /**
+     * Actualiza un alimento existente en backend.
+     */
+    public void update(AlimentoFx alimento) throws IOException, InterruptedException {
+        String json = toJson(alimento);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/" + alimento.getId()))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        validarRespuesta(response, "Error al actualizar alimento");
+    }
+
+    /**
+     * Elimina un alimento por su id.
+     */
+    public void delete(long id) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/" + id))
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        validarRespuesta(response, "Error al eliminar alimento");
     }
 
     /**
      * Convierte la respuesta JSON del backend en una lista de objetos JavaFX.
      * Por ahora se usa un parseo simple basado en expresiones regulares.
-     *
-     * @param json respuesta JSON devuelta por la API
-     * @return lista de alimentos adaptados al cliente
      */
     private List<AlimentoFx> parseAlimentos(String json) {
         List<AlimentoFx> alimentos = new ArrayList<>();
@@ -112,12 +127,43 @@ public class AlimentoApiClient {
     }
 
     /**
-     * Escapa comillas dobles para evitar romper el JSON generado manualmente.
-     *
-     * @param value texto de entrada
-     * @return texto seguro para insertarse dentro del JSON
+     * Genera el JSON de entrada para create y update.
+     */
+    private String toJson(AlimentoFx alimento) {
+        return """
+                {
+                  "nombre": "%s",
+                  "porcionG": %s,
+                  "kcalPor100g": %s,
+                  "proteinasG": %s,
+                  "grasasG": %s,
+                  "carbosG": %s,
+                  "fuente": "%s"
+                }
+                """.formatted(
+                escapeJson(alimento.getNombre()),
+                alimento.getPorcionG(),
+                alimento.getKcalPor100g(),
+                alimento.getProteinasG(),
+                alimento.getGrasasG(),
+                alimento.getCarbosG(),
+                escapeJson(alimento.getFuente())
+        );
+    }
+
+    /**
+     * Escapa comillas dobles para no romper el JSON generado manualmente.
      */
     private String escapeJson(String value) {
         return value == null ? "" : value.replace("\"", "\\\"");
+    }
+
+    /**
+     * Lanza una excepción si el backend no responde con código 2xx.
+     */
+    private void validarRespuesta(HttpResponse<String> response, String prefijo) throws IOException {
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException(prefijo + ". Código HTTP: " + response.statusCode() + " - " + response.body());
+        }
     }
 }

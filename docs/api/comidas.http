@@ -9,3 +9,15 @@ Content-Type: application/json
 
 ### Listar comidas de un usuario en una fecha
 GET http://localhost:8080/api/comidas?usuarioId=1&fecha=2026-03-14
+
+### Añadir alimento a una comida
+POST http://localhost:8080/api/comidas/1/items
+Content-Type: application/json
+
+{
+  "alimentoId": 11,
+  "gramos": 120
+}
+
+### Listar items de una comida
+GET http://localhost:8080/api/comidas/1/items

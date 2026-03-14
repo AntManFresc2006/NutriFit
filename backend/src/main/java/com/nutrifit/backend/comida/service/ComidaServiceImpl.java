@@ -5,6 +5,10 @@ import com.nutrifit.backend.comida.dto.ComidaResponse;
 import com.nutrifit.backend.comida.model.Comida;
 import com.nutrifit.backend.comida.repository.ComidaRepository;
 import org.springframework.stereotype.Service;
+import com.nutrifit.backend.comida.dto.ComidaAlimentoRequest;
+import com.nutrifit.backend.comida.model.ComidaAlimento;
+import com.nutrifit.backend.common.exception.ResourceNotFoundException;
+import com.nutrifit.backend.alimento.repository.AlimentoRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,9 +20,30 @@ import java.util.List;
 public class ComidaServiceImpl implements ComidaService {
 
     private final ComidaRepository comidaRepository;
+    private final AlimentoRepository alimentoRepository;
 
-    public ComidaServiceImpl(ComidaRepository comidaRepository) {
+    public ComidaServiceImpl(ComidaRepository comidaRepository, AlimentoRepository alimentoRepository) {
         this.comidaRepository = comidaRepository;
+        this.alimentoRepository = alimentoRepository;
+    }
+
+    @Override
+    public void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request) {
+        comidaRepository.findById(comidaId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe una comida con id " + comidaId));
+
+        alimentoRepository.findById(request.getAlimentoId())
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + request.getAlimentoId()));
+
+        comidaRepository.addAlimentoToComida(comidaId, request.getAlimentoId(), request.getGramos());
+    }
+
+    @Override
+    public List<ComidaAlimento> findItemsByComidaId(Long comidaId) {
+        comidaRepository.findById(comidaId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe una comida con id " + comidaId));
+
+        return comidaRepository.findItemsByComidaId(comidaId);
     }
 
     @Override

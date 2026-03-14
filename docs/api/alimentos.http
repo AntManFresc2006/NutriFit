@@ -5,7 +5,7 @@ GET http://localhost:8080/api/alimentos
 GET http://localhost:8080/api/alimentos?q=arroz
 
 ### Obtener alimento por id
-GET http://localhost:8080/api/alimentos/999
+GET http://localhost:8080/api/alimentos/9
 
 ### Crear alimento
 POST http://localhost:8080/api/alimentos
@@ -22,7 +22,7 @@ Content-Type: application/json
 }
 
 ### Editar alimento
-PUT http://localhost:8080/api/alimentos/999
+PUT http://localhost:8080/api/alimentos/9
 Content-Type: application/json
 
 {
@@ -36,4 +36,4 @@ Content-Type: application/json
 }
 
 ### Eliminar alimento
-DELETE http://localhost:8080/api/alimentos/1
+DELETE http://localhost:8080/api/alimentos/9

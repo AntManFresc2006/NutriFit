@@ -33,3 +33,6 @@ Notas:
   desde variables de entorno (ver claves `SPRING_DATASOURCE_*`). No incluyas credenciales
   en el repositorio. Si prefieres, copia `application-local.properties` y añade valores
   en tu máquina local (este repo ignora `application-local.properties`).
+
+  ## Estado actual
+Actualmente está implementado el CRUD backend del módulo de alimentos con Spring Boot, JdbcTemplate, MariaDB y validación.

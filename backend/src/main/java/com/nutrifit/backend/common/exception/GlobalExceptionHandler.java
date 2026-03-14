@@ -9,7 +9,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
+import com.nutrifit.backend.common.exception.UnauthorizedException;
 import java.time.LocalDateTime;
 
 /**
@@ -103,5 +103,10 @@ public class GlobalExceptionHandler {
                 message,
                 path
         );
+    }
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorized(UnauthorizedException ex, HttpServletRequest request) {
+        ApiError error = buildError(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 }

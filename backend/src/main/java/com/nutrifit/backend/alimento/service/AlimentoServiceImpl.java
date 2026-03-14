@@ -4,6 +4,7 @@ import com.nutrifit.backend.alimento.dto.AlimentoRequest;
 import com.nutrifit.backend.alimento.dto.AlimentoResponse;
 import com.nutrifit.backend.alimento.model.Alimento;
 import com.nutrifit.backend.alimento.repository.AlimentoRepository;
+import com.nutrifit.backend.common.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class AlimentoServiceImpl implements AlimentoService {
     @Override
     public AlimentoResponse findById(Long id) {
         Alimento alimento = alimentoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No existe un alimento con id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + id));
 
         return toResponse(alimento);
     }
@@ -50,7 +51,7 @@ public class AlimentoServiceImpl implements AlimentoService {
     @Override
     public AlimentoResponse update(Long id, AlimentoRequest request) {
         alimentoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No existe un alimento con id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + id));
 
         Alimento alimento = toModel(request);
         Alimento actualizado = alimentoRepository.update(id, alimento);
@@ -60,7 +61,7 @@ public class AlimentoServiceImpl implements AlimentoService {
     @Override
     public boolean deleteById(Long id) {
         alimentoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No existe un alimento con id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + id));
 
         return alimentoRepository.deleteById(id);
     }

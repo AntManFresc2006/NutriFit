@@ -5,14 +5,14 @@ GET http://localhost:8080/api/alimentos
 GET http://localhost:8080/api/alimentos?q=arroz
 
 ### Obtener alimento por id
-GET http://localhost:8080/api/alimentos/1
+GET http://localhost:8080/api/alimentos/999
 
 ### Crear alimento
 POST http://localhost:8080/api/alimentos
 Content-Type: application/json
 
 {
-  "nombre": "Arroz cocido",
+  "nombre": "",
   "porcionG": 100,
   "kcalPor100g": 130,
   "proteinasG": 2.7,
@@ -22,7 +22,7 @@ Content-Type: application/json
 }
 
 ### Editar alimento
-PUT http://localhost:8080/api/alimentos/1
+PUT http://localhost:8080/api/alimentos/999
 Content-Type: application/json
 
 {

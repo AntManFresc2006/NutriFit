@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.nutrifit.client.controller.LoginController"
+            style="-fx-background-color: linear-gradient(to right, #0f172a, #111827);">
+
+    <top>
+        <VBox spacing="10" style="-fx-padding: 24;">
+            <Label text="NutriFit"
+                   style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;"/>
+            <Label text="Acceso y registro de usuarios"
+                   style="-fx-text-fill: #cbd5e1; -fx-font-size: 14px;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="30" style="-fx-padding: 20;">
+            <VBox spacing="16" style="-fx-background-color: #111827; -fx-padding: 24; -fx-background-radius: 16;" HBox.hgrow="ALWAYS">
+                <Label text="Iniciar sesión"
+                       style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+                <GridPane hgap="10" vgap="12">
+                    <padding>
+                        <Insets top="4" right="4" bottom="4" left="4"/>
+                    </padding>
+
+                    <Label text="Email" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="loginEmailField"
+                               promptText="antonio@example.com"
+                               GridPane.rowIndex="0"
+                               GridPane.columnIndex="1"/>
+
+                    <Label text="Contraseña" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <PasswordField fx:id="loginPasswordField"
+                                   promptText="******"
+                                   GridPane.rowIndex="1"
+                                   GridPane.columnIndex="1"/>
+                </GridPane>
+
+                <Button fx:id="loginButton"
+                        text="Entrar"
+                        onAction="#onLogin"
+                        style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 18;"/>
+            </VBox>
+
+            <Separator orientation="VERTICAL"/>
+
+            <VBox spacing="16" style="-fx-background-color: #111827; -fx-padding: 24; -fx-background-radius: 16;" HBox.hgrow="ALWAYS">
+                <Label text="Registrarse"
+                       style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+                <GridPane hgap="10" vgap="12">
+                    <padding>
+                        <Insets top="4" right="4" bottom="4" left="4"/>
+                    </padding>
+
+                    <Label text="Nombre" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="registerNombreField"
+                               promptText="Antonio Manuel"
+                               GridPane.rowIndex="0"
+                               GridPane.columnIndex="1"/>
+
+                    <Label text="Email" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="registerEmailField"
+                               promptText="antonio@example.com"
+                               GridPane.rowIndex="1"
+                               GridPane.columnIndex="1"/>
+
+                    <Label text="Contraseña" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <PasswordField fx:id="registerPasswordField"
+                                   promptText="Mínimo 6 caracteres"
+                                   GridPane.rowIndex="2"
+                                   GridPane.columnIndex="1"/>
+                </GridPane>
+
+                <Button fx:id="registerButton"
+                        text="Crear cuenta"
+                        onAction="#onRegister"
+                        style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 18;"/>
+            </VBox>
+        </HBox>
+    </center>
+
+    <bottom>
+        <Label fx:id="statusLabel"
+               text="Introduce tus credenciales o crea una cuenta nueva"
+               style="-fx-background-color: #020617; -fx-text-fill: #93c5fd; -fx-padding: 12; -fx-font-size: 13px;"/>
+    </bottom>
+</BorderPane>

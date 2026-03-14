@@ -1,0 +1,11 @@
+### Crear comida
+POST http://localhost:8080/api/comidas?usuarioId=1
+Content-Type: application/json
+
+{
+  "fecha": "2026-03-14",
+  "tipo": "DESAYUNO"
+}
+
+### Listar comidas de un usuario en una fecha
+GET http://localhost:8080/api/comidas?usuarioId=1&fecha=2026-03-14

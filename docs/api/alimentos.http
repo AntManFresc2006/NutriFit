@@ -12,12 +12,12 @@ POST http://localhost:8080/api/alimentos
 Content-Type: application/json
 
 {
-  "nombre": "",
+  "nombre": "Pollo a la plancha",
   "porcionG": 100,
-  "kcalPor100g": 130,
-  "proteinasG": 2.7,
-  "grasasG": 0.3,
-  "carbosG": 28.0,
+  "kcalPor100g": 165,
+  "proteinasG": 31.0,
+  "grasasG": 3.6,
+  "carbosG": 0.0,
   "fuente": "manual"
 }
 

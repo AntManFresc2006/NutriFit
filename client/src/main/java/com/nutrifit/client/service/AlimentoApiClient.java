@@ -1,5 +1,8 @@
 package com.nutrifit.client.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nutrifit.client.model.AlimentoDto;
 import com.nutrifit.client.model.AlimentoFx;
 
 import java.io.IOException;
@@ -9,10 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Cliente HTTP del módulo de alimentos.
@@ -21,7 +21,9 @@ import java.util.regex.Pattern;
 public class AlimentoApiClient {
 
     private static final String BASE_URL = "http://localhost:8080/api/alimentos";
+
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Solicita al backend la lista completa de alimentos.
@@ -34,7 +36,13 @@ public class AlimentoApiClient {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         validarRespuesta(response, "Error al obtener alimentos");
-        return parseAlimentos(response.body());
+
+        List<AlimentoDto> dtos = objectMapper.readValue(
+                response.body(),
+                new TypeReference<List<AlimentoDto>>() {}
+        );
+
+        return dtos.stream().map(this::toFx).toList();
     }
 
     /**
@@ -42,6 +50,7 @@ public class AlimentoApiClient {
      */
     public List<AlimentoFx> search(String query) throws IOException, InterruptedException {
         String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "?q=" + encoded))
                 .GET()
@@ -49,14 +58,20 @@ public class AlimentoApiClient {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         validarRespuesta(response, "Error al buscar alimentos");
-        return parseAlimentos(response.body());
+
+        List<AlimentoDto> dtos = objectMapper.readValue(
+                response.body(),
+                new TypeReference<List<AlimentoDto>>() {}
+        );
+
+        return dtos.stream().map(this::toFx).toList();
     }
 
     /**
-     * Envía al backend un nuevo alimento en formato JSON.
+     * Envía al backend un nuevo alimento.
      */
     public void create(AlimentoFx alimento) throws IOException, InterruptedException {
-        String json = toJson(alimento);
+        String json = objectMapper.writeValueAsString(toDto(alimento));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
@@ -69,10 +84,10 @@ public class AlimentoApiClient {
     }
 
     /**
-     * Actualiza un alimento existente en backend.
+     * Actualiza un alimento existente.
      */
     public void update(AlimentoFx alimento) throws IOException, InterruptedException {
-        String json = toJson(alimento);
+        String json = objectMapper.writeValueAsString(toDto(alimento));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/" + alimento.getId()))
@@ -98,68 +113,41 @@ public class AlimentoApiClient {
     }
 
     /**
-     * Convierte la respuesta JSON del backend en una lista de objetos JavaFX.
-     * Por ahora se usa un parseo simple basado en expresiones regulares.
+     * Convierte un DTO plano en el modelo observable usado por JavaFX.
      */
-    private List<AlimentoFx> parseAlimentos(String json) {
-        List<AlimentoFx> alimentos = new ArrayList<>();
+    private AlimentoFx toFx(AlimentoDto dto) {
+        AlimentoFx alimento = new AlimentoFx();
+        alimento.setId(dto.getId() != null ? dto.getId() : 0L);
+        alimento.setNombre(dto.getNombre());
+        alimento.setPorcionG(dto.getPorcionG() != null ? dto.getPorcionG() : 0.0);
+        alimento.setKcalPor100g(dto.getKcalPor100g() != null ? dto.getKcalPor100g() : 0.0);
+        alimento.setProteinasG(dto.getProteinasG() != null ? dto.getProteinasG() : 0.0);
+        alimento.setGrasasG(dto.getGrasasG() != null ? dto.getGrasasG() : 0.0);
+        alimento.setCarbosG(dto.getCarbosG() != null ? dto.getCarbosG() : 0.0);
+        alimento.setFuente(dto.getFuente() != null ? dto.getFuente() : "");
+        return alimento;
+    }
 
-        Pattern pattern = Pattern.compile(
-                "\\{\\s*\"id\":\\s*(\\d+),\\s*\"nombre\":\\s*\"([^\"]+)\",\\s*\"porcionG\":\\s*([\\d.]+),\\s*\"kcalPor100g\":\\s*([\\d.]+),\\s*\"proteinasG\":\\s*([\\d.]+),\\s*\"grasasG\":\\s*([\\d.]+),\\s*\"carbosG\":\\s*([\\d.]+),\\s*\"fuente\":\\s*\"([^\"]*)\"\\s*\\}"
-        );
-
-        Matcher matcher = pattern.matcher(json);
-
-        while (matcher.find()) {
-            AlimentoFx alimento = new AlimentoFx();
-            alimento.setId(Long.parseLong(matcher.group(1)));
-            alimento.setNombre(matcher.group(2));
-            alimento.setPorcionG(Double.parseDouble(matcher.group(3)));
-            alimento.setKcalPor100g(Double.parseDouble(matcher.group(4)));
-            alimento.setProteinasG(Double.parseDouble(matcher.group(5)));
-            alimento.setGrasasG(Double.parseDouble(matcher.group(6)));
-            alimento.setCarbosG(Double.parseDouble(matcher.group(7)));
-            alimento.setFuente(matcher.group(8));
-            alimentos.add(alimento);
+    /**
+     * Convierte el modelo observable de JavaFX en un DTO plano para enviarlo a la API.
+     */
+    private AlimentoDto toDto(AlimentoFx fx) {
+        AlimentoDto dto = new AlimentoDto();
+        if (fx.getId() > 0) {
+            dto.setId(fx.getId());
         }
-
-        return alimentos;
+        dto.setNombre(fx.getNombre());
+        dto.setPorcionG(fx.getPorcionG());
+        dto.setKcalPor100g(fx.getKcalPor100g());
+        dto.setProteinasG(fx.getProteinasG());
+        dto.setGrasasG(fx.getGrasasG());
+        dto.setCarbosG(fx.getCarbosG());
+        dto.setFuente(fx.getFuente());
+        return dto;
     }
 
     /**
-     * Genera el JSON de entrada para create y update.
-     */
-    private String toJson(AlimentoFx alimento) {
-        return """
-                {
-                  "nombre": "%s",
-                  "porcionG": %s,
-                  "kcalPor100g": %s,
-                  "proteinasG": %s,
-                  "grasasG": %s,
-                  "carbosG": %s,
-                  "fuente": "%s"
-                }
-                """.formatted(
-                escapeJson(alimento.getNombre()),
-                alimento.getPorcionG(),
-                alimento.getKcalPor100g(),
-                alimento.getProteinasG(),
-                alimento.getGrasasG(),
-                alimento.getCarbosG(),
-                escapeJson(alimento.getFuente())
-        );
-    }
-
-    /**
-     * Escapa comillas dobles para no romper el JSON generado manualmente.
-     */
-    private String escapeJson(String value) {
-        return value == null ? "" : value.replace("\"", "\\\"");
-    }
-
-    /**
-     * Lanza una excepción si el backend no responde con código 2xx.
+     * Lanza una excepción si el backend no responde con un código 2xx.
      */
     private void validarRespuesta(HttpResponse<String> response, String prefijo) throws IOException {
         if (response.statusCode() < 200 || response.statusCode() >= 300) {

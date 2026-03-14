@@ -102,3 +102,23 @@ Verificar que el módulo de alimentos funciona correctamente en operaciones CRUD
 
 ## Observación
 Estas pruebas se realizarán primero de forma manual mediante peticiones HTTP, y más adelante se ampliarán con tests automatizados en backend.
+
+## Ejecución manual realizada
+
+### Resultado
+Se ha probado correctamente el CRUD completo del módulo de alimentos mediante peticiones HTTP.
+
+#### Operaciones verificadas
+- GET /api/alimentos → 200 OK
+- POST /api/alimentos → 201 Created
+- GET /api/alimentos/{id} → 200 OK
+- GET /api/alimentos?q=... → 200 OK
+- PUT /api/alimentos/{id} → 200 OK
+- DELETE /api/alimentos/{id} → 204 No Content
+
+#### Validaciones verificadas
+- ID inexistente → 404 Not Found con mensaje controlado
+- nombre vacío → 400 Bad Request con mensaje de validación
+
+#### Observación
+El módulo backend de alimentos queda funcional y preparado para conectarse con la futura interfaz JavaFX.

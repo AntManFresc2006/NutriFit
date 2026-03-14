@@ -1,18 +1,18 @@
-# Carpeta de compilación de Maven
-target/
+# Maven build folders (all modules)
+**/target/
 
 # Logs
 *.log
 
-# Archivos del IDE
-*.iml
+# IDE
 .idea/
 .vscode/
+*.iml
 
-# Archivos temporales de sistema
+# OS
 .DS_Store
 
-# Dependencias si las tienes empaquetadas localmente
+# No versionar jars
 *.jar
 
 # Archivos auxiliares fuera del código

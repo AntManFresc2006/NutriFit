@@ -1,7 +1,7 @@
 package com.nutrifit.backend.comida.repository;
 
+import com.nutrifit.backend.comida.dto.ComidaItemDetalleResponse;
 import com.nutrifit.backend.comida.model.Comida;
-import com.nutrifit.backend.comida.model.ComidaAlimento;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,5 +20,5 @@ public interface ComidaRepository {
 
     void addAlimentoToComida(Long comidaId, Long alimentoId, double gramos);
 
-    List<ComidaAlimento> findItemsByComidaId(Long comidaId);
+    List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId);
 }

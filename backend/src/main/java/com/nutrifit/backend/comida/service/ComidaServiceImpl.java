@@ -9,6 +9,7 @@ import com.nutrifit.backend.comida.dto.ComidaAlimentoRequest;
 import com.nutrifit.backend.comida.model.ComidaAlimento;
 import com.nutrifit.backend.common.exception.ResourceNotFoundException;
 import com.nutrifit.backend.alimento.repository.AlimentoRepository;
+import com.nutrifit.backend.comida.dto.ComidaItemDetalleResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -39,12 +40,12 @@ public class ComidaServiceImpl implements ComidaService {
     }
 
     @Override
-    public List<ComidaAlimento> findItemsByComidaId(Long comidaId) {
-        comidaRepository.findById(comidaId)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe una comida con id " + comidaId));
+public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
+    comidaRepository.findById(comidaId)
+            .orElseThrow(() -> new ResourceNotFoundException("No existe una comida con id " + comidaId));
 
-        return comidaRepository.findItemsByComidaId(comidaId);
-    }
+    return comidaRepository.findDetalleItemsByComidaId(comidaId);
+}
 
     @Override
     public List<ComidaResponse> findByUsuarioAndFecha(Long usuarioId, LocalDate fecha) {

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import com.nutrifit.backend.comida.dto.ComidaAlimentoRequest;
 import com.nutrifit.backend.comida.model.ComidaAlimento;
+import com.nutrifit.backend.comida.dto.ComidaItemDetalleResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -64,7 +65,7 @@ public void addAlimento(
  * Lista los alimentos añadidos a una comida.
  */
 @GetMapping("/{comidaId}/items")
-public List<ComidaAlimento> getItems(@PathVariable Long comidaId) {
-    return comidaService.findItemsByComidaId(comidaId);
+public List<ComidaItemDetalleResponse> getItems(@PathVariable Long comidaId) {
+    return comidaService.findDetalleItemsByComidaId(comidaId);
 }
 }

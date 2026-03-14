@@ -3,8 +3,12 @@ package com.nutrifit.backend.alimento.repository;
 import com.nutrifit.backend.alimento.mapper.AlimentoRowMapper;
 import com.nutrifit.backend.alimento.model.Alimento;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,19 +62,24 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        jdbcTemplate.update(
-                sql,
-                alimento.getNombre(),
-                alimento.getPorcionG(),
-                alimento.getKcalPor100g(),
-                alimento.getProteinasG(),
-                alimento.getGrasasG(),
-                alimento.getCarbosG(),
-                alimento.getFuente()
-        );
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        Long id = jdbcTemplate.queryForObject("SELECT MAX(id) FROM alimentos", Long.class);
-        alimento.setId(id);
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, alimento.getNombre());
+            ps.setBigDecimal(2, alimento.getPorcionG());
+            ps.setBigDecimal(3, alimento.getKcalPor100g());
+            ps.setBigDecimal(4, alimento.getProteinasG());
+            ps.setBigDecimal(5, alimento.getGrasasG());
+            ps.setBigDecimal(6, alimento.getCarbosG());
+            ps.setString(7, alimento.getFuente());
+            return ps;
+        }, keyHolder);
+
+        Number key = keyHolder.getKey();
+        if (key != null) {
+            alimento.setId(key.longValue());
+        }
 
         return alimento;
     }
@@ -92,8 +101,7 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
                 alimento.getGrasasG(),
                 alimento.getCarbosG(),
                 alimento.getFuente(),
-                id
-        );
+                id);
 
         alimento.setId(id);
         return alimento;

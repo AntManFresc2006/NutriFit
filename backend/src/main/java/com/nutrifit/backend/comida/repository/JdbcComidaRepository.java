@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import com.nutrifit.backend.comida.model.ComidaAlimento;
+import com.nutrifit.backend.comida.dto.ComidaItemDetalleResponse;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -55,22 +56,36 @@ public void addAlimentoToComida(Long comidaId, Long alimentoId, double gramos) {
 }
 
 @Override
-public List<ComidaAlimento> findItemsByComidaId(Long comidaId) {
+public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
     String sql = """
-            SELECT id, comida_id, alimento_id, gramos
-            FROM comida_alimentos
-            WHERE comida_id = ?
-            ORDER BY id ASC
+            SELECT
+                ca.id AS item_id,
+                ca.comida_id,
+                ca.alimento_id,
+                a.nombre,
+                ca.gramos,
+                ROUND((a.kcal_por_100g * ca.gramos) / 100, 2) AS kcal_estimadas,
+                ROUND((a.proteinas_g * ca.gramos) / 100, 2) AS proteinas_estimadas,
+                ROUND((a.grasas_g * ca.gramos) / 100, 2) AS grasas_estimadas,
+                ROUND((a.carbos_g * ca.gramos) / 100, 2) AS carbos_estimados
+            FROM comida_alimentos ca
+            INNER JOIN alimentos a ON a.id = ca.alimento_id
+            WHERE ca.comida_id = ?
+            ORDER BY ca.id ASC
             """;
 
-    return jdbcTemplate.query(sql, (rs, rowNum) -> {
-        ComidaAlimento item = new ComidaAlimento();
-        item.setId(rs.getLong("id"));
-        item.setComidaId(rs.getLong("comida_id"));
-        item.setAlimentoId(rs.getLong("alimento_id"));
-        item.setGramos(rs.getDouble("gramos"));
-        return item;
-    }, comidaId);
+    return jdbcTemplate.query(sql, (rs, rowNum) ->
+            new ComidaItemDetalleResponse(
+                    rs.getLong("item_id"),
+                    rs.getLong("comida_id"),
+                    rs.getLong("alimento_id"),
+                    rs.getString("nombre"),
+                    rs.getDouble("gramos"),
+                    rs.getDouble("kcal_estimadas"),
+                    rs.getDouble("proteinas_estimadas"),
+                    rs.getDouble("grasas_estimadas"),
+                    rs.getDouble("carbos_estimados")
+            ), comidaId);
 }
 
     @Override

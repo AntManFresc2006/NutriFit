@@ -9,6 +9,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+/**
+ * Controlador de la vista principal de gestión de alimentos en JavaFX.
+ * Gestiona la tabla, el formulario y la comunicación con la API REST.
+ */
 public class FoodController {
 
     @FXML
@@ -42,10 +46,35 @@ public class FoodController {
     private TableColumn<AlimentoFx, String> fuenteColumn;
 
     @FXML
+    private TextField nombreField;
+
+    @FXML
+    private TextField porcionField;
+
+    @FXML
+    private TextField kcalField;
+
+    @FXML
+    private TextField proteinasField;
+
+    @FXML
+    private TextField grasasField;
+
+    @FXML
+    private TextField carbosField;
+
+    @FXML
+    private TextField fuenteField;
+
+    @FXML
     private Label statusLabel;
 
     private final AlimentoApiClient apiClient = new AlimentoApiClient();
 
+    /**
+     * Método de inicialización automática de JavaFX.
+     * Configura las columnas de la tabla y carga los datos iniciales desde la API.
+     */
     @FXML
     public void initialize() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -60,6 +89,10 @@ public class FoodController {
         cargarAlimentos();
     }
 
+    /**
+     * Solicita la lista de alimentos al backend y actualiza la tabla.
+     * Si ocurre un error, se refleja en la barra de estado inferior.
+     */
     private void cargarAlimentos() {
         try {
             foodTable.getItems().setAll(apiClient.getAll());
@@ -69,17 +102,28 @@ public class FoodController {
         }
     }
 
+    /**
+     * Acción asociada al botón Buscar.
+     * Por ahora está preparada como punto de ampliación para búsquedas desde la UI.
+     */
     @FXML
     private void onBuscar() {
         statusLabel.setText("Búsqueda aún no implementada");
     }
 
+    /**
+     * Limpia el formulario para preparar la creación de un nuevo alimento.
+     */
     @FXML
     private void onNuevo() {
         limpiarFormulario();
         statusLabel.setText("Formulario listo para nuevo alimento");
     }
 
+    /**
+     * Lee los datos del formulario, crea un nuevo alimento en el backend
+     * y recarga la tabla con la información actualizada.
+     */
     @FXML
     private void onGuardar() {
         try {
@@ -103,16 +147,26 @@ public class FoodController {
         }
     }
 
+    /**
+     * Acción asociada al botón Eliminar.
+     * Queda preparada para implementar la eliminación desde la tabla.
+     */
     @FXML
     private void onEliminar() {
         statusLabel.setText("Eliminar aún no implementado");
     }
 
+    /**
+     * Vuelve a cargar manualmente la lista de alimentos desde la API.
+     */
     @FXML
     private void onRecargar() {
         cargarAlimentos();
     }
 
+    /**
+     * Limpia todos los campos del formulario de alimentos.
+     */
     private void limpiarFormulario() {
         nombreField.clear();
         porcionField.clear();
@@ -122,25 +176,4 @@ public class FoodController {
         carbosField.clear();
         fuenteField.clear();
     }
-
-    @FXML
-    private TextField nombreField;
-
-    @FXML
-    private TextField porcionField;
-
-    @FXML
-    private TextField kcalField;
-
-    @FXML
-    private TextField proteinasField;
-
-    @FXML
-    private TextField grasasField;
-
-    @FXML
-    private TextField carbosField;
-
-    @FXML
-    private TextField fuenteField;
 }

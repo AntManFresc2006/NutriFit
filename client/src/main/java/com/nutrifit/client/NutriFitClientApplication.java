@@ -5,6 +5,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Punto de entrada del cliente JavaFX de NutriFit.
+ * Carga la vista principal de gestión de alimentos.
+ */
+
 public class NutriFitClientApplication extends Application {
 
     @Override

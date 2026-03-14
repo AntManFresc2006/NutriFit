@@ -4,12 +4,10 @@ import com.nutrifit.client.model.AlimentoFx;
 import com.nutrifit.client.service.AlimentoApiClient;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.util.Optional;
 
 /**
  * Controlador de la vista principal de gestión de alimentos en JavaFX.
@@ -90,7 +88,7 @@ public class FoodController {
     private AlimentoFx alimentoSeleccionado;
 
     /**
-     * Configura columnas, carga datos iniciales y prepara la selección de filas.
+     * Configura columnas, eventos y estado inicial de la pantalla.
      */
     @FXML
     public void initialize() {
@@ -103,14 +101,30 @@ public class FoodController {
         carbosColumn.setCellValueFactory(new PropertyValueFactory<>("carbosG"));
         fuenteColumn.setCellValueFactory(new PropertyValueFactory<>("fuente"));
 
+        foodTable.setPlaceholder(new Label("No hay alimentos para mostrar"));
+
         foodTable.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
             alimentoSeleccionado = newValue;
             if (newValue != null) {
                 cargarFormularioDesdeSeleccion(newValue);
-                statusLabel.setText("Alimento seleccionado: " + newValue.getNombre());
+                mostrarEstado("Alimento seleccionado: " + newValue.getNombre(), TipoEstado.INFO);
             }
+            actualizarModoFormulario();
         });
 
+        // Enter en buscador = buscar
+        searchField.setOnAction(event -> onBuscar());
+
+        // Enter en los campos del formulario = guardar
+        nombreField.setOnAction(event -> onGuardar());
+        porcionField.setOnAction(event -> onGuardar());
+        kcalField.setOnAction(event -> onGuardar());
+        proteinasField.setOnAction(event -> onGuardar());
+        grasasField.setOnAction(event -> onGuardar());
+        carbosField.setOnAction(event -> onGuardar());
+        fuenteField.setOnAction(event -> onGuardar());
+
+        actualizarModoFormulario();
         cargarAlimentos();
     }
 
@@ -118,28 +132,30 @@ public class FoodController {
      * Ejecuta una tarea en segundo plano para evitar bloquear la interfaz.
      */
     private void ejecutarEnSegundoPlano(Task<?> task, String mensajeCargando) {
-    setControlesDeshabilitados(true);
-    statusLabel.setText(mensajeCargando);
+        setControlesDeshabilitados(true);
+        mostrarEstado(mensajeCargando, TipoEstado.INFO);
 
-    task.stateProperty().addListener((obs, oldState, newState) -> {
-        switch (newState) {
-            case SUCCEEDED, FAILED, CANCELLED -> setControlesDeshabilitados(false);
-        }
-    });
+        task.stateProperty().addListener((obs, oldState, newState) -> {
+            switch (newState) {
+                case SUCCEEDED, FAILED, CANCELLED -> setControlesDeshabilitados(false);
+            }
+        });
 
-    task.setOnFailed(event -> {
-        Throwable error = task.getException();
-        statusLabel.setText("Error: " + (error != null ? error.getMessage() : "Error desconocido"));
-    });
+        task.setOnFailed(event -> {
+            Throwable error = task.getException();
+            mostrarEstado(
+                    "Error: " + (error != null ? error.getMessage() : "Error desconocido"),
+                    TipoEstado.ERROR
+            );
+        });
 
-    Thread hilo = new Thread(task);
-    hilo.setDaemon(true);
-    hilo.start();
-}
+        Thread hilo = new Thread(task);
+        hilo.setDaemon(true);
+        hilo.start();
+    }
 
     /**
-     * Habilita o deshabilita los controles principales de la pantalla mientras se
-     * ejecuta una tarea.
+     * Habilita o deshabilita los controles principales mientras se ejecuta una tarea.
      */
     private void setControlesDeshabilitados(boolean deshabilitados) {
         searchField.setDisable(deshabilitados);
@@ -156,7 +172,37 @@ public class FoodController {
         recargarButton.setDisable(deshabilitados);
         nuevoButton.setDisable(deshabilitados);
         guardarButton.setDisable(deshabilitados);
-        eliminarButton.setDisable(deshabilitados);
+        eliminarButton.setDisable(deshabilitados || alimentoSeleccionado == null);
+    }
+
+    /**
+     * Ajusta el modo visual del formulario según haya o no un alimento seleccionado.
+     */
+    private void actualizarModoFormulario() {
+        boolean haySeleccion = alimentoSeleccionado != null;
+        guardarButton.setText(haySeleccion ? "Actualizar" : "Crear");
+        eliminarButton.setDisable(!haySeleccion);
+    }
+
+    /**
+     * Muestra mensajes de estado con color según el tipo.
+     */
+    private void mostrarEstado(String mensaje, TipoEstado tipo) {
+        String colorTexto;
+
+        switch (tipo) {
+            case EXITO -> colorTexto = "#86efac";
+            case ERROR -> colorTexto = "#fca5a5";
+            default -> colorTexto = "#93c5fd";
+        }
+
+        statusLabel.setText(mensaje);
+        statusLabel.setStyle(
+                "-fx-background-color: #020617; " +
+                "-fx-text-fill: " + colorTexto + "; " +
+                "-fx-padding: 12; " +
+                "-fx-font-size: 13px;"
+        );
     }
 
     /**
@@ -172,7 +218,7 @@ public class FoodController {
 
         task.setOnSucceeded(event -> {
             foodTable.getItems().setAll(task.getValue());
-            statusLabel.setText("Alimentos cargados correctamente");
+            mostrarEstado("Alimentos cargados correctamente", TipoEstado.EXITO);
         });
 
         ejecutarEnSegundoPlano(task, "Cargando alimentos...");
@@ -208,8 +254,6 @@ public class FoodController {
 
     /**
      * Valida los campos del formulario antes de enviar datos al backend.
-     *
-     * @return mensaje de error si algo no es válido, o null si todo está correcto
      */
     private String validarFormulario() {
         if (nombreField.getText() == null || nombreField.getText().trim().isEmpty()) {
@@ -293,7 +337,7 @@ public class FoodController {
 
         task.setOnSucceeded(event -> {
             foodTable.getItems().setAll(task.getValue());
-            statusLabel.setText("Búsqueda completada");
+            mostrarEstado("Búsqueda completada", TipoEstado.EXITO);
         });
 
         ejecutarEnSegundoPlano(task, "Buscando alimentos...");
@@ -304,15 +348,16 @@ public class FoodController {
         foodTable.getSelectionModel().clearSelection();
         alimentoSeleccionado = null;
         limpiarFormulario();
+        actualizarModoFormulario();
         nombreField.requestFocus();
-        statusLabel.setText("Formulario listo para nuevo alimento");
+        mostrarEstado("Formulario listo para nuevo alimento", TipoEstado.INFO);
     }
 
     @FXML
     private void onGuardar() {
         String errorValidacion = validarFormulario();
         if (errorValidacion != null) {
-            statusLabel.setText(errorValidacion);
+            mostrarEstado(errorValidacion, TipoEstado.ERROR);
             return;
         }
 
@@ -320,7 +365,7 @@ public class FoodController {
         try {
             alimento = leerFormulario();
         } catch (Exception e) {
-            statusLabel.setText("Error al leer el formulario");
+            mostrarEstado("Error al leer el formulario", TipoEstado.ERROR);
             return;
         }
 
@@ -329,7 +374,7 @@ public class FoodController {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                if (alimentoSeleccionado == null) {
+                if (esNuevo) {
                     apiClient.create(alimento);
                 } else {
                     alimento.setId(alimentoSeleccionado.getId());
@@ -344,19 +389,31 @@ public class FoodController {
             limpiarFormulario();
             alimentoSeleccionado = null;
             foodTable.getSelectionModel().clearSelection();
-            statusLabel.setText(esNuevo
-                    ? "Alimento creado correctamente"
-                    : "Alimento actualizado correctamente");
+            actualizarModoFormulario();
+            mostrarEstado(
+                    esNuevo ? "Alimento creado correctamente" : "Alimento actualizado correctamente",
+                    TipoEstado.EXITO
+            );
         });
 
-        String mensaje = alimentoSeleccionado == null ? "Guardando nuevo alimento..." : "Actualizando alimento...";
-        ejecutarEnSegundoPlano(task, mensaje);
+        ejecutarEnSegundoPlano(task, esNuevo ? "Creando alimento..." : "Actualizando alimento...");
     }
 
     @FXML
     private void onEliminar() {
         if (alimentoSeleccionado == null) {
-            statusLabel.setText("Selecciona un alimento para eliminar");
+            mostrarEstado("Selecciona un alimento para eliminar", TipoEstado.ERROR);
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmar eliminación");
+        alert.setHeaderText("Eliminar alimento");
+        alert.setContentText("¿Seguro que quieres eliminar \"" + alimentoSeleccionado.getNombre() + "\"?");
+
+        Optional<ButtonType> resultado = alert.showAndWait();
+        if (resultado.isEmpty() || resultado.get() != ButtonType.OK) {
+            mostrarEstado("Eliminación cancelada", TipoEstado.INFO);
             return;
         }
 
@@ -376,7 +433,8 @@ public class FoodController {
             limpiarFormulario();
             alimentoSeleccionado = null;
             foodTable.getSelectionModel().clearSelection();
-            statusLabel.setText("Alimento eliminado correctamente: " + nombre);
+            actualizarModoFormulario();
+            mostrarEstado("Alimento eliminado correctamente: " + nombre, TipoEstado.EXITO);
         });
 
         ejecutarEnSegundoPlano(task, "Eliminando alimento...");
@@ -398,5 +456,11 @@ public class FoodController {
         grasasField.clear();
         carbosField.clear();
         fuenteField.clear();
+    }
+
+    private enum TipoEstado {
+        INFO,
+        EXITO,
+        ERROR
     }
 }

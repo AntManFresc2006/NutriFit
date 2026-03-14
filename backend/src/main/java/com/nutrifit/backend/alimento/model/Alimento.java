@@ -2,6 +2,10 @@ package com.nutrifit.backend.alimento.model;
 
 import java.math.BigDecimal;
 
+/**
+ * Entidad de dominio que representa un alimento dentro del sistema.
+ */
+
 public class Alimento {
 
     private Long id;

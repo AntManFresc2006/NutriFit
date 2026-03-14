@@ -6,6 +6,11 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO de entrada utilizado para crear o actualizar alimentos desde la API.
+ * Incluye validaciones sobre los campos recibidos.
+ */
+
 public class AlimentoRequest {
 
     @NotBlank(message = "El nombre es obligatorio")

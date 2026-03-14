@@ -2,6 +2,10 @@ package com.nutrifit.client.model;
 
 import javafx.beans.property.*;
 
+/**
+ * Modelo observable utilizado por JavaFX para representar alimentos en la interfaz.
+ */
+
 public class AlimentoFx {
 
     private final LongProperty id = new SimpleLongProperty();

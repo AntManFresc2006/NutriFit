@@ -42,3 +42,13 @@ En esta fase no se desarrollarán todavía:
 
 ## Decisión técnica relacionada
 Primero se cerrará el backend del CRUD de alimentos y después se construirá la primera pantalla JavaFX conectada a este módulo.
+
+## Estado actual
+El backend del CRUD de alimentos se encuentra implementado y probado manualmente con:
+- modelo
+- DTOs
+- repositorio JDBC
+- capa service
+- controller REST
+- validación
+- manejo global de errores

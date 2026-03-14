@@ -34,4 +34,4 @@ public class ComidaRequest {
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
-}
+}       

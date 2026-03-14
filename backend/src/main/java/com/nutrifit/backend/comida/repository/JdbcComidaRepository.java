@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import com.nutrifit.backend.comida.model.ComidaAlimento;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -42,6 +43,35 @@ public class JdbcComidaRepository implements ComidaRepository {
             return comida;
         }, usuarioId, fecha);
     }
+
+    @Override
+public void addAlimentoToComida(Long comidaId, Long alimentoId, double gramos) {
+    String sql = """
+            INSERT INTO comida_alimentos (comida_id, alimento_id, gramos)
+            VALUES (?, ?, ?)
+            """;
+
+    jdbcTemplate.update(sql, comidaId, alimentoId, gramos);
+}
+
+@Override
+public List<ComidaAlimento> findItemsByComidaId(Long comidaId) {
+    String sql = """
+            SELECT id, comida_id, alimento_id, gramos
+            FROM comida_alimentos
+            WHERE comida_id = ?
+            ORDER BY id ASC
+            """;
+
+    return jdbcTemplate.query(sql, (rs, rowNum) -> {
+        ComidaAlimento item = new ComidaAlimento();
+        item.setId(rs.getLong("id"));
+        item.setComidaId(rs.getLong("comida_id"));
+        item.setAlimentoId(rs.getLong("alimento_id"));
+        item.setGramos(rs.getDouble("gramos"));
+        return item;
+    }, comidaId);
+}
 
     @Override
     public Optional<Comida> findById(Long id) {

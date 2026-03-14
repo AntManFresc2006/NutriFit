@@ -6,6 +6,8 @@ import com.nutrifit.backend.comida.service.ComidaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import com.nutrifit.backend.comida.dto.ComidaAlimentoRequest;
+import com.nutrifit.backend.comida.model.ComidaAlimento;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -45,4 +47,24 @@ public class ComidaController {
     ) {
         return comidaService.save(usuarioId, request);
     }
+
+    /**
+ * Añade un alimento a una comida existente.
+ */
+@PostMapping("/{comidaId}/items")
+@ResponseStatus(HttpStatus.CREATED)
+public void addAlimento(
+        @PathVariable Long comidaId,
+        @Valid @RequestBody ComidaAlimentoRequest request
+) {
+    comidaService.addAlimentoToComida(comidaId, request);
+}
+
+/**
+ * Lista los alimentos añadidos a una comida.
+ */
+@GetMapping("/{comidaId}/items")
+public List<ComidaAlimento> getItems(@PathVariable Long comidaId) {
+    return comidaService.findItemsByComidaId(comidaId);
+}
 }

@@ -17,7 +17,8 @@
             fx:controller="com.nutrifit.client.controller.FoodController">
 
     <top>
-        <VBox spacing="10" style="-fx-background-color: linear-gradient(to right, #111827, #1f2937); -fx-padding: 18;">
+        <VBox spacing="10"
+              style="-fx-background-color: linear-gradient(to right, #111827, #1f2937); -fx-padding: 18;">
             <Label text="NutriFit"
                    style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
             <Label text="Gestión de alimentos"
@@ -29,24 +30,28 @@
         <SplitPane dividerPositions="0.62">
             <items>
 
-                <VBox spacing="12" style="-fx-background-color: #0f172a; -fx-padding: 16;">
+                <VBox spacing="12"
+                      style="-fx-background-color: #0f172a; -fx-padding: 16;">
                     <HBox spacing="10">
                         <TextField fx:id="searchField"
                                    promptText="Buscar alimento..."
                                    HBox.hgrow="ALWAYS"
                                    style="-fx-background-radius: 10; -fx-padding: 10; -fx-font-size: 14px;"/>
-                        <Button fx:id="buscarButton"
-        text="Buscar"
-        onAction="#onBuscar"
-        style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
 
-<Button fx:id="recargarButton"
-        text="Recargar"
-        onAction="#onRecargar"
-        style="-fx-background-color: #334155; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+                        <Button fx:id="buscarButton"
+                                text="Buscar"
+                                onAction="#onBuscar"
+                                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+                        <Button fx:id="recargarButton"
+                                text="Recargar"
+                                onAction="#onRecargar"
+                                style="-fx-background-color: #334155; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
                     </HBox>
 
-                    <TableView fx:id="foodTable" VBox.vgrow="ALWAYS" style="-fx-background-radius: 12;">
+                    <TableView fx:id="foodTable"
+                               VBox.vgrow="ALWAYS"
+                               style="-fx-background-radius: 12;">
                         <columns>
                             <TableColumn fx:id="idColumn" text="ID" prefWidth="60"/>
                             <TableColumn fx:id="nombreColumn" text="Nombre" prefWidth="220"/>
@@ -60,7 +65,8 @@
                     </TableView>
                 </VBox>
 
-                <VBox spacing="14" style="-fx-background-color: #111827; -fx-padding: 18;">
+                <VBox spacing="14"
+                      style="-fx-background-color: #111827; -fx-padding: 18;">
                     <Label text="Formulario de alimento"
                            style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
 
@@ -69,43 +75,64 @@
                             <Insets top="4" right="4" bottom="4" left="4"/>
                         </padding>
 
-                        <Label text="Nombre" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="Nombre"
+                               style="-fx-text-fill: #e5e7eb;"
+                               GridPane.rowIndex="0"
+                               GridPane.columnIndex="0"/>
                         <TextField fx:id="nombreField"
                                    promptText="Ej. Pollo a la plancha"
                                    GridPane.rowIndex="0"
                                    GridPane.columnIndex="1"/>
 
-                        <Label text="Porción (g)" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label text="Porción (g)"
+                               style="-fx-text-fill: #e5e7eb;"
+                               GridPane.rowIndex="1"
+                               GridPane.columnIndex="0"/>
                         <TextField fx:id="porcionField"
                                    promptText="100"
                                    GridPane.rowIndex="1"
                                    GridPane.columnIndex="1"/>
 
-                        <Label text="Kcal/100g" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <Label text="Kcal/100g"
+                               style="-fx-text-fill: #e5e7eb;"
+                               GridPane.rowIndex="2"
+                               GridPane.columnIndex="0"/>
                         <TextField fx:id="kcalField"
                                    promptText="165"
                                    GridPane.rowIndex="2"
                                    GridPane.columnIndex="1"/>
 
-                        <Label text="Proteínas" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label text="Proteínas"
+                               style="-fx-text-fill: #e5e7eb;"
+                               GridPane.rowIndex="3"
+                               GridPane.columnIndex="0"/>
                         <TextField fx:id="proteinasField"
                                    promptText="31.0"
                                    GridPane.rowIndex="3"
                                    GridPane.columnIndex="1"/>
 
-                        <Label text="Grasas" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <Label text="Grasas"
+                               style="-fx-text-fill: #e5e7eb;"
+                               GridPane.rowIndex="4"
+                               GridPane.columnIndex="0"/>
                         <TextField fx:id="grasasField"
                                    promptText="3.6"
                                    GridPane.rowIndex="4"
                                    GridPane.columnIndex="1"/>
 
-                        <Label text="Carbos" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <Label text="Carbos"
+                               style="-fx-text-fill: #e5e7eb;"
+                               GridPane.rowIndex="5"
+                               GridPane.columnIndex="0"/>
                         <TextField fx:id="carbosField"
                                    promptText="0.0"
                                    GridPane.rowIndex="5"
                                    GridPane.columnIndex="1"/>
 
-                        <Label text="Fuente" style="-fx-text-fill: #e5e7eb;" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                        <Label text="Fuente"
+                               style="-fx-text-fill: #e5e7eb;"
+                               GridPane.rowIndex="6"
+                               GridPane.columnIndex="0"/>
                         <TextField fx:id="fuenteField"
                                    promptText="manual"
                                    GridPane.rowIndex="6"
@@ -114,19 +141,24 @@
 
                     <HBox spacing="10">
                         <Button fx:id="nuevoButton"
-        text="Nuevo"
-        onAction="#onNuevo"
-        style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+                                text="Nuevo"
+                                onAction="#onNuevo"
+                                style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
 
-<Button fx:id="guardarButton"
-        text="Guardar"
-        onAction="#onGuardar"
-        style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+                        <Button fx:id="guardarButton"
+                                text="Guardar"
+                                onAction="#onGuardar"
+                                style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
 
-<Button fx:id="eliminarButton"
-        text="Eliminar"
-        onAction="#onEliminar"
-        style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+                        <Button fx:id="eliminarButton"
+                                text="Eliminar"
+                                onAction="#onEliminar"
+                                style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+                        <Button fx:id="diarioButton"
+                                text="Diario"
+                                onAction="#onAbrirDiario"
+                                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
                     </HBox>
                 </VBox>
 

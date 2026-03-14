@@ -1,11 +1,17 @@
 package com.nutrifit.client.controller;
 
+import com.nutrifit.client.NutriFitClientApplication;
 import com.nutrifit.client.model.AlimentoFx;
 import com.nutrifit.client.service.AlimentoApiClient;
+
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 import java.util.Optional;
 
@@ -77,6 +83,10 @@ public class FoodController {
 
     @FXML
     private Button nuevoButton;
+
+    @FXML
+    private Button diarioButton;
+
 
     @FXML
     private Button guardarButton;
@@ -342,6 +352,24 @@ public class FoodController {
 
         ejecutarEnSegundoPlano(task, "Buscando alimentos...");
     }
+
+    @FXML
+private void onAbrirDiario() {
+    try {
+        FXMLLoader loader = new FXMLLoader(
+                NutriFitClientApplication.class.getResource("/com/nutrifit/client/diario-view.fxml")
+        );
+        Scene scene = new Scene(loader.load(), 1000, 620);
+
+        Stage stage = (Stage) foodTable.getScene().getWindow();
+        stage.setTitle("NutriFit - Resumen diario");
+        stage.setScene(scene);
+        stage.show();
+    } catch (Exception e) {
+        mostrarEstado("No se pudo abrir la pantalla de diario: " + e.getMessage(), TipoEstado.ERROR);
+    }
+}
+
 
     @FXML
     private void onNuevo() {

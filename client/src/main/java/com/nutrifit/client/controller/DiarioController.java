@@ -8,6 +8,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 
+import com.nutrifit.client.NutriFitClientApplication;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+
 import java.time.LocalDate;
 
 /**
@@ -96,4 +102,21 @@ public class DiarioController {
                 "-fx-font-size: 13px;"
         );
     }
+    @FXML
+    private void onVolver() {
+    try {
+        FXMLLoader loader = new FXMLLoader(
+                NutriFitClientApplication.class.getResource("/com/nutrifit/client/food-view.fxml")
+        );
+        Scene scene = new Scene(loader.load(), 1100, 650);
+
+        Stage stage = (Stage) statusLabel.getScene().getWindow();
+        stage.setTitle("NutriFit - Gestión de alimentos");
+        stage.setScene(scene);
+        stage.show();
+    } catch (Exception e) {
+        mostrarEstado("No se pudo volver a la pantalla de alimentos: " + e.getMessage(), false);
+    }
+}
+
 }

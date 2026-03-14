@@ -14,3 +14,8 @@ target/
 
 # Dependencias si las tienes empaquetadas localmente
 *.jar
+
+# Archivos auxiliares fuera del código
+NutriFit_Plan_Semanal_Tablas.docx
+TFG_NutriFit_Antonio_Manuel_Fresco_Gomez (2).pdf
+Carpetas_De_TFM/

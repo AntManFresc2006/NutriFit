@@ -19,12 +19,6 @@ jobs:
           java-version: 17
           cache: maven
 
-      - name: Mostrar estructura del repositorio
-        run: |
-          pwd
-          ls
-          ls -R
-
       - name: Compilar backend
         run: mvn -f ./backend/pom.xml -DskipTests clean package
 

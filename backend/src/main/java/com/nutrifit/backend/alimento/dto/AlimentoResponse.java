@@ -2,6 +2,10 @@ package com.nutrifit.backend.alimento.dto;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO de salida utilizado para devolver datos de alimentos al cliente.
+ */
+
 public class AlimentoResponse {
 
     private Long id;

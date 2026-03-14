@@ -12,16 +12,29 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación del repositorio de alimentos utilizando JdbcTemplate.
+ * Esta clase contiene las consultas SQL necesarias para acceder y modificar
+ * la tabla de alimentos en MariaDB.
+ */
 @Repository
 public class JdbcAlimentoRepository implements AlimentoRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final AlimentoRowMapper rowMapper = new AlimentoRowMapper();
 
+    /**
+     * Inyección de JdbcTemplate para ejecutar operaciones SQL.
+     */
     public JdbcAlimentoRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Recupera todos los alimentos ordenados alfabéticamente por nombre.
+     *
+     * @return lista completa de alimentos
+     */
     @Override
     public List<Alimento> findAll() {
         String sql = """
@@ -32,6 +45,13 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
         return jdbcTemplate.query(sql, rowMapper);
     }
 
+    /**
+     * Busca alimentos cuyo nombre coincida parcial o totalmente con el texto recibido.
+     * La búsqueda no distingue entre mayúsculas y minúsculas.
+     *
+     * @param query texto a buscar en el nombre del alimento
+     * @return lista de alimentos coincidentes
+     */
     @Override
     public List<Alimento> searchByNombre(String query) {
         String sql = """
@@ -43,6 +63,12 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
         return jdbcTemplate.query(sql, rowMapper, "%" + query + "%");
     }
 
+    /**
+     * Busca un alimento por su identificador.
+     *
+     * @param id identificador del alimento
+     * @return Optional con el alimento si existe, o vacío si no existe
+     */
     @Override
     public Optional<Alimento> findById(Long id) {
         String sql = """
@@ -55,6 +81,12 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
         return resultados.stream().findFirst();
     }
 
+    /**
+     * Inserta un nuevo alimento en base de datos y recupera la clave primaria generada.
+     *
+     * @param alimento alimento a guardar
+     * @return alimento persistido con su id asignado
+     */
     @Override
     public Alimento save(Alimento alimento) {
         String sql = """
@@ -84,6 +116,13 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
         return alimento;
     }
 
+    /**
+     * Actualiza completamente los datos de un alimento existente.
+     *
+     * @param id identificador del alimento a actualizar
+     * @param alimento nuevos datos del alimento
+     * @return alimento actualizado con el id correspondiente
+     */
     @Override
     public Alimento update(Long id, Alimento alimento) {
         String sql = """
@@ -101,12 +140,19 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
                 alimento.getGrasasG(),
                 alimento.getCarbosG(),
                 alimento.getFuente(),
-                id);
+                id
+        );
 
         alimento.setId(id);
         return alimento;
     }
 
+    /**
+     * Elimina un alimento por su identificador.
+     *
+     * @param id identificador del alimento a eliminar
+     * @return true si se eliminó al menos una fila
+     */
     @Override
     public boolean deleteById(Long id) {
         String sql = "DELETE FROM alimentos WHERE id = ?";

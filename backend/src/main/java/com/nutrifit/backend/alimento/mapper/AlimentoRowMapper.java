@@ -6,6 +6,11 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Convierte cada fila de la consulta SQL en un objeto Alimento.
+ * Se utiliza en el repositorio JDBC para mapear resultados de la tabla alimentos.
+ */
+
 public class AlimentoRowMapper implements RowMapper<Alimento> {
 
     @Override

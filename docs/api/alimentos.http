@@ -1,0 +1,39 @@
+### Listar alimentos
+GET http://localhost:8080/api/alimentos
+
+### Buscar alimentos
+GET http://localhost:8080/api/alimentos?q=pollo
+
+### Obtener alimento por id
+GET http://localhost:8080/api/alimentos/1
+
+### Crear alimento
+POST http://localhost:8080/api/alimentos
+Content-Type: application/json
+
+{
+  "nombre": "Arroz cocido",
+  "porcionG": 100,
+  "kcalPor100g": 130,
+  "proteinasG": 2.7,
+  "grasasG": 0.3,
+  "carbosG": 28.0,
+  "fuente": "manual"
+}
+
+### Editar alimento
+PUT http://localhost:8080/api/alimentos/1
+Content-Type: application/json
+
+{
+  "nombre": "Arroz integral cocido",
+  "porcionG": 100,
+  "kcalPor100g": 123,
+  "proteinasG": 2.9,
+  "grasasG": 1.0,
+  "carbosG": 25.8,
+  "fuente": "manual"
+}
+
+### Eliminar alimento
+DELETE http://localhost:8080/api/alimentos/1

@@ -1,0 +1,115 @@
+@startuml er-diagram
+
+' ─────────────────────────────────────────────
+' Estilo global
+' ─────────────────────────────────────────────
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam linetype ortho
+
+skinparam entity {
+    BackgroundColor #EFF6FF
+    BorderColor #2563EB
+    FontColor #1E3A5F
+}
+
+' ─────────────────────────────────────────────
+' Entidades
+' ─────────────────────────────────────────────
+
+entity "**usuarios**" as U {
+    * id : BIGINT <<PK, AUTO_INCREMENT>>
+    ──
+    * nombre : VARCHAR(100)
+    * email : VARCHAR(150) <<UNIQUE>>
+    * password_hash : VARCHAR(255)
+    * sexo : ENUM('H', 'M')
+    * fecha_nacimiento : DATE
+    * altura_cm : SMALLINT
+    * peso_kg_actual : DECIMAL(5,2)
+    ~ peso_objetivo : DECIMAL(5,2)
+    * nivel_actividad : ENUM('SEDENTARIO', 'LIGERO',\n    'MODERADO', 'ALTO', 'MUY_ALTO')
+    * created_at : TIMESTAMP DEFAULT NOW()
+}
+
+note right of U
+  Almacena también los datos
+  biométricos del perfil.
+  No existe tabla "perfiles" separada.
+end note
+
+entity "**sesiones**" as S {
+    * id : BIGINT <<PK, AUTO_INCREMENT>>
+    ──
+    * usuario_id : BIGINT <<FK>>
+    * token : VARCHAR(255) <<UNIQUE>>
+    * created_at : TIMESTAMP DEFAULT NOW()
+    * expires_at : TIMESTAMP
+}
+
+note right of S
+  Token = UUID v4 aleatorio.
+  Expira a los 7 días del login.
+  Borrar fila = logout real.
+end note
+
+entity "**alimentos**" as A {
+    * id : BIGINT <<PK, AUTO_INCREMENT>>
+    ──
+    * nombre : VARCHAR(150)
+    ~ porcion_g : DECIMAL(7,2)
+    * kcal_por_100g : DECIMAL(7,2)
+    * proteinas_g : DECIMAL(7,2)
+    * grasas_g : DECIMAL(7,2)
+    * carbos_g : DECIMAL(7,2)
+    ~ fuente : VARCHAR(100)
+    * created_at : TIMESTAMP DEFAULT NOW()
+}
+
+note right of A
+  Catálogo compartido.
+  No pertenece a ningún usuario.
+  V4 carga alimentos de semilla para demo.
+end note
+
+entity "**comidas**" as C {
+    * id : BIGINT <<PK, AUTO_INCREMENT>>
+    ──
+    * usuario_id : BIGINT <<FK>>
+    * fecha : DATE
+    * tipo : VARCHAR(30)
+    * created_at : TIMESTAMP DEFAULT NOW()
+}
+
+note right of C
+  tipo: momento del día de la comida
+  (por ejemplo: DESAYUNO, MERIENDA, CENA).
+  Los valores exactos están definidos en la lógica
+  de aplicación y en las pruebas de la API.
+end note
+
+entity "**comida_alimentos**" as CA {
+    * id : BIGINT <<PK, AUTO_INCREMENT>>
+    ──
+    * comida_id : BIGINT <<FK>>
+    * alimento_id : BIGINT <<FK>>
+    * gramos : DECIMAL(7,2)
+}
+
+note right of CA
+  Tabla de unión con dato propio
+  (gramos). Permite calcular kcal
+  y macros por proporción.
+end note
+
+' ─────────────────────────────────────────────
+' Relaciones
+' ─────────────────────────────────────────────
+
+U ||--o{ S : "tiene\n──────\nON DELETE CASCADE"
+U ||--o{ C : "registra\n──────\nON DELETE CASCADE"
+C ||--o{ CA : "incluye\n──────\nON DELETE CASCADE"
+A ||--o{ CA : "aparece en\n──────\nON DELETE RESTRICT"
+
+@enduml

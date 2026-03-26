@@ -1,0 +1,95 @@
+@startuml secuencia-login
+
+' ─────────────────────────────────────────────
+' Estilo global
+' ─────────────────────────────────────────────
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam sequenceArrowThickness 1.5
+skinparam sequenceArrowColor #475569
+skinparam sequenceLifeLineBorderColor #94A3B8
+skinparam sequenceLifeLineBorderThickness 1.2
+skinparam sequenceGroupBorderColor #475569
+skinparam sequenceGroupFontSize 11
+
+skinparam participant {
+    BackgroundColor #DBEAFE
+    BorderColor #3B82F6
+    FontColor #1E3A5F
+    FontSize 12
+}
+
+skinparam actor {
+    BackgroundColor #FEF3C7
+    BorderColor #D97706
+    FontColor #78350F
+}
+
+skinparam database {
+    BackgroundColor #FEF3C7
+    BorderColor #D97706
+    FontColor #78350F
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontColor #1E3A5F
+}
+
+' ─────────────────────────────────────────────
+' Participantes
+' ─────────────────────────────────────────────
+actor "Cliente\nJavaFX" as CLIENT
+
+participant "AuthController" as CTRL
+participant "AuthServiceImpl" as SVC
+participant "PasswordService" as PWD
+participant "TokenService" as TOK
+participant "JdbcUsuarioRepository" as UREPO
+participant "JdbcSesionRepository" as SREPO
+
+database "MariaDB\n(nutrifit)" as DB
+
+' ─────────────────────────────────────────────
+' Flujo principal — login
+' ─────────────────────────────────────────────
+CLIENT -> CTRL : POST /api/auth/login\n{ email, password }
+
+CTRL -> SVC : login(LoginRequest)
+
+SVC -> UREPO : findByEmail(email)
+UREPO -> DB   : SELECT id, nombre, email, password_hash\n  FROM usuarios WHERE email = ?
+DB    --> UREPO : fila (o vacío)
+UREPO --> SVC : Optional<Usuario>
+
+alt usuario no encontrado
+    SVC --> CTRL : throw UnauthorizedException
+    CTRL --> CLIENT : 401 Unauthorized
+end
+
+SVC -> PWD : matches(rawPassword, passwordHash)
+note right of PWD : BCrypt.checkpw()
+PWD --> SVC : boolean
+
+alt contraseña incorrecta
+    SVC --> CTRL : throw UnauthorizedException
+    CTRL --> CLIENT : 401 Unauthorized
+end
+
+SVC -> TOK : generateToken()
+note right of TOK : UUID.randomUUID().toString()
+TOK --> SVC : token (UUID v4)
+
+SVC -> SREPO : save(Sesion {\n  usuarioId, token,\n  createdAt  = now,\n  expiresAt  = now + 7 días\n})
+SREPO -> DB   : INSERT INTO sesiones\n  (usuario_id, token, expires_at)\n  VALUES (?, ?, ?)
+DB    --> SREPO : ok
+SREPO --> SVC  : Sesion persistida
+
+SVC --> CTRL : AuthResponse {\n  usuarioId, nombre, email, token\n}
+CTRL --> CLIENT : 200 OK\n{ usuarioId, nombre, email, token }
+
+note over CLIENT : token almacenado en\nSessionManager\n(campo estático en memoria)
+
+@enduml

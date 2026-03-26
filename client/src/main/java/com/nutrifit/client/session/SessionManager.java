@@ -2,7 +2,7 @@ package com.nutrifit.client.session;
 
 /**
  * Mantiene en memoria la sesión activa del cliente JavaFX.
- * Por ahora solo guarda los datos básicos devueltos por login.
+ * Guarda los datos básicos de login y el TDEE del perfil del usuario.
  */
 public class SessionManager {
 
@@ -10,6 +10,7 @@ public class SessionManager {
     private static String nombre;
     private static String email;
     private static String token;
+    private static double tdee;
 
     public static void setSession(Long usuarioId, String nombre, String email, String token) {
         SessionManager.usuarioId = usuarioId;
@@ -23,6 +24,7 @@ public class SessionManager {
         nombre = null;
         email = null;
         token = null;
+        tdee = 0;
     }
 
     public static Long getUsuarioId() {
@@ -39,6 +41,14 @@ public class SessionManager {
 
     public static String getToken() {
         return token;
+    }
+
+    public static double getTdee() {
+        return tdee;
+    }
+
+    public static void setTdee(double tdee) {
+        SessionManager.tdee = tdee;
     }
 
     public static boolean isLoggedIn() {

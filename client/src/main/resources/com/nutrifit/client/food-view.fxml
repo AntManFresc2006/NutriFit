@@ -159,6 +159,11 @@
                                 text="Diario"
                                 onAction="#onAbrirDiario"
                                 style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+                        <Button fx:id="perfilButton"
+                                text="Perfil"
+                                onAction="#onAbrirPerfil"
+                                style="-fx-background-color: #7c3aed; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
                     </HBox>
                 </VBox>
 

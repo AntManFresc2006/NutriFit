@@ -74,7 +74,12 @@ public class DiarioController {
 
         task.setOnSucceeded(event -> {
             ResumenDiarioDto resumen = task.getValue();
-            kcalLabel.setText(String.valueOf(resumen.getKcalTotales()));
+            double tdee = SessionManager.getTdee();
+            if (tdee > 0) {
+                kcalLabel.setText(resumen.getKcalTotales() + " / " + tdee + " kcal");
+            } else {
+                kcalLabel.setText(String.valueOf(resumen.getKcalTotales()));
+            }
             proteinasLabel.setText(String.valueOf(resumen.getProteinasTotales()));
             grasasLabel.setText(String.valueOf(resumen.getGrasasTotales()));
             carbosLabel.setText(String.valueOf(resumen.getCarbosTotales()));

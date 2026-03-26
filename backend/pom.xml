@@ -77,6 +77,14 @@
                     <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Byte Buddy bundled with Spring Boot 3.2.x only supports up to Java 22.
+                         This flag allows it to instrument classes on newer JVM versions (23+). -->
+                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

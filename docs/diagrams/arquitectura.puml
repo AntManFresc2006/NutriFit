@@ -1,0 +1,103 @@
+@startuml arquitectura
+
+' ─────────────────────────────────────────────
+' Estilo global
+' ─────────────────────────────────────────────
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontSize 13
+skinparam defaultFontName Arial
+skinparam ArrowColor #475569
+skinparam ArrowThickness 1.5
+skinparam ArrowFontSize 11
+skinparam ArrowFontColor #64748B
+
+skinparam package {
+    BackgroundColor #F0F9FF
+    BorderColor #0369A1
+    BorderThickness 1.5
+    FontSize 14
+    FontStyle bold
+    FontColor #0C4A6E
+}
+
+skinparam rectangle {
+    RoundCorner 10
+    BackgroundColor #DBEAFE
+    BorderColor #3B82F6
+    FontColor #1E3A5F
+    FontSize 12
+}
+
+skinparam database {
+    BackgroundColor #FEF3C7
+    BorderColor #D97706
+    FontColor #78350F
+}
+
+skinparam component {
+    BackgroundColor #F0FDF4
+    BorderColor #16A34A
+    FontColor #14532D
+    RoundCorner 8
+}
+
+' ─────────────────────────────────────────────
+' Capa 1 — Presentación
+' ─────────────────────────────────────────────
+package "Presentación · JavaFX 21" as CLIENTE {
+    rectangle "Pantallas FXML\nLogin · Alimentos · Diario · Perfil" as pantallas
+    rectangle "SessionManager\n(token + TDEE en memoria estática)" as session
+    rectangle "ApiClients\n(HttpClient · Jackson ObjectMapper)" as apiclients
+}
+
+' ─────────────────────────────────────────────
+' Capa 2 — Lógica de aplicación
+' ─────────────────────────────────────────────
+package "Backend · Spring Boot 3.2 · :8080" as BACKEND {
+    rectangle "Controladores REST\n/api/auth  /api/alimentos  /api/comidas\n/api/resumen-diario  /api/perfil" as controllers
+    rectangle "Servicios\n(lógica de negocio · Mifflin-St Jeor)" as services
+    rectangle "Repositorios JDBC\n(JdbcTemplate · RowMapper por módulo)" as repos
+    rectangle "GlobalExceptionHandler\n(@RestControllerAdvice → ApiError JSON)" as geh
+    rectangle "PasswordService (BCrypt)\nTokenService (UUID v4)" as sec
+    component "Swagger UI\n/swagger-ui.html" as swagger
+}
+
+' ─────────────────────────────────────────────
+' Capa 3 — Datos
+' ─────────────────────────────────────────────
+database "MariaDB · nutrifit" as DB {
+    rectangle "usuarios  ·  sesiones\nalimentos  ·  comidas  ·  comida_alimentos" as tablas
+}
+
+component "Flyway · V1–V5\n(migraciones SQL versionadas)" as FLYWAY
+
+' ─────────────────────────────────────────────
+' Relaciones — Cliente interno
+' ─────────────────────────────────────────────
+pantallas --> session  : lee / escribe\ntoken y TDEE
+pantallas --> apiclients : delega\nllamadas HTTP
+
+' ─────────────────────────────────────────────
+' Relaciones — Cliente → Backend
+' ─────────────────────────────────────────────
+apiclients -right-> controllers : HTTP / JSON\n(token en flujos autenticados)
+
+' ─────────────────────────────────────────────
+' Relaciones — Capas internas del backend
+' ─────────────────────────────────────────────
+controllers -down-> services : delega\nlógica
+controllers -right-> geh : excepciones de\ndominio y validación
+services -down-> repos : consulta\ny persiste
+services --> sec : hashea contraseñas\ngenera tokens
+
+' ─────────────────────────────────────────────
+' Relaciones — Backend → BD
+' ─────────────────────────────────────────────
+repos -down-> tablas : SQL\n(JdbcTemplate)
+
+' ─────────────────────────────────────────────
+' Flyway
+' ─────────────────────────────────────────────
+FLYWAY .right.> tablas : crea y versiona\nel esquema al arrancar
+
+@enduml

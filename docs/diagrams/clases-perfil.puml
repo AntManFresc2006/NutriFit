@@ -1,0 +1,186 @@
+@startuml clases-perfil
+
+' ─────────────────────────────────────────────
+' Estilo global
+' ─────────────────────────────────────────────
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam ArrowColor #475569
+skinparam ArrowThickness 1.4
+skinparam ArrowFontSize 10
+skinparam ArrowFontColor #64748B
+
+skinparam class {
+    BackgroundColor #DBEAFE
+    BorderColor #3B82F6
+    FontColor #1E3A5F
+    FontSize 11
+    HeaderBackgroundColor #BFDBFE
+    StereotypeFontColor #475569
+}
+
+skinparam interface {
+    BackgroundColor #EDE9FE
+    BorderColor #7C3AED
+    FontColor #4C1D95
+    HeaderBackgroundColor #DDD6FE
+    StereotypeFontColor #6D28D9
+}
+
+skinparam enum {
+    BackgroundColor #FEF3C7
+    BorderColor #D97706
+    FontColor #78350F
+    HeaderBackgroundColor #FDE68A
+}
+
+skinparam note {
+    BackgroundColor #FEF9C3
+    BorderColor #CA8A04
+    FontColor #1E3A5F
+}
+
+' ─────────────────────────────────────────────
+' Capa controlador
+' ─────────────────────────────────────────────
+class PerfilController <<@RestController>> {
+    - perfilService : PerfilService
+    --
+    + getPerfil(id : Long) : PerfilResponse
+    + updatePerfil(id : Long, req : PerfilUpdateRequest) : PerfilResponse
+}
+
+' ─────────────────────────────────────────────
+' Capa servicio
+' ─────────────────────────────────────────────
+interface PerfilService {
+    + getPerfil(id : Long) : PerfilResponse
+    + updatePerfil(id : Long, req : PerfilUpdateRequest) : PerfilResponse
+}
+
+class PerfilServiceImpl <<@Service>> {
+    - perfilRepository : PerfilRepository
+    --
+    + getPerfil(id : Long) : PerfilResponse
+    + updatePerfil(id : Long, req : PerfilUpdateRequest) : PerfilResponse
+    - calcularTmb(perfil : Perfil) : double
+    - calcularTdee(perfil : Perfil, tmb : double) : double
+}
+
+note right of PerfilServiceImpl
+  **Fórmula Mifflin-St Jeor (TMB)**
+  H: 10×peso + 6.25×altura − 5×edad + 5
+  M: 10×peso + 6.25×altura − 5×edad − 161
+  ──────────────────────────────────────
+  TDEE = TMB × NivelActividad.getFactor()
+  edad = Period.between(fechaNacimiento, now)
+end note
+
+' ─────────────────────────────────────────────
+' Capa repositorio
+' ─────────────────────────────────────────────
+interface PerfilRepository {
+    + findById(id : Long) : Optional<Perfil>
+    + update(id : Long, perfil : Perfil) : Perfil
+}
+
+class JdbcPerfilRepository <<@Repository>> {
+    - jdbcTemplate : JdbcTemplate
+    --
+    + findById(id : Long) : Optional<Perfil>
+    + update(id : Long, perfil : Perfil) : Perfil
+}
+
+note bottom of JdbcPerfilRepository
+  Lee y escribe en la tabla **usuarios**.
+  No existe tabla "perfiles" separada.
+end note
+
+' ─────────────────────────────────────────────
+' Modelo
+' ─────────────────────────────────────────────
+class Perfil {
+    + id : Long
+    + nombre : String
+    + email : String
+    + sexo : Sexo
+    + fechaNacimiento : LocalDate
+    + alturaCm : int
+    + pesoKgActual : double
+    + pesoObjetivo : Double
+    + nivelActividad : NivelActividad
+}
+
+enum Sexo {
+    H
+    M
+}
+
+enum NivelActividad {
+    SEDENTARIO
+    LIGERO
+    MODERADO
+    ALTO
+    MUY_ALTO
+    --
+    - factor : double
+    --
+    + getFactor() : double
+}
+
+note right of NivelActividad
+  Factores PAL:
+  SEDENTARIO → 1.20
+  LIGERO     → 1.375
+  MODERADO   → 1.55
+  ALTO       → 1.725
+  MUY_ALTO   → 1.90
+end note
+
+' ─────────────────────────────────────────────
+' DTOs
+' ─────────────────────────────────────────────
+class PerfilResponse <<DTO>> {
+    + id : Long
+    + nombre : String
+    + email : String
+    + sexo : Sexo
+    + fechaNacimiento : LocalDate
+    + alturaCm : int
+    + pesoKgActual : double
+    + pesoObjetivo : Double
+    + nivelActividad : NivelActividad
+    + tmb : double
+    + tdee : double
+}
+
+class PerfilUpdateRequest <<DTO>> {
+    + sexo : Sexo
+    + fechaNacimiento : LocalDate
+    + alturaCm : int
+    + pesoKgActual : double
+    + pesoObjetivo : Double
+    + nivelActividad : NivelActividad
+}
+
+' ─────────────────────────────────────────────
+' Relaciones
+' ─────────────────────────────────────────────
+PerfilController      -->  PerfilService          : usa
+PerfilServiceImpl     ..|> PerfilService          : implementa
+PerfilServiceImpl     -->  PerfilRepository       : usa
+PerfilServiceImpl     ..>  Perfil                 : usa
+PerfilServiceImpl     ..>  PerfilResponse         : construye
+JdbcPerfilRepository  ..|> PerfilRepository       : implementa
+JdbcPerfilRepository  ..>  Perfil                 : mapea
+
+Perfil                -->  Sexo
+Perfil                -->  NivelActividad
+
+PerfilResponse        -->  Sexo
+PerfilResponse        -->  NivelActividad
+PerfilUpdateRequest   -->  Sexo
+PerfilUpdateRequest   -->  NivelActividad
+
+@enduml

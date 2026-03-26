@@ -1,0 +1,101 @@
+@startuml paquetes-backend
+
+' ─────────────────────────────────────────────
+' Estilo global
+' ─────────────────────────────────────────────
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam ArrowColor #475569
+skinparam ArrowThickness 1.4
+skinparam ArrowFontSize 10
+skinparam ArrowFontColor #64748B
+skinparam packageStyle rectangle
+
+skinparam package {
+    BorderThickness 1.4
+    FontSize 11
+    FontStyle bold
+}
+
+' ─────────────────────────────────────────────
+' Estructura de paquetes
+' ─────────────────────────────────────────────
+
+package "com.nutrifit.backend" #F8FAFC {
+
+    package "auth" as AUTH #F0F9FF {
+        package "controller" as AUTH_CTRL #DBEAFE
+        package "service" as AUTH_SVC #EDE9FE
+        package "security" as AUTH_SEC #FEF9C3
+        package "repository" as AUTH_REPO #D1FAE5
+        package "model" as AUTH_MDL #FEE2E2
+        package "dto" as AUTH_DTO #FFF7ED
+    }
+
+    package "perfil" as PERFIL #F0F9FF {
+        package "controller" as PERF_CTRL #DBEAFE
+        package "service" as PERF_SVC #EDE9FE
+        package "repository" as PERF_REPO #D1FAE5
+        package "model" as PERF_MDL #FEE2E2
+        package "dto" as PERF_DTO #FFF7ED
+    }
+
+    package "alimento" as ALIMENTO #F0F9FF {
+        package "controller" as ALI_CTRL #DBEAFE
+        package "service" as ALI_SVC #EDE9FE
+        package "repository" as ALI_REPO #D1FAE5
+        package "model" as ALI_MDL #FEE2E2
+        package "dto" as ALI_DTO #FFF7ED
+        package "mapper" as ALI_MAP #F3F4F6
+    }
+
+    package "comida" as COMIDA #F0F9FF {
+        package "controller" as COM_CTRL #DBEAFE
+        package "service" as COM_SVC #EDE9FE
+        package "repository" as COM_REPO #D1FAE5
+        package "model" as COM_MDL #FEE2E2
+        package "dto" as COM_DTO #FFF7ED
+    }
+
+    package "resumen" as RESUMEN #F0F9FF {
+        package "controller" as RES_CTRL #DBEAFE
+        package "service" as RES_SVC #EDE9FE
+        package "repository" as RES_REPO #D1FAE5
+        package "dto" as RES_DTO #FFF7ED
+    }
+
+    package "common" as COMMON #ECFDF5 {
+        package "exception" as COMM_EXC #D1FAE5
+        package "api" as COMM_API #D1FAE5
+    }
+
+    package "config" as CONFIG #F0F9FF
+    package "web" as WEB #F0F9FF
+}
+
+' ─────────────────────────────────────────────
+' Leyenda de capas (colores)
+' ─────────────────────────────────────────────
+legend bottom right
+  |= Color |= Capa |
+  |<#DBEAFE>  | controller |
+  |<#EDE9FE>  | service |
+  |<#FEF9C3>  | security |
+  |<#D1FAE5>  | repository / common |
+  |<#FEE2E2>  | model |
+  |<#FFF7ED>  | dto |
+  |<#F3F4F6>  | mapper |
+endlegend
+
+' ─────────────────────────────────────────────
+' Dependencias inter-módulo
+' ─────────────────────────────────────────────
+AUTH ..> COMMON : usa excepciones
+PERFIL ..> COMMON : usa excepciones
+ALIMENTO ..> COMMON : usa excepciones
+COMIDA ..> COMMON : usa excepciones
+RESUMEN ..> COMMON : usa excepciones
+COMIDA ..> ALIMENTO : usa AlimentoRepository
+
+@enduml

@@ -1,0 +1,67 @@
+### GET perfil existente
+# El id 1 corresponde al usuario creado con el registro de auth.http.
+# Espera 200 con los defaults del registro: sexo=H, altura=170, peso=70,
+# nivel=SEDENTARIO, fecha_nacimiento=2000-01-01.
+# TMB esperado (~1628 kcal), TDEE esperado (~1954 kcal).
+GET http://localhost:8080/api/perfil/1
+
+###
+
+### PUT válido — actualizar perfil completo
+# Cambia a mujer, 30 años, 65 kg, 165 cm, nivel moderado y objetivo de peso.
+# Espera 200 con TMB y TDEE recalculados.
+PUT http://localhost:8080/api/perfil/1
+Content-Type: application/json
+
+{
+  "sexo": "M",
+  "fechaNacimiento": "1995-06-15",
+  "alturaCm": 165,
+  "pesoKgActual": 65.0,
+  "pesoObjetivo": 60.0,
+  "nivelActividad": "MODERADO"
+}
+
+###
+
+### GET posterior — verificar que los cambios persisten
+# Misma petición que la primera. Ahora debe devolver los datos del PUT:
+# sexo=M, altura=165, peso=65, nivel=MODERADO.
+# TMB esperado (~1390 kcal), TDEE esperado (~2155 kcal).
+GET http://localhost:8080/api/perfil/1
+
+###
+
+### Error: PUT con sexo inválido
+# Espera 400 — "sexo" no pertenece al enum Sexo (H/M).
+PUT http://localhost:8080/api/perfil/1
+Content-Type: application/json
+
+{
+  "sexo": "X",
+  "fechaNacimiento": "1995-06-15",
+  "alturaCm": 165,
+  "pesoKgActual": 65.0,
+  "nivelActividad": "MODERADO"
+}
+
+###
+
+### Error: PUT con altura fuera de rango
+# Espera 400 — alturaCm=50 viola @Min(100).
+PUT http://localhost:8080/api/perfil/1
+Content-Type: application/json
+
+{
+  "sexo": "H",
+  "fechaNacimiento": "1990-01-01",
+  "alturaCm": 50,
+  "pesoKgActual": 70.0,
+  "nivelActividad": "LIGERO"
+}
+
+###
+
+### Error: GET de perfil inexistente
+# Espera 404 con mensaje "No existe un perfil con id 999".
+GET http://localhost:8080/api/perfil/999

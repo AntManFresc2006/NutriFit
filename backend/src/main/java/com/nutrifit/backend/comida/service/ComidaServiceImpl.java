@@ -20,6 +20,8 @@ import java.util.List;
 @Service
 public class ComidaServiceImpl implements ComidaService {
 
+    private static final String COMIDA_NO_ENCONTRADA = "No existe una comida con id ";
+
     private final ComidaRepository comidaRepository;
     private final AlimentoRepository alimentoRepository;
 
@@ -31,7 +33,7 @@ public class ComidaServiceImpl implements ComidaService {
     @Override
     public void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request) {
         comidaRepository.findById(comidaId)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe una comida con id " + comidaId));
+                .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + comidaId));
 
         alimentoRepository.findById(request.getAlimentoId())
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + request.getAlimentoId()));
@@ -42,7 +44,7 @@ public class ComidaServiceImpl implements ComidaService {
     @Override
 public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
     comidaRepository.findById(comidaId)
-            .orElseThrow(() -> new ResourceNotFoundException("No existe una comida con id " + comidaId));
+            .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + comidaId));
 
     return comidaRepository.findDetalleItemsByComidaId(comidaId);
 }
@@ -64,6 +66,25 @@ public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId)
 
         Comida guardada = comidaRepository.save(comida);
         return toResponse(guardada);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        comidaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + id));
+        comidaRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteItem(Long comidaId, Long itemId) {
+        ComidaAlimento item = comidaRepository.findItemById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un item con id " + itemId));
+
+        if (!item.getComidaId().equals(comidaId)) {
+            throw new ResourceNotFoundException("El item " + itemId + " no pertenece a la comida " + comidaId);
+        }
+
+        comidaRepository.deleteItemById(itemId);
     }
 
     private ComidaResponse toResponse(Comida comida) {

@@ -61,11 +61,29 @@ public void addAlimento(
     comidaService.addAlimentoToComida(comidaId, request);
 }
 
-/**
- * Lista los alimentos añadidos a una comida.
- */
-@GetMapping("/{comidaId}/items")
-public List<ComidaItemDetalleResponse> getItems(@PathVariable Long comidaId) {
-    return comidaService.findDetalleItemsByComidaId(comidaId);
-}
+    /**
+     * Elimina una comida y todos sus items.
+     */
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        comidaService.deleteById(id);
+    }
+
+    /**
+     * Lista los alimentos añadidos a una comida.
+     */
+    @GetMapping("/{comidaId}/items")
+    public List<ComidaItemDetalleResponse> getItems(@PathVariable Long comidaId) {
+        return comidaService.findDetalleItemsByComidaId(comidaId);
+    }
+
+    /**
+     * Elimina un item concreto de una comida.
+     */
+    @DeleteMapping("/{comidaId}/items/{itemId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteItem(@PathVariable Long comidaId, @PathVariable Long itemId) {
+        comidaService.deleteItem(comidaId, itemId);
+    }
 }

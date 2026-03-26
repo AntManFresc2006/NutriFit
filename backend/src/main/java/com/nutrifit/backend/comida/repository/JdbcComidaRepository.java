@@ -132,4 +132,36 @@ public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId)
 
         return comida;
     }
+
+    @Override
+    public boolean deleteById(Long id) {
+        String sql = "DELETE FROM comidas WHERE id = ?";
+        return jdbcTemplate.update(sql, id) > 0;
+    }
+
+    @Override
+    public Optional<ComidaAlimento> findItemById(Long itemId) {
+        String sql = """
+                SELECT id, comida_id, alimento_id, gramos
+                FROM comida_alimentos
+                WHERE id = ?
+                """;
+
+        List<ComidaAlimento> resultados = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            ComidaAlimento item = new ComidaAlimento();
+            item.setId(rs.getLong("id"));
+            item.setComidaId(rs.getLong("comida_id"));
+            item.setAlimentoId(rs.getLong("alimento_id"));
+            item.setGramos(rs.getDouble("gramos"));
+            return item;
+        }, itemId);
+
+        return resultados.stream().findFirst();
+    }
+
+    @Override
+    public boolean deleteItemById(Long itemId) {
+        String sql = "DELETE FROM comida_alimentos WHERE id = ?";
+        return jdbcTemplate.update(sql, itemId) > 0;
+    }
 }

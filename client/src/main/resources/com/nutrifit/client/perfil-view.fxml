@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.nutrifit.client.controller.PerfilController"
+            style="-fx-background-color: linear-gradient(to right, #0f172a, #111827);">
+
+    <top>
+        <VBox spacing="10" style="-fx-padding: 20;">
+            <Label text="NutriFit"
+                   style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
+            <Label text="Mi perfil y objetivos"
+                   style="-fx-text-fill: #cbd5e1; -fx-font-size: 14px;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="20" style="-fx-padding: 24;">
+
+            <GridPane hgap="16" vgap="14">
+                <padding>
+                    <Insets top="4" right="4" bottom="4" left="4"/>
+                </padding>
+
+                <!-- Sexo -->
+                <Label text="Sexo" style="-fx-text-fill: #e5e7eb; -fx-font-size: 14px;"
+                       GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="sexoCombo" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                          style="-fx-background-radius: 8;"/>
+
+                <!-- Fecha de nacimiento -->
+                <Label text="Fecha de nacimiento" style="-fx-text-fill: #e5e7eb; -fx-font-size: 14px;"
+                       GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <DatePicker fx:id="fechaNacimientoPicker" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <!-- Altura -->
+                <Label text="Altura (cm)" style="-fx-text-fill: #e5e7eb; -fx-font-size: 14px;"
+                       GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="alturaField" promptText="170"
+                           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <!-- Peso actual -->
+                <Label text="Peso actual (kg)" style="-fx-text-fill: #e5e7eb; -fx-font-size: 14px;"
+                       GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="pesoField" promptText="70.0"
+                           GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <!-- Peso objetivo -->
+                <Label text="Peso objetivo (kg)" style="-fx-text-fill: #e5e7eb; -fx-font-size: 14px;"
+                       GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="pesoObjetivoField" promptText="Opcional"
+                           GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <!-- Nivel de actividad -->
+                <Label text="Nivel de actividad" style="-fx-text-fill: #e5e7eb; -fx-font-size: 14px;"
+                       GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="nivelActividadCombo" GridPane.rowIndex="5" GridPane.columnIndex="1"
+                          style="-fx-background-radius: 8;"/>
+
+                <!-- Separador visual -->
+                <Label text="— Valores calculados —"
+                       style="-fx-text-fill: #64748b; -fx-font-size: 12px;"
+                       GridPane.rowIndex="6" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+
+                <!-- TMB -->
+                <Label text="TMB (kcal/día)" style="-fx-text-fill: #e5e7eb; -fx-font-size: 14px;"
+                       GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                <Label fx:id="tmbLabel" text="—"
+                       style="-fx-text-fill: #93c5fd; -fx-font-size: 16px; -fx-font-weight: bold;"
+                       GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                <!-- TDEE -->
+                <Label text="TDEE (kcal/día)" style="-fx-text-fill: #e5e7eb; -fx-font-size: 14px;"
+                       GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                <Label fx:id="tdeeLabel" text="—"
+                       style="-fx-text-fill: #86efac; -fx-font-size: 16px; -fx-font-weight: bold;"
+                       GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <HBox spacing="12">
+                <Button fx:id="guardarButton"
+                        text="Guardar cambios"
+                        onAction="#onGuardar"
+                        style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20;"/>
+
+                <Button text="Volver"
+                        onAction="#onVolver"
+                        style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 20;"/>
+            </HBox>
+        </VBox>
+    </center>
+
+    <bottom>
+        <Label fx:id="statusLabel"
+               text="Cargando perfil..."
+               style="-fx-background-color: #020617; -fx-text-fill: #93c5fd; -fx-padding: 12; -fx-font-size: 13px;"/>
+    </bottom>
+</BorderPane>

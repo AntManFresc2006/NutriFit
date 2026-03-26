@@ -87,6 +87,8 @@ public class FoodController {
     @FXML
     private Button diarioButton;
 
+    @FXML
+    private Button perfilButton;
 
     @FXML
     private Button guardarButton;
@@ -351,6 +353,23 @@ public class FoodController {
         });
 
         ejecutarEnSegundoPlano(task, "Buscando alimentos...");
+    }
+
+    @FXML
+    private void onAbrirPerfil() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    NutriFitClientApplication.class.getResource("/com/nutrifit/client/perfil-view.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 700, 600);
+
+            Stage stage = (Stage) foodTable.getScene().getWindow();
+            stage.setTitle("NutriFit - Mi perfil");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            mostrarEstado("No se pudo abrir la pantalla de perfil: " + e.getMessage(), TipoEstado.ERROR);
+        }
     }
 
     @FXML

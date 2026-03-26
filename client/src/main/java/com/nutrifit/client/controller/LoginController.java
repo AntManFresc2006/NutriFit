@@ -2,6 +2,7 @@ package com.nutrifit.client.controller;
 
 import com.nutrifit.client.NutriFitClientApplication;
 import com.nutrifit.client.service.AuthApiClient;
+import com.nutrifit.client.service.PerfilApiClient;
 import com.nutrifit.client.session.SessionManager;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -42,6 +43,7 @@ public class LoginController {
     private Button registerButton;
 
     private final AuthApiClient authApiClient = new AuthApiClient();
+    private final PerfilApiClient perfilApiClient = new PerfilApiClient();
 
     @FXML
     public void initialize() {
@@ -72,7 +74,9 @@ public class LoginController {
         Task<Map<String, Object>> task = new Task<>() {
             @Override
             protected Map<String, Object> call() throws Exception {
-                return authApiClient.login(email, password);
+                Map<String, Object> resp = authApiClient.login(email, password);
+                cargarTdeeEnSesion(resp);
+                return resp;
             }
         };
 
@@ -127,7 +131,9 @@ public class LoginController {
         Task<Map<String, Object>> task = new Task<>() {
             @Override
             protected Map<String, Object> call() throws Exception {
-                return authApiClient.register(nombre, email, password);
+                Map<String, Object> resp = authApiClient.register(nombre, email, password);
+                cargarTdeeEnSesion(resp);
+                return resp;
             }
         };
 
@@ -153,6 +159,22 @@ public class LoginController {
         setBotonesDeshabilitados(true);
         mostrarEstado("Registrando usuario...", true);
         ejecutarTask(task);
+    }
+
+    /**
+     * Llama a GET /api/perfil/{id} y almacena el TDEE en SessionManager.
+     * Se ejecuta en el hilo de la tarea — un fallo no bloquea el login.
+     */
+    private void cargarTdeeEnSesion(Map<String, Object> loginResp) {
+        try {
+            Long uid = ((Number) loginResp.get("usuarioId")).longValue();
+            double tdee = perfilApiClient.getPerfil(uid).getTdee();
+            SessionManager.setTdee(tdee);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (Exception ignored) {
+            // El TDEE se actualizará cuando el usuario visite la pantalla de perfil
+        }
     }
 
     private void ejecutarTask(Task<?> task) {

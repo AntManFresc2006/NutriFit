@@ -17,7 +17,11 @@ public interface ComidaService {
 
     ComidaResponse save(Long usuarioId, ComidaRequest request);
 
+    void deleteById(Long id);
+
     void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request);
 
     List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId);
+
+    void deleteItem(Long comidaId, Long itemId);
 }

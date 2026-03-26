@@ -21,3 +21,18 @@ Content-Type: application/json
 
 ### Listar items enriquecidos de una comida
 GET http://localhost:8080/api/comidas/1/items
+
+### Eliminar un item de una comida
+DELETE http://localhost:8080/api/comidas/1/items/1
+
+### Eliminar una comida completa
+DELETE http://localhost:8080/api/comidas/1
+
+### Error: eliminar comida inexistente
+DELETE http://localhost:8080/api/comidas/999
+
+### Error: eliminar item inexistente
+DELETE http://localhost:8080/api/comidas/1/items/999
+
+### Error: eliminar item que no pertenece a esa comida
+DELETE http://localhost:8080/api/comidas/1/items/5

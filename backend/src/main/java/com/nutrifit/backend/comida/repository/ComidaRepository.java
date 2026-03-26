@@ -2,6 +2,7 @@ package com.nutrifit.backend.comida.repository;
 
 import com.nutrifit.backend.comida.dto.ComidaItemDetalleResponse;
 import com.nutrifit.backend.comida.model.Comida;
+import com.nutrifit.backend.comida.model.ComidaAlimento;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,7 +19,13 @@ public interface ComidaRepository {
 
     Comida save(Comida comida);
 
+    boolean deleteById(Long id);
+
     void addAlimentoToComida(Long comidaId, Long alimentoId, double gramos);
 
     List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId);
+
+    Optional<ComidaAlimento> findItemById(Long itemId);
+
+    boolean deleteItemById(Long itemId);
 }

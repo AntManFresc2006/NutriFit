@@ -60,6 +60,8 @@ El backend es una aplicación Spring Boot 3.2 que arranca con el perfil `local` 
 | `/api/comidas`       | Registro e ítems de comidas   |
 | `/api/resumen-diario`| Agregación nutricional por día|
 | `/api/perfil`        | Consulta y actualización de perfil |
+| `/api/ejercicios`    | Catálogo de ejercicios (GET, POST) |
+| `/api/ejercicios-registro` | Registro de ejercicios por usuario y fecha (GET, POST, DELETE) |
 
 Internamente, todos los módulos siguen la misma estructura en capas verticales:
 
@@ -143,7 +145,7 @@ Swagger UI cumple dos funciones durante el desarrollo. La primera es la verifica
 
 La separación entre las tres capas tiene consecuencias prácticas sobre el desarrollo y la verificabilidad del proyecto.
 
-**El backend es verificable de forma independiente.** Los 29 tests unitarios del backend no requieren el cliente JavaFX ni la base de datos activa. Las pruebas manuales de la API con los archivos `.http` y con Swagger UI tampoco. El backend puede desarrollarse, probarse y depurarse sin arrancar ningún otro componente.
+**El backend es verificable de forma independiente.** Los 60 tests unitarios del backend no requieren el cliente JavaFX ni la base de datos activa. Las pruebas manuales de la API con los archivos `.http` y con Swagger UI tampoco. El backend puede desarrollarse, probarse y depurarse sin arrancar ningún otro componente.
 
 **El cliente es sustituible.** El backend no sabe que el cliente es JavaFX. Podría sustituirse por una interfaz web, una aplicación móvil o un cliente de línea de comandos sin modificar una sola línea del backend, siempre que se respete el contrato de la API REST.
 
@@ -159,6 +161,6 @@ Esta sección describe la arquitectura a nivel de componentes y responsabilidade
 
 - **§4.2** — Diseño detallado del esquema de base de datos y las decisiones sobre tablas y relaciones.
 - **§4.5** — Decisiones de diseño que justifican las elecciones arquitectónicas: JDBC frente a JPA, token opaco frente a JWT, y otras.
-- **§5** — Implementación módulo por módulo: autenticación, alimentos, comidas, resumen diario y perfil.
+- **§5** — Implementación módulo por módulo: autenticación, alimentos, comidas, resumen diario, perfil y ejercicios y MET.
 - **§6** — Estrategia de pruebas: tests unitarios del backend y pruebas manuales de la API.
 - **§7** — Seguridad: gestión de contraseñas y mecanismo de autenticación basado en token.

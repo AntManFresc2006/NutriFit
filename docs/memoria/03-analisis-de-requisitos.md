@@ -4,7 +4,7 @@
 
 Esta sección recoge los requisitos que delimitan el alcance de NutriFit en su primera versión funcional —el MVP—. Los requisitos no se formularon en una fase de análisis previa al desarrollo: emergieron de forma iterativa a medida que los módulos se definían e implementaban. El objetivo de documentarlos aquí es hacer explícito qué hace el sistema, qué restricciones de calidad cumple y qué queda deliberadamente fuera del alcance actual.
 
-Los requisitos funcionales se agrupan por módulo para facilitar su lectura junto a las secciones §5.1–§5.5, donde se describe la implementación de cada uno. Los requisitos no funcionales recogen propiedades transversales que afectan al sistema en su conjunto.
+Los requisitos funcionales se agrupan por módulo para facilitar su lectura junto a las secciones §5.1–§5.6, donde se describe la implementación de cada uno. Los requisitos no funcionales recogen propiedades transversales que afectan al sistema en su conjunto.
 
 ---
 
@@ -59,6 +59,16 @@ Los requisitos funcionales se agrupan por módulo para facilitar su lectura junt
 | RF-23 | Un usuario puede actualizar su perfil biométrico en cualquier momento. La actualización reemplaza todos los campos del perfil y el sistema recalcula TMB y TDEE de forma automática. |
 | RF-24 | Un usuario puede consultar su perfil actual junto a los valores calculados de TMB y TDEE. Si el identificador no existe, el sistema devuelve un error 404. |
 
+### Módulo de ejercicios
+
+| Código | Requisito |
+|--------|-----------|
+| RF-EJ-01 | El sistema mantiene un catálogo de ejercicios disponibles. Cualquier usuario autenticado puede consultarlo completo o filtrar por nombre. |
+| RF-EJ-02 | Un usuario puede registrar una sesión de ejercicio indicando el tipo de ejercicio, la fecha y la duración en minutos. |
+| RF-EJ-03 | El sistema calcula automáticamente las calorías quemadas en cada sesión aplicando la fórmula MET × peso_kg × (duración_min / 60), redondeando el resultado a dos decimales. |
+| RF-EJ-04 | El peso utilizado en el cálculo se toma del perfil del usuario en el momento del registro y se persiste junto al resultado. Si el usuario no tiene perfil configurado, el registro es rechazado. |
+| RF-EJ-05 | Un usuario puede eliminar un registro de ejercicio propio. El sistema verifica que el registro pertenece al usuario antes de borrarlo. |
+
 ---
 
 ## 3.3 Requisitos no funcionales
@@ -102,7 +112,7 @@ Los requisitos funcionales se agrupan por módulo para facilitar su lectura junt
 
 ## 3.4 Alcance del MVP y exclusiones conocidas
 
-El MVP cubre los módulos descritos en los requisitos anteriores. Las siguientes funcionalidades no están implementadas en la versión actual y se reconocen como limitaciones conocidas:
+El MVP cubre los módulos descritos en los requisitos anteriores: autenticación, alimentos, comidas, resumen diario, perfil y ejercicios. Las siguientes funcionalidades no están implementadas en la versión actual y se reconocen como limitaciones conocidas:
 
 **Ausencia de HTTPS.** La comunicación entre el cliente y el backend se realiza sobre HTTP plano. En el contexto actual —ambos procesos en la misma máquina— el tráfico no sale de la interfaz de loopback. En cualquier despliegue en red, los tokens y las credenciales viajarían sin cifrar.
 

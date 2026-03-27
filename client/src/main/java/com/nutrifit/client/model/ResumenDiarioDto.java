@@ -11,6 +11,8 @@ public class ResumenDiarioDto {
     private double proteinasTotales;
     private double grasasTotales;
     private double carbosTotales;
+    private double kcalQuemadasTotales;
+    private double balanceNeto;
 
     public ResumenDiarioDto() {
     }
@@ -61,5 +63,21 @@ public class ResumenDiarioDto {
 
     public void setCarbosTotales(double carbosTotales) {
         this.carbosTotales = carbosTotales;
+    }
+
+    public double getKcalQuemadasTotales() {
+        return kcalQuemadasTotales;
+    }
+
+    public void setKcalQuemadasTotales(double kcalQuemadasTotales) {
+        this.kcalQuemadasTotales = kcalQuemadasTotales;
+    }
+
+    public double getBalanceNeto() {
+        return balanceNeto;
+    }
+
+    public void setBalanceNeto(double balanceNeto) {
+        this.balanceNeto = balanceNeto;
     }
 }

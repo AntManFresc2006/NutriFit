@@ -123,3 +123,47 @@ Respuesta: `{ "usuarioId", "fecha", "kcalTotales", "proteinasTotales", "grasasTo
 | `nivelActividad` | obligatorio; `"SEDENTARIO"`, `"LIGERO"`, `"MODERADO"`, `"ALTO"` o `"MUY_ALTO"` |
 
 `PerfilResponse` incluye todos los campos del perfil más `tmb` y `tdee` (redondeados a dos decimales), y los campos de identificación `nombre` y `email`. `pesoObjetivo` puede ser `null`.
+
+---
+
+## B.6 Ejercicios — `/api/ejercicios`
+
+| Método | Ruta | Descripción | Éxito | Errores |
+|---|---|---|---|---|
+| GET | `/api/ejercicios` | Catálogo completo o filtrado por `?q=` | 200 | — |
+| GET | `/api/ejercicios/{id}` | Ejercicio por id | 200 | 404 |
+| POST | `/api/ejercicios` | Crea un ejercicio en el catálogo | 201 | 400 |
+
+Todos los endpoints requieren cabecera `Authorization: Bearer <token>`.
+
+**`GET /api/ejercicios`** — parámetro opcional `?q=` para filtrado parcial por nombre, insensible a mayúsculas. Sin `?q=` devuelve el catálogo completo. Si no hay resultados, devuelve `[]`.
+
+**Cuerpo de POST (`EjercicioRequest`):**
+
+| Campo | Restricciones |
+|---|---|
+| `nombre` | obligatorio, no vacío |
+| `met` | obligatorio, > 0 |
+| `categoria` | obligatorio, no vacío |
+
+`EjercicioResponse` incluye los mismos campos más `id`.
+
+---
+
+## B.7 Registro de ejercicios — `/api/ejercicios-registro`
+
+| Método | Ruta | Descripción | Éxito | Errores |
+|---|---|---|---|---|
+| GET | `/api/ejercicios-registro` | Registros de un usuario para una fecha | 200 | — |
+| POST | `/api/ejercicios-registro` | Registra una sesión de ejercicio | 201 | 400, 404 |
+| DELETE | `/api/ejercicios-registro/{id}` | Elimina un registro propio | 204 | 404 |
+
+Todos los endpoints requieren cabecera `Authorization: Bearer <token>`.
+
+**`GET /api/ejercicios-registro`** — query params: `usuarioId` (long) y `fecha` (YYYY-MM-DD), ambos obligatorios. Devuelve `[]` si no hay registros para esa fecha.
+
+**`POST /api/ejercicios-registro`** — query param: `usuarioId`. Cuerpo: `ejercicioId` (long, obligatorio), `fecha` (YYYY-MM-DD, obligatorio) y `duracionMin` (int, > 0). El backend calcula `kcalQuemadas` aplicando MET × peso_kg × (duracionMin / 60) con el peso del perfil del usuario en ese momento y lo persiste en el registro. → **404** si el ejercicio o el perfil del usuario no existen.
+
+`RegistroEjercicioResponse`: `{ "id", "usuarioId", "ejercicioId", "nombreEjercicio", "fecha", "duracionMin", "kcalQuemadas" }`.
+
+**`DELETE /api/ejercicios-registro/{id}`** — query param: `usuarioId`. → **404** si el registro no existe o no pertenece al usuario indicado.

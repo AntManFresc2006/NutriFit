@@ -104,16 +104,10 @@ Los requisitos funcionales se agrupan por módulo para facilitar su lectura junt
 
 El MVP cubre los módulos descritos en los requisitos anteriores. Las siguientes funcionalidades no están implementadas en la versión actual y se reconocen como limitaciones conocidas:
 
-**Validación del token en endpoints protegidos.** La infraestructura de token está completa —generación, almacenamiento, expiración y borrado en logout—, pero el sistema no verifica el token como requisito previo en los endpoints protegidos. En el MVP actual, endpoints como `GET /api/alimentos` responden aunque la petición no incluya un token válido. El único endpoint que procesa el token de la cabecera `Authorization` es `/api/auth/logout`. Esta limitación es aceptable en el contexto de una aplicación de escritorio local donde el servidor solo escucha en `localhost`, pero no sería admisible en un entorno expuesto. Se documenta con más detalle en §7.3.
-
 **Ausencia de HTTPS.** La comunicación entre el cliente y el backend se realiza sobre HTTP plano. En el contexto actual —ambos procesos en la misma máquina— el tráfico no sale de la interfaz de loopback. En cualquier despliegue en red, los tokens y las credenciales viajarían sin cifrar.
 
 **Catálogo de alimentos compartido.** No existe separación entre usuarios dentro del catálogo: cualquier usuario puede crear, modificar o eliminar cualquier alimento. En el alcance del MVP se asume que el catálogo es un recurso compartido y de confianza.
 
-**Pantalla de gestión de comidas en el cliente.** Los seis endpoints del módulo de comidas están implementados y son funcionales en el backend, pero el cliente JavaFX no dispone de una pantalla dedicada para crear comidas, añadir ítems o borrarlos. La pantalla del diario muestra solo el resumen agregado del día. El registro de comidas requiere interactuar directamente con la API, por ejemplo mediante los archivos `.http` de `docs/api/` o Swagger UI.
-
 **Umbral mínimo de contraseña.** La restricción `@Size(min = 6)` en `RegisterRequest` establece un límite bajo respecto a los estándares habituales en aplicaciones en producción. Se mantiene así para simplificar las pruebas durante el desarrollo.
-
-**Tests del módulo de comidas.** El módulo no dispone de tests unitarios automatizados. No existe `ComidaServiceImplTest` ni test de integración sobre el controlador o el repositorio. El comportamiento del módulo se verifica únicamente mediante pruebas manuales con los archivos `.http`.
 
 **Control de acceso por roles.** No existe diferenciación de roles entre usuarios. Todos los usuarios autenticados tienen el mismo nivel de acceso a todas las operaciones del sistema.

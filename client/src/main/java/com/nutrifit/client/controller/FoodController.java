@@ -91,6 +91,9 @@ public class FoodController {
     private Button perfilButton;
 
     @FXML
+    private Button ejerciciosButton;
+
+    @FXML
     private Button comidasButton;
 
     @FXML
@@ -389,6 +392,23 @@ public class FoodController {
             stage.show();
         } catch (Exception e) {
             mostrarEstado("No se pudo abrir la pantalla de comidas: " + e.getMessage(), TipoEstado.ERROR);
+        }
+    }
+
+    @FXML
+    private void onAbrirEjercicios() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    NutriFitClientApplication.class.getResource("/com/nutrifit/client/ejercicio-view.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 1100, 650);
+
+            Stage stage = (Stage) foodTable.getScene().getWindow();
+            stage.setTitle("NutriFit - Ejercicios");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            mostrarEstado("No se pudo abrir la pantalla de ejercicios: " + e.getMessage(), TipoEstado.ERROR);
         }
     }
 

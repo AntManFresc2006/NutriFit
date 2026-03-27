@@ -1,5 +1,6 @@
 target/
 client/
+!client/pom.xml
 *.log
 .git/
 .idea/

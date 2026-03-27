@@ -6,6 +6,7 @@ WORKDIR /app
 # Copiar solo los pom.xml primero para aprovechar la caché de capas de Maven
 COPY pom.xml .
 COPY backend/pom.xml backend/pom.xml
+COPY client/pom.xml client/pom.xml
 
 # Descargar dependencias del módulo backend (cacheado mientras los pom no cambien)
 RUN mvn -pl backend -am dependency:go-offline -q

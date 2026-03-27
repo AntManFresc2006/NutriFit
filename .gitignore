@@ -17,6 +17,8 @@
 
 # Credenciales locales — nunca versionar
 **/application-local.properties
+.env
+.env.*
 
 # Archivos auxiliares fuera del código
 NutriFit_Plan_Semanal_Tablas.docx

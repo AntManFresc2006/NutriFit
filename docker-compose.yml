@@ -4,10 +4,10 @@ services:
     image: mariadb:11
     restart: unless-stopped
     environment:
-      MARIADB_ROOT_PASSWORD: rootsecret
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-changeme}
       MARIADB_DATABASE: nutrifit
       MARIADB_USER: nutrifit
-      MARIADB_PASSWORD: nutrifit
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-nutrifit}
     volumes:
       - nutrifit_db_data:/var/lib/mysql
     healthcheck:
@@ -25,7 +25,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/nutrifit
       SPRING_DATASOURCE_USERNAME: nutrifit
-      SPRING_DATASOURCE_PASSWORD: nutrifit
+      SPRING_DATASOURCE_PASSWORD: ${MARIADB_PASSWORD:-nutrifit}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.mariadb.jdbc.Driver
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_LOCATIONS: classpath:db/migration

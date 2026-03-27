@@ -8,6 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementación JDBC del repositorio de sesiones.
@@ -44,6 +47,27 @@ public class JdbcSesionRepository implements SesionRepository {
         }
 
         return sesion;
+    }
+
+    @Override
+    public Optional<Sesion> findByToken(String token) {
+        String sql = """
+                SELECT id, usuario_id, token, created_at, expires_at
+                FROM sesiones
+                WHERE token = ?
+                """;
+
+        List<Sesion> results = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Sesion s = new Sesion();
+            s.setId(rs.getLong("id"));
+            s.setUsuarioId(rs.getLong("usuario_id"));
+            s.setToken(rs.getString("token"));
+            s.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
+            s.setExpiresAt(rs.getObject("expires_at", LocalDateTime.class));
+            return s;
+        }, token);
+
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
     @Override

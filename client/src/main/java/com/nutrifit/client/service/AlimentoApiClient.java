@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nutrifit.client.model.AlimentoDto;
 import com.nutrifit.client.model.AlimentoFx;
+import com.nutrifit.client.session.SessionManager;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,9 +22,14 @@ import java.util.List;
 public class AlimentoApiClient {
 
     private static final String BASE_URL = "http://localhost:8080/api/alimentos";
+    private static final String AUTH_HEADER = "Authorization";
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static String bearerToken() {
+        return "Bearer " + SessionManager.getToken();
+    }
 
     /**
      * Solicita al backend la lista completa de alimentos.
@@ -31,6 +37,7 @@ public class AlimentoApiClient {
     public List<AlimentoFx> getAll() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
+                .header(AUTH_HEADER, bearerToken())
                 .GET()
                 .build();
 
@@ -53,6 +60,7 @@ public class AlimentoApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "?q=" + encoded))
+                .header(AUTH_HEADER, bearerToken())
                 .GET()
                 .build();
 
@@ -75,6 +83,7 @@ public class AlimentoApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
+                .header(AUTH_HEADER, bearerToken())
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
@@ -91,6 +100,7 @@ public class AlimentoApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/" + alimento.getId()))
+                .header(AUTH_HEADER, bearerToken())
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(json))
                 .build();
@@ -105,6 +115,7 @@ public class AlimentoApiClient {
     public void delete(long id) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/" + id))
+                .header(AUTH_HEADER, bearerToken())
                 .DELETE()
                 .build();
 

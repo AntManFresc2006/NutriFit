@@ -2,6 +2,7 @@ package com.nutrifit.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nutrifit.client.model.PerfilDto;
+import com.nutrifit.client.session.SessionManager;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,9 +18,14 @@ import java.util.Map;
 public class PerfilApiClient {
 
     private static final String BASE_URL = "http://localhost:8080/api/perfil";
+    private static final String AUTH_HEADER = "Authorization";
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static String bearerToken() {
+        return "Bearer " + SessionManager.getToken();
+    }
 
     /**
      * Obtiene el perfil completo del usuario con TMB y TDEE calculados.
@@ -27,6 +33,7 @@ public class PerfilApiClient {
     public PerfilDto getPerfil(Long id) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/" + id))
+                .header(AUTH_HEADER, bearerToken())
                 .GET()
                 .build();
 
@@ -44,6 +51,7 @@ public class PerfilApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/" + id))
+                .header(AUTH_HEADER, bearerToken())
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(json))
                 .build();

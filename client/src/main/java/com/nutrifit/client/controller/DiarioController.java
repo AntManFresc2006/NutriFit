@@ -37,6 +37,12 @@ public class DiarioController {
     private Label carbosLabel;
 
     @FXML
+    private Label kcalQuemadasLabel;
+
+    @FXML
+    private Label balanceNetoLabel;
+
+    @FXML
     private Label statusLabel;
 
     private final ResumenDiarioApiClient resumenDiarioApiClient = new ResumenDiarioApiClient();
@@ -83,6 +89,8 @@ public class DiarioController {
             proteinasLabel.setText(String.format("%.1f g", resumen.getProteinasTotales()));
             grasasLabel.setText(String.format("%.1f g", resumen.getGrasasTotales()));
             carbosLabel.setText(String.format("%.1f g", resumen.getCarbosTotales()));
+            kcalQuemadasLabel.setText(String.format("%.0f kcal", resumen.getKcalQuemadasTotales()));
+            balanceNetoLabel.setText(String.format("%.0f kcal", resumen.getBalanceNeto()));
             mostrarEstado("Resumen diario cargado correctamente", TipoEstado.EXITO);
         });
 

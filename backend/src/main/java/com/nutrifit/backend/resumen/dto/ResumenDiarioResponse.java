@@ -13,6 +13,8 @@ public class ResumenDiarioResponse {
     private double proteinasTotales;
     private double grasasTotales;
     private double carbosTotales;
+    private double kcalQuemadasTotales;
+    private double balanceNeto;
 
     public ResumenDiarioResponse() {
     }
@@ -23,7 +25,8 @@ public class ResumenDiarioResponse {
             double kcalTotales,
             double proteinasTotales,
             double grasasTotales,
-            double carbosTotales
+            double carbosTotales,
+            double kcalQuemadasTotales
     ) {
         this.usuarioId = usuarioId;
         this.fecha = fecha;
@@ -31,6 +34,8 @@ public class ResumenDiarioResponse {
         this.proteinasTotales = proteinasTotales;
         this.grasasTotales = grasasTotales;
         this.carbosTotales = carbosTotales;
+        this.kcalQuemadasTotales = kcalQuemadasTotales;
+        this.balanceNeto = kcalTotales - kcalQuemadasTotales;
     }
 
     public Long getUsuarioId() {
@@ -79,5 +84,21 @@ public class ResumenDiarioResponse {
 
     public void setCarbosTotales(double carbosTotales) {
         this.carbosTotales = carbosTotales;
+    }
+
+    public double getKcalQuemadasTotales() {
+        return kcalQuemadasTotales;
+    }
+
+    public void setKcalQuemadasTotales(double kcalQuemadasTotales) {
+        this.kcalQuemadasTotales = kcalQuemadasTotales;
+    }
+
+    public double getBalanceNeto() {
+        return balanceNeto;
+    }
+
+    public void setBalanceNeto(double balanceNeto) {
+        this.balanceNeto = balanceNeto;
     }
 }

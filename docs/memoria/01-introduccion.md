@@ -4,7 +4,7 @@
 
 El seguimiento de la alimentación es una práctica habitual en contextos de salud, deporte y gestión del peso. Registrar qué se come, cuánto y cuándo permite a una persona tener información objetiva sobre su ingesta calórica y su distribución de macronutrientes a lo largo del día. Sin esa información, cualquier ajuste dietético se basa en estimaciones subjetivas.
 
-Existen herramientas comerciales que cubren esta necesidad —aplicaciones móviles, plataformas web—, pero su complejidad interna queda oculta al usuario y, por tanto, al desarrollador que quiera aprender de ellas. NutriFit parte de esa misma necesidad funcional y la aborda como ejercicio de ingeniería: construir desde cero un sistema multicapa que gestione alimentos, registre comidas, calcule resúmenes nutricionales diarios y estime el gasto energético del usuario, con decisiones técnicas razonadas y documentadas en cada paso.
+Existen herramientas comerciales que cubren esta necesidad —aplicaciones móviles, plataformas web—, pero su complejidad interna queda oculta al usuario y, por tanto, al desarrollador que quiera aprender de ellas. NutriFit parte de esa misma necesidad funcional y la aborda como ejercicio de ingeniería: construir desde cero un sistema multicapa que gestione alimentos, registre comidas, calcule resúmenes nutricionales diarios, registre ejercicios y calcule las calorías quemadas mediante factor MET, y estime el gasto energético del usuario, con decisiones técnicas razonadas y documentadas en cada paso.
 
 ## 1.2 Problema que aborda el proyecto
 
@@ -20,13 +20,14 @@ El objetivo no es construir una aplicación de producción lista para usuarios f
 
 ## 1.4 Alcance del sistema
 
-NutriFit se desarrolla en su primera versión funcional, denominada MVP. El sistema cubre cinco áreas funcionales:
+NutriFit se desarrolla en su primera versión funcional, denominada MVP. El sistema cubre seis áreas funcionales:
 
 - **Autenticación**: registro, login y logout con invalidación inmediata del token en el servidor.
 - **Catálogo de alimentos**: creación, consulta, búsqueda por nombre, actualización y eliminación de alimentos con sus valores nutricionales por 100 gramos.
 - **Registro de comidas**: creación de comidas asociadas a una fecha y tipo de toma, con adición y eliminación de ítems que relacionan alimentos con cantidades en gramos.
 - **Resumen diario**: agregación del total de kilocalorías, proteínas, grasas e hidratos de carbono consumidos en una fecha, calculado directamente en base de datos.
 - **Perfil biométrico**: almacenamiento de los datos del usuario y cálculo automático de la Tasa Metabólica Basal (TMB) y el Gasto Energético Total Diario (TDEE) mediante la fórmula de Mifflin-St Jeor.
+- **Registro de ejercicios**: registro de sesiones de actividad física con cálculo automático de calorías quemadas mediante la fórmula MET × peso_kg × (duración_min / 60).
 
 Quedan fuera del alcance del MVP varias funcionalidades que se documentan explícitamente en §3.4: la validación sistemática del token en todos los endpoints protegidos, la pantalla de gestión de comidas en el cliente, el cifrado de la comunicación mediante HTTPS y el control de acceso por roles.
 

@@ -41,7 +41,7 @@ class ResumenDiarioServiceImplTest {
         @DisplayName("delega al repositorio con los argumentos correctos y devuelve el resultado")
         void delegaAlRepositorioYDevuelveElResultado() {
             ResumenDiarioResponse esperado = new ResumenDiarioResponse(
-                    USUARIO_ID, FECHA, 650.0, 45.0, 20.0, 80.0);
+                    USUARIO_ID, FECHA, 650.0, 45.0, 20.0, 80.0, 0.0);
             when(resumenDiarioRepository.obtenerResumenDiario(USUARIO_ID, FECHA)).thenReturn(esperado);
 
             ResumenDiarioResponse resultado = service.obtenerResumenDiario(USUARIO_ID, FECHA);
@@ -53,7 +53,7 @@ class ResumenDiarioServiceImplTest {
         @Test
         @DisplayName("día sin comidas: propaga el resumen con todos los valores a cero")
         void diaSinComidas_propagaResumenConValoresCero() {
-            ResumenDiarioResponse sinComidas = new ResumenDiarioResponse(USUARIO_ID, FECHA, 0, 0, 0, 0);
+            ResumenDiarioResponse sinComidas = new ResumenDiarioResponse(USUARIO_ID, FECHA, 0, 0, 0, 0, 0);
             when(resumenDiarioRepository.obtenerResumenDiario(USUARIO_ID, FECHA)).thenReturn(sinComidas);
 
             ResumenDiarioResponse resultado = service.obtenerResumenDiario(USUARIO_ID, FECHA);
@@ -68,7 +68,7 @@ class ResumenDiarioServiceImplTest {
         @DisplayName("valores nutricionales con decimales se propagan sin modificar")
         void valoresDecimales_sePropagaSinModificar() {
             ResumenDiarioResponse conDecimales = new ResumenDiarioResponse(
-                    USUARIO_ID, FECHA, 523.75, 38.25, 17.50, 61.30);
+                    USUARIO_ID, FECHA, 523.75, 38.25, 17.50, 61.30, 0.0);
             when(resumenDiarioRepository.obtenerResumenDiario(USUARIO_ID, FECHA)).thenReturn(conDecimales);
 
             ResumenDiarioResponse resultado = service.obtenerResumenDiario(USUARIO_ID, FECHA);

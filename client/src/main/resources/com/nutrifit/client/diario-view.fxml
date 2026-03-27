@@ -52,6 +52,12 @@
 
                 <Label text="Carbohidratos totales" style="-fx-text-fill: #e5e7eb; -fx-font-size: 16px;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
                 <Label fx:id="carbosLabel" text="0" style="-fx-text-fill: #fcd34d; -fx-font-size: 18px; -fx-font-weight: bold;" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Kcal quemadas" style="-fx-text-fill: #e5e7eb; -fx-font-size: 16px;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <Label fx:id="kcalQuemadasLabel" text="0 kcal" style="-fx-text-fill: #fb923c; -fx-font-size: 18px; -fx-font-weight: bold;" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <Label text="Balance neto (kcal)" style="-fx-text-fill: #e5e7eb; -fx-font-size: 16px;" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <Label fx:id="balanceNetoLabel" text="0 kcal" style="-fx-text-fill: #a78bfa; -fx-font-size: 18px; -fx-font-weight: bold;" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
             </GridPane>
         </VBox>
     </center>

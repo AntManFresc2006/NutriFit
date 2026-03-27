@@ -4,7 +4,7 @@
 
 NutriFit es una aplicación de escritorio funcional que permite registrar alimentos, crear comidas, agregar su contenido nutricional por día y calcular el gasto energético estimado a partir del perfil biométrico del usuario. Todo ello se sostiene sobre una arquitectura de tres capas —cliente JavaFX, backend Spring Boot y base de datos MariaDB— en la que cada componente tiene responsabilidades delimitadas y se comunica con el siguiente a través de una interfaz bien definida.
 
-El sistema no es un prototipo de interfaz ni una simulación: los cinco módulos del backend están implementados, exponen endpoints REST verificados y responden a las peticiones del cliente con datos reales almacenados en base de datos. El esquema está gestionado por Flyway y es reproducible desde cero en cualquier entorno. Los 46 tests unitarios del backend cubren la lógica de negocio relevante y pasan sin base de datos ni contexto de Spring activo.
+El sistema no es un prototipo de interfaz ni una simulación: los seis módulos del backend están implementados, exponen endpoints REST verificados y responden a las peticiones del cliente con datos reales almacenados en base de datos. El esquema está gestionado por Flyway y es reproducible desde cero en cualquier entorno. Los 60 tests unitarios del backend cubren la lógica de negocio relevante y pasan sin base de datos ni contexto de Spring activo.
 
 Dicho esto, el MVP tiene limitaciones conocidas y documentadas, recogidas en §3.4 y §7.3.
 

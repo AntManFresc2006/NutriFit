@@ -1,0 +1,7 @@
+target/
+client/
+*.log
+.git/
+.idea/
+*.md
+!README.md

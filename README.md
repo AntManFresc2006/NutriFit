@@ -23,3 +23,21 @@ Crear una base de datos llamada:
 
 ```sql
 CREATE DATABASE nutrifit;
+```
+
+## Docker
+
+Levantar la base de datos y el backend con un solo comando (construye la imagen si no existe):
+
+```bash
+docker-compose up --build
+```
+
+Parar y eliminar contenedores, red y volumen de datos:
+
+```bash
+docker-compose down -v
+```
+
+> El cliente JavaFX **no se incluye en Docker**; se lanza localmente apuntando a `localhost:8080`.
+> Asegúrate de que la aplicación de escritorio tenga configurada la URL base `http://localhost:8080`.

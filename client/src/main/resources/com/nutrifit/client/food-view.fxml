@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
@@ -155,6 +156,8 @@
                                 onAction="#onEliminar"
                                 style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
 
+                        <Region HBox.hgrow="ALWAYS"/>
+
                         <Button fx:id="diarioButton"
                                 text="Diario"
                                 onAction="#onAbrirDiario"
@@ -178,7 +181,8 @@
 
     <bottom>
         <Label fx:id="statusLabel"
-               text="Estado"
+               text="Listo"
+               maxWidth="Infinity"
                style="-fx-background-color: #020617; -fx-text-fill: #93c5fd; -fx-padding: 12; -fx-font-size: 13px;"/>
     </bottom>
 </BorderPane>

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nutrifit.client.model.ComidaDto;
 import com.nutrifit.client.model.ComidaItemDto;
+import com.nutrifit.client.session.SessionManager;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,9 +20,14 @@ import java.util.List;
 public class ComidaApiClient {
 
     private static final String BASE_URL = "http://localhost:8080/api/comidas";
+    private static final String AUTH_HEADER = "Authorization";
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static String bearerToken() {
+        return "Bearer " + SessionManager.getToken();
+    }
 
     /**
      * Lista las comidas de un usuario para una fecha concreta (formato yyyy-MM-dd).
@@ -31,6 +37,7 @@ public class ComidaApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
+                .header(AUTH_HEADER, bearerToken())
                 .GET()
                 .build();
 
@@ -50,6 +57,7 @@ public class ComidaApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "?usuarioId=" + usuarioId))
+                .header(AUTH_HEADER, bearerToken())
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
@@ -66,6 +74,7 @@ public class ComidaApiClient {
     public void eliminar(Long comidaId) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/" + comidaId))
+                .header(AUTH_HEADER, bearerToken())
                 .DELETE()
                 .build();
 
@@ -79,6 +88,7 @@ public class ComidaApiClient {
     public List<ComidaItemDto> getItems(Long comidaId) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/" + comidaId + "/items"))
+                .header(AUTH_HEADER, bearerToken())
                 .GET()
                 .build();
 
@@ -96,6 +106,7 @@ public class ComidaApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/" + comidaId + "/items"))
+                .header(AUTH_HEADER, bearerToken())
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
@@ -110,6 +121,7 @@ public class ComidaApiClient {
     public void eliminarItem(Long comidaId, Long itemId) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/" + comidaId + "/items/" + itemId))
+                .header(AUTH_HEADER, bearerToken())
                 .DELETE()
                 .build();
 

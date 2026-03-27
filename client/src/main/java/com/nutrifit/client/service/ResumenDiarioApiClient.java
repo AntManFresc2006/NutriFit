@@ -2,6 +2,7 @@ package com.nutrifit.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nutrifit.client.model.ResumenDiarioDto;
+import com.nutrifit.client.session.SessionManager;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,9 +18,14 @@ import java.nio.charset.StandardCharsets;
 public class ResumenDiarioApiClient {
 
     private static final String BASE_URL = "http://localhost:8080/api/resumen-diario";
+    private static final String AUTH_HEADER = "Authorization";
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static String bearerToken() {
+        return "Bearer " + SessionManager.getToken();
+    }
 
     public ResumenDiarioDto obtenerResumen(Long usuarioId, String fecha) throws IOException, InterruptedException {
         String url = BASE_URL
@@ -28,6 +34,7 @@ public class ResumenDiarioApiClient {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
+                .header(AUTH_HEADER, bearerToken())
                 .GET()
                 .build();
 

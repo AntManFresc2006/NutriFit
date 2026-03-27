@@ -160,6 +160,11 @@
                                 onAction="#onAbrirDiario"
                                 style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
 
+                        <Button fx:id="comidasButton"
+                                text="Comidas"
+                                onAction="#onAbrirComidas"
+                                style="-fx-background-color: #0891b2; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
                         <Button fx:id="perfilButton"
                                 text="Perfil"
                                 onAction="#onAbrirPerfil"

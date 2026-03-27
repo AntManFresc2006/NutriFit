@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.nutrifit.client.controller.ComidaController">
+
+    <top>
+        <VBox spacing="10"
+              style="-fx-background-color: linear-gradient(to right, #111827, #1f2937); -fx-padding: 18;">
+            <Label text="NutriFit"
+                   style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label text="Registro de comidas"
+                   style="-fx-text-fill: #cbd5e1; -fx-font-size: 14px;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.35">
+            <items>
+
+                <!-- Izquierda: selector de fecha + tabla de comidas del día -->
+                <VBox spacing="12"
+                      style="-fx-background-color: #0f172a; -fx-padding: 16;">
+
+                    <Label text="Fecha"
+                           style="-fx-text-fill: #e5e7eb; -fx-font-size: 13px;"/>
+
+                    <HBox spacing="8">
+                        <DatePicker fx:id="fechaPicker"
+                                    HBox.hgrow="ALWAYS"
+                                    onAction="#onCargarFecha"/>
+                        <Button text="Cargar"
+                                onAction="#onCargarFecha"
+                                style="-fx-background-color: #334155; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 8 14;"/>
+                    </HBox>
+
+                    <Label text="Comidas del día"
+                           style="-fx-text-fill: #e5e7eb; -fx-font-size: 13px;"/>
+
+                    <TableView fx:id="comidasTable"
+                               VBox.vgrow="ALWAYS"
+                               style="-fx-background-radius: 12;">
+                        <columns>
+                            <TableColumn fx:id="tipoColumn" text="Tipo" prefWidth="200"/>
+                        </columns>
+                    </TableView>
+
+                    <Label text="Nueva comida"
+                           style="-fx-text-fill: #e5e7eb; -fx-font-size: 13px;"/>
+
+                    <HBox spacing="8">
+                        <ComboBox fx:id="tipoComboBox"
+                                  HBox.hgrow="ALWAYS"
+                                  maxWidth="Infinity"/>
+                        <Button fx:id="nuevaComidaButton"
+                                text="Crear"
+                                onAction="#onNuevaComida"
+                                style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 8 14;"/>
+                    </HBox>
+
+                    <HBox spacing="8">
+                        <Button fx:id="eliminarComidaButton"
+                                text="Eliminar comida"
+                                onAction="#onEliminarComida"
+                                disable="true"
+                                style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 8 14;"/>
+
+                        <Button fx:id="alimentosButton"
+                                text="Alimentos"
+                                onAction="#onVolverAlimentos"
+                                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 8 14;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Derecha: items de la comida + buscador de alimentos -->
+                <VBox spacing="12"
+                      style="-fx-background-color: #111827; -fx-padding: 16;">
+
+                    <Label text="Alimentos de la comida"
+                           style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                    <TableView fx:id="itemsTable"
+                               VBox.vgrow="ALWAYS"
+                               style="-fx-background-radius: 12;">
+                        <columns>
+                            <TableColumn fx:id="itemNombreColumn"    text="Alimento"   prefWidth="180"/>
+                            <TableColumn fx:id="itemGramosColumn"    text="Gramos"     prefWidth="80"/>
+                            <TableColumn fx:id="itemKcalColumn"      text="Kcal"       prefWidth="80"/>
+                            <TableColumn fx:id="itemProteinasColumn" text="Proteínas"  prefWidth="90"/>
+                            <TableColumn fx:id="itemGrasasColumn"    text="Grasas"     prefWidth="80"/>
+                            <TableColumn fx:id="itemCarbosColumn"    text="Carbos"     prefWidth="80"/>
+                        </columns>
+                    </TableView>
+
+                    <Button fx:id="eliminarItemButton"
+                            text="Eliminar alimento seleccionado"
+                            onAction="#onEliminarItem"
+                            disable="true"
+                            style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 8 14;"/>
+
+                    <Label text="Añadir alimento"
+                           style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+                    <HBox spacing="8">
+                        <TextField fx:id="buscarAlimentoField"
+                                   promptText="Buscar alimento por nombre..."
+                                   HBox.hgrow="ALWAYS"
+                                   style="-fx-background-radius: 10; -fx-padding: 8; -fx-font-size: 13px;"/>
+                        <Button text="Buscar"
+                                onAction="#onBuscarAlimento"
+                                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 8 14;"/>
+                    </HBox>
+
+                    <TableView fx:id="alimentosBusquedaTable"
+                               prefHeight="150"
+                               style="-fx-background-radius: 12;">
+                        <columns>
+                            <TableColumn fx:id="alimentoNombreColumn" text="Nombre" prefWidth="300"/>
+                        </columns>
+                    </TableView>
+
+                    <HBox spacing="8">
+                        <Label text="Gramos:"
+                               style="-fx-text-fill: #e5e7eb;"
+                               HBox.hgrow="NEVER"/>
+                        <TextField fx:id="gramosField"
+                                   promptText="150"
+                                   prefWidth="100"
+                                   style="-fx-background-radius: 10; -fx-padding: 8; -fx-font-size: 13px;"/>
+                        <Button fx:id="anadirItemButton"
+                                text="Añadir"
+                                onAction="#onAnadirItem"
+                                disable="true"
+                                style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 8 14;"/>
+                    </HBox>
+                </VBox>
+
+            </items>
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <Label fx:id="statusLabel"
+               text="Estado"
+               maxWidth="Infinity"
+               style="-fx-background-color: #020617; -fx-text-fill: #93c5fd; -fx-padding: 12; -fx-font-size: 13px;"/>
+    </bottom>
+</BorderPane>

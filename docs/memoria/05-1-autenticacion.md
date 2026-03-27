@@ -82,7 +82,7 @@ Las contraseñas se almacenan exclusivamente como hash BCrypt mediante `Password
 
 El token de sesión es un UUID v4 generado por `UUID.randomUUID()`, que usa `SecureRandom` internamente. Se persiste en la tabla `sesiones` junto con `usuario_id` y `expires_at`. La invalidación en el logout consiste en eliminar esa fila. La justificación de usar un token opaco en lugar de JWT se recoge en el ADR 0005 y se desarrolla en §7.2.
 
-En el MVP actual, `SesionRepository` expone solo `save` y `deleteByToken`. La validación del token en cada petición protegida —verificar en `sesiones` que existe y no ha expirado— queda pendiente para fases posteriores.
+La validación del token en cada petición protegida se implementa mediante `AuthInterceptor`, un `HandlerInterceptor` Spring MVC registrado en `WebMvcConfig` para todas las rutas `/api/**` excepto `/api/auth/login` y `/api/auth/register`. El interceptor extrae el token de la cabecera `Authorization: Bearer <token>`, consulta `sesionRepository.findByToken()` —método añadido a `SesionRepository` y a `JdbcSesionRepository`— y comprueba que la sesión existe y que `expiresAt` es posterior al momento actual. Si alguna comprobación falla, lanza `UnauthorizedException`, que `GlobalExceptionHandler` convierte en HTTP 401 con la estructura `ApiError` estándar.
 
 ---
 

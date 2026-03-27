@@ -108,7 +108,7 @@ sesionRepository.save(sesion);
 
 El token se devuelve al cliente en el cuerpo de la respuesta como parte de `AuthResponse`.
 
-**Uso.** El cliente incluye el token en cada petición mediante la cabecera `Authorization: Bearer <token>`. El controlador de logout extrae el valor de esa cabecera antes de pasarlo al servicio:
+**Uso.** El cliente incluye el token en cada petición protegida mediante la cabecera `Authorization: Bearer <token>`. Cada `ApiClient` del cliente JavaFX lee el token de `SessionManager.getToken()` y lo añade a la cabecera antes de enviar la petición. En el backend, `AuthInterceptor` —un `HandlerInterceptor` registrado en `WebMvcConfig`— intercepta todas las peticiones a `/api/**` excepto `/api/auth/login` y `/api/auth/register`. Para cada petición interceptada extrae el token de la cabecera, consulta `SesionRepository.findByToken()` y verifica que la sesión existe y que `expiresAt` es posterior al momento actual. Si alguna comprobación falla, lanza `UnauthorizedException`, que `GlobalExceptionHandler` convierte en HTTP 401. El controlador de logout extrae el valor de esa cabecera antes de pasarlo al servicio:
 
 ```java
 // AuthController.java
@@ -165,14 +165,6 @@ Las medidas descritas en las secciones anteriores cubren los aspectos más crít
 
 El backend no tiene HTTPS configurado. Las comunicaciones entre el cliente JavaFX y la API REST se realizan sobre HTTP plano. En el contexto actual — ambos procesos en la misma máquina local — esto no supone un vector de ataque real, ya que el tráfico no sale de la interfaz de loopback. En cualquier escenario donde el backend fuera accesible por red, los tokens y las contraseñas viajarían en claro.
 
-### Validación del token no aplicada globalmente
-
-La infraestructura de token está completa: generación, almacenamiento, expiración y borrado en logout. Lo que no está implementado es la validación del token como requisito previo en los endpoints protegidos. En el MVP actual, un endpoint como `GET /api/alimentos` responde aunque la petición no incluya un token válido o no incluya ninguno. El único endpoint que extrae y procesa el token en la cabecera es `/api/auth/logout`.
-
-Esto significa que, en la práctica, la autenticación protege el acceso lógico desde el cliente, pero no impide peticiones directas a la API sin credenciales. La protección es suficiente para el contexto de una aplicación de escritorio local donde el servidor solo escucha en `localhost`, pero no sería aceptable en un entorno expuesto.
-
-El paso natural para resolverlo sería implementar un filtro de Spring que intercepte todas las peticiones a `/api/**` (excepto `/api/auth/login` y `/api/auth/register`), consulte la tabla `sesiones` con el token recibido y rechace las peticiones sin token válido con HTTP 401.
-
 ### Contraseña mínima de seis caracteres
 
 La restricción `@Size(min = 6)` en `RegisterRequest` establece el umbral mínimo de longitud. Seis caracteres es un límite bajo para una contraseña; lo habitual en aplicaciones en producción es exigir al menos ocho, con requisitos adicionales de complejidad. La limitación es conocida y deliberada para simplificar las pruebas durante el desarrollo.
@@ -181,6 +173,6 @@ La restricción `@Size(min = 6)` en `RegisterRequest` establece el umbral mínim
 
 ## Cierre de la sección
 
-NutriFit implementa las dos medidas de seguridad más relevantes para su alcance: las contraseñas se almacenan con BCrypt, de modo que un volcado de la base de datos no expone credenciales en texto plano; y el mecanismo de sesión con token opaco permite un logout real e inmediato, a diferencia de soluciones basadas en tokens firmados sin estado servidor. El cliente no persiste el token fuera de la memoria de proceso.
+NutriFit implementa las medidas de seguridad más relevantes para su alcance: las contraseñas se almacenan con BCrypt, de modo que un volcado de la base de datos no expone credenciales en texto plano; el mecanismo de sesión con token opaco permite un logout real e inmediato; todos los endpoints protegidos exigen un token válido y no expirado mediante `AuthInterceptor`; y el cliente incluye el token en cada llamada autenticada. El token no se persiste fuera de la memoria de proceso.
 
-Las limitaciones documentadas — ausencia de HTTPS, validación de token no aplicada a todos los endpoints, umbral de contraseña bajo — son consecuencia directa del alcance del MVP y no de decisiones de diseño irreversibles. La arquitectura del backend está preparada para incorporar esas mejoras sin cambios estructurales.
+Las limitaciones documentadas —ausencia de HTTPS y umbral de contraseña bajo— son consecuencia directa del alcance del MVP y no de decisiones de diseño irreversibles.

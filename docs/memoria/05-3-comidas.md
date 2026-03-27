@@ -177,9 +177,11 @@ public interface ComidaRepository {
 
 ## 5.3.11 Integración con el cliente JavaFX
 
-En la versión actual del cliente no existe una pantalla dedicada a la gestión de comidas. Los endpoints del módulo están implementados y son funcionales en el backend, pero el cliente no los consume directamente.
+El cliente dispone de una pantalla dedicada a la gestión de comidas, implementada en `ComidaController` y `comida-view.fxml`. La pantalla está dividida en dos paneles: el izquierdo muestra las comidas del día seleccionado mediante un `DatePicker` y permite crear nuevas comidas eligiendo el tipo en un `ComboBox`; el derecho muestra los ítems de la comida seleccionada —con nombre, gramos y valores nutricionales calculados— y proporciona un buscador de alimentos para añadir nuevos ítems con los gramos deseados.
 
-Lo que el cliente sí muestra es el resultado agregado: `DiarioController` llama a `ResumenDiarioApiClient`, que obtiene los totales del día desde `/api/resumen-diario` y los presenta junto al TDEE del usuario recuperado de `SessionManager`. Para que el resumen muestre datos, las comidas deben haberse registrado previamente a través del backend —por ejemplo, mediante una herramienta de pruebas HTTP—. La pantalla de gestión de comidas es una funcionalidad pendiente en el cliente.
+Las operaciones disponibles desde la interfaz son: listar comidas por fecha, crear comida, eliminar comida, buscar alimento en el catálogo, añadir alimento con gramos a una comida, ver el detalle nutricional de cada ítem y eliminar un ítem individual. Todas las llamadas a la API se realizan a través de `ComidaApiClient`, que incluye la cabecera `Authorization: Bearer <token>` con el token almacenado en `SessionManager`.
+
+La pantalla es accesible desde `food-view.fxml` mediante el botón «Comidas» añadido al panel de navegación. El resumen diario (`DiarioController`) sigue mostrando la agregación del día a través de `ResumenDiarioApiClient`, ahora también autenticado.
 
 ---
 
@@ -197,4 +199,4 @@ Lo que el cliente sí muestra es el resultado agregado: `DiarioController` llama
 
 ## 5.3.13 Tests
 
-El módulo de comidas no dispone de tests automatizados. No existe ninguna clase `ComidaServiceImplTest` ni test de integración sobre el controlador o el repositorio. La cobertura de pruebas del proyecto se describe en §6.
+`ComidaServiceImplTest` contiene diecisiete tests unitarios agrupados en cinco clases anidadas: `Save`, `FindByUsuarioAndFecha`, `DeleteById`, `AddAlimentoToComida`, `FindDetalleItemsByComidaId` y `DeleteItem`. Los dos colaboradores de `ComidaServiceImpl` —`ComidaRepository` y `AlimentoRepository`— se sustituyen por mocks de Mockito; no se requiere base de datos ni contexto de Spring. Los casos cubiertos incluyen creación con normalización del tipo, listado por fecha, borrado con verificación previa, adición de ítems con comprobación de existencia de comida y alimento, y borrado de ítem con verificación de pertenencia a la comida. La descripción completa de la batería de pruebas del backend se recoge en §6.

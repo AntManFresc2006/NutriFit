@@ -55,13 +55,13 @@ public class DiarioController {
 
     private void cargarResumen() {
         if (!SessionManager.isLoggedIn()) {
-            mostrarEstado("No hay sesión activa", false);
+            mostrarEstado("No hay sesión activa", TipoEstado.ERROR);
             return;
         }
 
         LocalDate fecha = fechaPicker.getValue();
         if (fecha == null) {
-            mostrarEstado("Selecciona una fecha válida", false);
+            mostrarEstado("Selecciona una fecha válida", TipoEstado.ERROR);
             return;
         }
 
@@ -76,29 +76,33 @@ public class DiarioController {
             ResumenDiarioDto resumen = task.getValue();
             double tdee = SessionManager.getTdee();
             if (tdee > 0) {
-                kcalLabel.setText(resumen.getKcalTotales() + " / " + tdee + " kcal");
+                kcalLabel.setText(String.format("%.0f / %.0f kcal", resumen.getKcalTotales(), tdee));
             } else {
-                kcalLabel.setText(String.valueOf(resumen.getKcalTotales()));
+                kcalLabel.setText(String.format("%.0f kcal", resumen.getKcalTotales()));
             }
-            proteinasLabel.setText(String.valueOf(resumen.getProteinasTotales()));
-            grasasLabel.setText(String.valueOf(resumen.getGrasasTotales()));
-            carbosLabel.setText(String.valueOf(resumen.getCarbosTotales()));
-            mostrarEstado("Resumen diario cargado correctamente", true);
+            proteinasLabel.setText(String.format("%.1f g", resumen.getProteinasTotales()));
+            grasasLabel.setText(String.format("%.1f g", resumen.getGrasasTotales()));
+            carbosLabel.setText(String.format("%.1f g", resumen.getCarbosTotales()));
+            mostrarEstado("Resumen diario cargado correctamente", TipoEstado.EXITO);
         });
 
         task.setOnFailed(event -> {
             Throwable error = task.getException();
-            mostrarEstado("Error al cargar el resumen: " + (error != null ? error.getMessage() : "Error desconocido"), false);
+            mostrarEstado("Error al cargar el resumen: " + (error != null ? error.getMessage() : "Error desconocido"), TipoEstado.ERROR);
         });
 
-        mostrarEstado("Cargando resumen diario...", true);
+        mostrarEstado("Cargando resumen diario...", TipoEstado.INFO);
         Thread hilo = new Thread(task);
         hilo.setDaemon(true);
         hilo.start();
     }
 
-    private void mostrarEstado(String mensaje, boolean ok) {
-        String color = ok ? "#93c5fd" : "#fca5a5";
+    private void mostrarEstado(String mensaje, TipoEstado tipo) {
+        String color = switch (tipo) {
+            case EXITO -> "#86efac";
+            case ERROR -> "#fca5a5";
+            default    -> "#93c5fd";
+        };
         statusLabel.setText(mensaje);
         statusLabel.setStyle(
                 "-fx-background-color: #020617; " +
@@ -107,6 +111,9 @@ public class DiarioController {
                 "-fx-font-size: 13px;"
         );
     }
+
+    private enum TipoEstado { INFO, EXITO, ERROR }
+
     @FXML
     private void onVolver() {
     try {
@@ -120,7 +127,7 @@ public class DiarioController {
         stage.setScene(scene);
         stage.show();
     } catch (Exception e) {
-        mostrarEstado("No se pudo volver a la pantalla de alimentos: " + e.getMessage(), false);
+        mostrarEstado("No se pudo volver a la pantalla de alimentos: " + e.getMessage(), TipoEstado.ERROR);
     }
 }
 

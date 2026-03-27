@@ -28,11 +28,11 @@
             <HBox spacing="12">
                 <DatePicker fx:id="fechaPicker"/>
                 <Button text="Recargar"
-                onAction="#onRecargar"
-                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+                        onAction="#onRecargar"
+                        style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
                 <Button text="Volver"
-                onAction="#onVolver"
-                style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+                        onAction="#onVolver"
+                        style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
             </HBox>
 
 
@@ -59,6 +59,7 @@
     <bottom>
         <Label fx:id="statusLabel"
                text="Cargando resumen..."
+               maxWidth="Infinity"
                style="-fx-background-color: #020617; -fx-text-fill: #93c5fd; -fx-padding: 12; -fx-font-size: 13px;"/>
     </bottom>
 </BorderPane>

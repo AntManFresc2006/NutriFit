@@ -54,15 +54,15 @@ public class PerfilController {
 
         task.setOnSucceeded(event -> {
             poblarFormulario(task.getValue());
-            mostrarEstado("Perfil cargado correctamente", true);
+            mostrarEstado("Perfil cargado correctamente", TipoEstado.EXITO);
         });
 
         task.setOnFailed(event -> {
             Throwable error = task.getException();
-            mostrarEstado("Error al cargar el perfil: " + (error != null ? error.getMessage() : "Error desconocido"), false);
+            mostrarEstado("Error al cargar el perfil: " + (error != null ? error.getMessage() : "Error desconocido"), TipoEstado.ERROR);
         });
 
-        mostrarEstado("Cargando perfil...", true);
+        mostrarEstado("Cargando perfil...", TipoEstado.INFO);
         ejecutar(task);
     }
 
@@ -70,7 +70,7 @@ public class PerfilController {
     private void onGuardar() {
         String errorValidacion = validar();
         if (errorValidacion != null) {
-            mostrarEstado(errorValidacion, false);
+            mostrarEstado(errorValidacion, TipoEstado.ERROR);
             return;
         }
 
@@ -95,18 +95,18 @@ public class PerfilController {
             PerfilDto actualizado = task.getValue();
             poblarFormulario(actualizado);
             SessionManager.setTdee(actualizado.getTdee());
-            mostrarEstado("Perfil actualizado correctamente", true);
+            mostrarEstado("Perfil actualizado correctamente", TipoEstado.EXITO);
             guardarButton.setDisable(false);
         });
 
         task.setOnFailed(event -> {
             Throwable error = task.getException();
-            mostrarEstado("Error al guardar: " + (error != null ? error.getMessage() : "Error desconocido"), false);
+            mostrarEstado("Error al guardar: " + (error != null ? error.getMessage() : "Error desconocido"), TipoEstado.ERROR);
             guardarButton.setDisable(false);
         });
 
         guardarButton.setDisable(true);
-        mostrarEstado("Guardando cambios...", true);
+        mostrarEstado("Guardando cambios...", TipoEstado.INFO);
         ejecutar(task);
     }
 
@@ -123,7 +123,7 @@ public class PerfilController {
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
-            mostrarEstado("No se pudo volver a la pantalla de alimentos: " + e.getMessage(), false);
+            mostrarEstado("No se pudo volver a la pantalla de alimentos: " + e.getMessage(), TipoEstado.ERROR);
         }
     }
 
@@ -134,8 +134,8 @@ public class PerfilController {
         pesoField.setText(String.valueOf(perfil.getPesoKgActual()));
         pesoObjetivoField.setText(perfil.getPesoObjetivo() != null ? String.valueOf(perfil.getPesoObjetivo()) : "");
         nivelActividadCombo.setValue(perfil.getNivelActividad());
-        tmbLabel.setText(String.valueOf(perfil.getTmb()));
-        tdeeLabel.setText(String.valueOf(perfil.getTdee()));
+        tmbLabel.setText(String.format("%.0f kcal/día", perfil.getTmb()));
+        tdeeLabel.setText(String.format("%.0f kcal/día", perfil.getTdee()));
     }
 
     private String validar() {
@@ -177,8 +177,12 @@ public class PerfilController {
         hilo.start();
     }
 
-    private void mostrarEstado(String mensaje, boolean ok) {
-        String color = ok ? "#93c5fd" : "#fca5a5";
+    private void mostrarEstado(String mensaje, TipoEstado tipo) {
+        String color = switch (tipo) {
+            case EXITO -> "#86efac";
+            case ERROR -> "#fca5a5";
+            default    -> "#93c5fd";
+        };
         statusLabel.setText(mensaje);
         statusLabel.setStyle(
                 "-fx-background-color: #020617; " +
@@ -187,4 +191,6 @@ public class PerfilController {
                 "-fx-font-size: 13px;"
         );
     }
+
+    private enum TipoEstado { INFO, EXITO, ERROR }
 }

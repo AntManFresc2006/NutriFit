@@ -96,6 +96,7 @@
     <bottom>
         <Label fx:id="statusLabel"
                text="Introduce tus credenciales o crea una cuenta nueva"
+               maxWidth="Infinity"
                style="-fx-background-color: #020617; -fx-text-fill: #93c5fd; -fx-padding: 12; -fx-font-size: 13px;"/>
     </bottom>
 </BorderPane>

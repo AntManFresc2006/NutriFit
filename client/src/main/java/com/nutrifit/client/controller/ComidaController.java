@@ -198,7 +198,7 @@ public class ComidaController {
             itemsTable.getItems().setAll(task.getValue());
             itemSeleccionado = null;
             eliminarItemButton.setDisable(true);
-            mostrarEstado("Items cargados", TipoEstado.INFO);
+            mostrarEstado("Alimentos de la comida cargados", TipoEstado.INFO);
         });
 
         ejecutarEnSegundoPlano(task, "Cargando alimentos de la comida...");

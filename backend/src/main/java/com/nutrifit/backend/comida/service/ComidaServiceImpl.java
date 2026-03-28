@@ -15,7 +15,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Implementación de la lógica de negocio del módulo de comidas.
+ * Lógica de negocio del módulo de comidas.
+ *
+ * <p>Se inyecta {@code AlimentoRepository} además del propio repositorio de comidas
+ * para poder validar que el alimento existe antes de añadirlo a una comida,
+ * sin depender de que la FK de la base de datos lance un error poco descriptivo.</p>
  */
 @Service
 public class ComidaServiceImpl implements ComidaService {
@@ -32,6 +36,7 @@ public class ComidaServiceImpl implements ComidaService {
 
     @Override
     public void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request) {
+        // Validar existencia antes de insertar para devolver 404 claro en lugar de error SQL
         comidaRepository.findById(comidaId)
                 .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + comidaId));
 
@@ -42,12 +47,12 @@ public class ComidaServiceImpl implements ComidaService {
     }
 
     @Override
-public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
-    comidaRepository.findById(comidaId)
-            .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + comidaId));
+    public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
+        comidaRepository.findById(comidaId)
+                .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + comidaId));
 
-    return comidaRepository.findDetalleItemsByComidaId(comidaId);
-}
+        return comidaRepository.findDetalleItemsByComidaId(comidaId);
+    }
 
     @Override
     public List<ComidaResponse> findByUsuarioAndFecha(Long usuarioId, LocalDate fecha) {
@@ -62,6 +67,7 @@ public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId)
         Comida comida = new Comida();
         comida.setUsuarioId(usuarioId);
         comida.setFecha(request.getFecha());
+        // Normalizar a mayúsculas para evitar duplicados como "desayuno" y "DESAYUNO"
         comida.setTipo(request.getTipo().trim().toUpperCase());
 
         Comida guardada = comidaRepository.save(comida);
@@ -80,6 +86,7 @@ public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId)
         ComidaAlimento item = comidaRepository.findItemById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un item con id " + itemId));
 
+        // Verificar que el item pertenece a la comida indicada para evitar borrados cruzados
         if (!item.getComidaId().equals(comidaId)) {
             throw new ResourceNotFoundException("El item " + itemId + " no pertenece a la comida " + comidaId);
         }

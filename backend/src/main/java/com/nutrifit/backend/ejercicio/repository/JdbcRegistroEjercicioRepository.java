@@ -13,6 +13,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Acceso a datos JDBC para los registros de actividad física diaria.
+ *
+ * <p>Las kcal quemadas se almacenan ya calculadas en el momento del INSERT
+ * (el servicio las calcula antes de llamar a {@code save}), por lo que las
+ * queries de lectura no necesitan hacer ningún cálculo adicional.</p>
+ */
 @Repository
 public class JdbcRegistroEjercicioRepository implements RegistroEjercicioRepository {
 
@@ -22,6 +29,14 @@ public class JdbcRegistroEjercicioRepository implements RegistroEjercicioReposit
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Devuelve los registros del día con el nombre del ejercicio ya incluido.
+     *
+     * <p>Se hace JOIN con {@code ejercicios} para evitar que el cliente tenga que
+     * hacer una petición extra al catálogo solo para mostrar el nombre.
+     * INNER JOIN es correcto porque un registro sin ejercicio vinculado sería
+     * un dato corrupto que no debería mostrarse.</p>
+     */
     @Override
     public List<RegistroEjercicioResponse> findByUsuarioAndFecha(Long usuarioId, LocalDate fecha) {
         String sql = """
@@ -85,7 +100,7 @@ public class JdbcRegistroEjercicioRepository implements RegistroEjercicioReposit
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, registro.getUsuarioId());
             ps.setLong(2, registro.getEjercicioId());
-            ps.setObject(3, registro.getFecha());
+            ps.setObject(3, registro.getFecha());  // LocalDate → DATE sin conversión manual
             ps.setInt(4, registro.getDuracionMin());
             ps.setDouble(5, registro.getKcalQuemadas());
             return ps;

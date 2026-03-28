@@ -9,23 +9,28 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import com.nutrifit.backend.common.exception.UnauthorizedException;
 import java.time.LocalDateTime;
 
 /**
- * Manejador global de excepciones de la API.
- * Se encarga de transformar errores internos o de validación en respuestas JSON
- * limpias y coherentes para el cliente.
+ * Punto central de traducción de excepciones a respuestas HTTP en NutriFit.
+ *
+ * <p>Sin esta clase, Spring devolvería stacktraces en texto plano o respuestas
+ * vacías con códigos de error, lo que obligaría al cliente JavaFX a parsear
+ * formatos variables. Aquí todas las excepciones se convierten a {@link ApiError}
+ * con estructura JSON consistente.</p>
+ *
+ * <p>Orden de prioridad de los handlers: Spring elige el más específico, por lo que
+ * {@code handleGeneric} solo actúa si ningún handler más concreto coincide.</p>
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * Maneja errores cuando el recurso solicitado no existe.
+     * El recurso solicitado no existe en base de datos.
      *
-     * @param ex excepción lanzada en la lógica de negocio
-     * @param request petición HTTP original
-     * @return respuesta 404 con estructura uniforme
+     * <p>Esta excepción la lanzan los servicios cuando un {@code findById} no encuentra
+     * el registro; aquí la convertimos en 404 en lugar de dejar que el 500 genérico
+     * oculte lo que realmente pasó.</p>
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
@@ -34,11 +39,11 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja errores de validación sobre los DTOs anotados con @Valid.
+     * Un DTO anotado con {@code @Valid} no superó la validación de Jakarta.
      *
-     * @param ex excepción producida por un DTO inválido
-     * @param request petición HTTP original
-     * @return respuesta 400 con el primer mensaje de validación encontrado
+     * <p>Se extrae solo el primer error de campo para no abrumar al cliente con
+     * una lista entera. El mensaje viene de la anotación del DTO (p.ej. "El nombre es obligatorio"),
+     * no de aquí.</p>
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
@@ -46,7 +51,7 @@ public class GlobalExceptionHandler {
                 .getFieldErrors()
                 .stream()
                 .findFirst()
-                .map(fieldError -> fieldError.getDefaultMessage())
+                .map(org.springframework.context.MessageSourceResolvable::getDefaultMessage)
                 .orElse("Error de validación");
 
         ApiError error = buildError(HttpStatus.BAD_REQUEST, message, request.getRequestURI());
@@ -54,11 +59,11 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja errores de petición mal formada o datos inválidos en la entrada.
+     * Petición malformada: JSON inválido, enum desconocido o violación de constraint de parámetro.
      *
-     * @param ex excepción producida durante el procesamiento de la petición
-     * @param request petición HTTP original
-     * @return respuesta 400 con información del error
+     * <p>{@code HttpMessageNotReadableException} cubre cosas como enviar un string donde
+     * se espera un número o un valor de enum que no existe. Se agrupa con los otros 400
+     * porque el origen es siempre un error del cliente, no del servidor.</p>
      */
     @ExceptionHandler({
             IllegalArgumentException.class,
@@ -71,11 +76,20 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja cualquier error no contemplado específicamente.
+     * Token ausente, inválido o caducado; lo lanza el {@code AuthInterceptor}.
+     */
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorized(UnauthorizedException ex, HttpServletRequest request) {
+        ApiError error = buildError(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    /**
+     * Captura cualquier excepción no contemplada en los handlers anteriores.
      *
-     * @param ex excepción genérica
-     * @param request petición HTTP original
-     * @return respuesta 500 con mensaje controlado
+     * <p>El mensaje del error interno se oculta al cliente de forma deliberada
+     * para no exponer detalles de implementación ni mensajes de base de datos.
+     * El stacktrace completo sí queda en los logs del servidor.</p>
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest request) {
@@ -87,14 +101,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    /**
-     * Construye el objeto de error estándar devuelto por la API.
-     *
-     * @param status código HTTP asociado al error
-     * @param message mensaje explicativo
-     * @param path ruta donde se produjo el error
-     * @return objeto ApiError listo para enviarse al cliente
-     */
     private ApiError buildError(HttpStatus status, String message, String path) {
         return new ApiError(
                 LocalDateTime.now(),
@@ -103,10 +109,5 @@ public class GlobalExceptionHandler {
                 message,
                 path
         );
-    }
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ApiError> handleUnauthorized(UnauthorizedException ex, HttpServletRequest request) {
-        ApiError error = buildError(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 }

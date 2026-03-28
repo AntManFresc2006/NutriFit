@@ -65,6 +65,22 @@ class ResumenDiarioServiceImplTest {
         }
 
         @Test
+        @DisplayName("día con solo ejercicio y sin comidas: refleja el gasto calórico correctamente")
+        void diaSoloEjercicio_reflejaKcalQuemadas() {
+            // Día en que el usuario sale a correr pero no registra comidas.
+            // La query ya no depende de `comidas` como tabla base, así que
+            // kcal_quemadas_totales debe ser mayor que cero aunque la ingesta sea 0.
+            ResumenDiarioResponse soloEjercicio = new ResumenDiarioResponse(USUARIO_ID, FECHA, 0, 0, 0, 0, 350.0);
+            when(resumenDiarioRepository.obtenerResumenDiario(USUARIO_ID, FECHA)).thenReturn(soloEjercicio);
+
+            ResumenDiarioResponse resultado = service.obtenerResumenDiario(USUARIO_ID, FECHA);
+
+            assertThat(resultado.getKcalTotales()).isZero();
+            assertThat(resultado.getKcalQuemadasTotales()).isEqualTo(350.0);
+            assertThat(resultado.getBalanceNeto()).isEqualTo(-350.0);
+        }
+
+        @Test
         @DisplayName("valores nutricionales con decimales se propagan sin modificar")
         void valoresDecimales_sePropagaSinModificar() {
             ResumenDiarioResponse conDecimales = new ResumenDiarioResponse(

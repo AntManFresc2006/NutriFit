@@ -12,12 +12,18 @@ import java.util.Map;
 
 /**
  * Implementación alternativa del resumen diario que delega el cálculo al
- * stored procedure {@code sp_resumen_diario} (definido en V8__sp_resumen_diario.sql).
+ * stored procedure {@code sp_resumen_diario} (definido en V9__update_sp_resumen_diario.sql).
  *
  * <p>Esta clase <strong>no está activa</strong>: la anotación {@code @Repository}
  * se omite intencionadamente para que Spring no la registre como bean y no entre
- * en conflicto con {@link JdbcResumenDiarioRepository}. Para activarla basta con
- * añadir {@code @Repository} y eliminar dicha anotación de la implementación JDBC.</p>
+ * en conflicto con {@link JdbcResumenDiarioRepository}. Se mantiene como implementación
+ * alternativa que demuestra el uso del stored procedure. Para activarla basta con
+ * añadir {@code @Repository} aquí y eliminar dicha anotación de {@link JdbcResumenDiarioRepository}.</p>
+ *
+ * <p>El stored procedure devuelve las columnas {@code usuario_id}, {@code fecha},
+ * {@code kcal_totales}, {@code proteinas_totales}, {@code grasas_totales},
+ * {@code carbos_totales} y {@code kcal_quemadas_totales}, que coinciden exactamente
+ * con lo que mapea el {@code RowMapper} de esta clase.</p>
  */
 public class SpResumenDiarioRepository implements ResumenDiarioRepository {
 

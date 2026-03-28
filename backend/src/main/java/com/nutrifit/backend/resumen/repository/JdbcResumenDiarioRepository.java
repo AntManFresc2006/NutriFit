@@ -28,44 +28,47 @@ public class JdbcResumenDiarioRepository implements ResumenDiarioRepository {
         /*
          * Estructura de la query:
          *
-         *  - La tabla principal es `comidas` (una fila por comida del día).
-         *  - LEFT JOIN a `comida_alimentos` y `alimentos` para calcular los macros
-         *    proporcionales a los gramos registrados: (kcal_por_100g * gramos) / 100.
-         *    LEFT JOIN en lugar de INNER porque una comida puede existir sin alimentos.
-         *  - Subconsulta sobre `ejercicios_registro` que suma las kcal quemadas del día.
-         *    Se precalcula como subquery y se une al resultado principal para evitar
-         *    un producto cartesiano si hubiera varios registros de ejercicio.
-         *  - COALESCE(..., 0) para que días sin datos devuelvan cero en lugar de NULL.
-         *  - El `usuarioId` y `fecha` aparecen dos veces: una en la subconsulta de
-         *    ejercicios y otra en el WHERE principal; por eso se pasan 4 parámetros.
+         *  - Dos subqueries de agregación independientes sin GROUP BY, una para la
+         *    ingesta (comidas + alimentos) y otra para el gasto (ejercicios_registro).
+         *  - En MySQL, SELECT SUM(...) sin GROUP BY siempre devuelve EXACTAMENTE UNA
+         *    fila aunque no haya datos coincidentes: devuelve NULL, no cero filas.
+         *    El JOIN de dos subqueries de una fila produce siempre una fila.
+         *  - Esto corrige el caso en que un día tiene ejercicio pero ninguna comida:
+         *    la query anterior usaba FROM comidas como tabla base, por lo que esos
+         *    días devolvían cero en todos los campos incluyendo kcal_quemadas_totales.
+         *  - COALESCE(..., 0) convierte los NULL de días sin datos en 0.
+         *  - usuarioId y fecha se pasan dos veces (una por cada subquery).
          */
         String sql = """
                 SELECT
-                    c.usuario_id,
-                    c.fecha,
-                    COALESCE(ROUND(SUM((a.kcal_por_100g * ca.gramos) / 100), 2), 0) AS kcal_totales,
-                    COALESCE(ROUND(SUM((a.proteinas_g * ca.gramos) / 100), 2), 0) AS proteinas_totales,
-                    COALESCE(ROUND(SUM((a.grasas_g * ca.gramos) / 100), 2), 0) AS grasas_totales,
-                    COALESCE(ROUND(SUM((a.carbos_g * ca.gramos) / 100), 2), 0) AS carbos_totales,
-                    COALESCE(er.kcal_ejercicio, 0) AS kcal_quemadas_totales
-                FROM comidas c
-                LEFT JOIN comida_alimentos ca ON ca.comida_id = c.id
-                LEFT JOIN alimentos a ON a.id = ca.alimento_id
-                LEFT JOIN (
-                    SELECT usuario_id, fecha, COALESCE(ROUND(SUM(kcal_quemadas), 2), 0) AS kcal_ejercicio
+                    COALESCE(ROUND(i.kcal_totales,      2), 0) AS kcal_totales,
+                    COALESCE(ROUND(i.proteinas_totales, 2), 0) AS proteinas_totales,
+                    COALESCE(ROUND(i.grasas_totales,    2), 0) AS grasas_totales,
+                    COALESCE(ROUND(i.carbos_totales,    2), 0) AS carbos_totales,
+                    COALESCE(ROUND(e.kcal_quemadas_totales, 2), 0) AS kcal_quemadas_totales
+                FROM (
+                    SELECT
+                        SUM((a.kcal_por_100g * ca.gramos) / 100) AS kcal_totales,
+                        SUM((a.proteinas_g   * ca.gramos) / 100) AS proteinas_totales,
+                        SUM((a.grasas_g      * ca.gramos) / 100) AS grasas_totales,
+                        SUM((a.carbos_g      * ca.gramos) / 100) AS carbos_totales
+                    FROM comidas c
+                    LEFT JOIN comida_alimentos ca ON ca.comida_id = c.id
+                    LEFT JOIN alimentos        a  ON a.id         = ca.alimento_id
+                    WHERE c.usuario_id = ? AND c.fecha = ?
+                ) i
+                JOIN (
+                    SELECT SUM(kcal_quemadas) AS kcal_quemadas_totales
                     FROM ejercicios_registro
                     WHERE usuario_id = ? AND fecha = ?
-                    GROUP BY usuario_id, fecha
-                ) er ON er.usuario_id = c.usuario_id AND er.fecha = c.fecha
-                WHERE c.usuario_id = ? AND c.fecha = ?
-                GROUP BY c.usuario_id, c.fecha, er.kcal_ejercicio
+                ) e ON 1=1
                 """;
 
         return jdbcTemplate.query(sql, rs -> {
             if (rs.next()) {
                 return new ResumenDiarioResponse(
-                        rs.getLong("usuario_id"),
-                        rs.getDate("fecha").toLocalDate(),
+                        usuarioId,
+                        fecha,
                         rs.getDouble("kcal_totales"),
                         rs.getDouble("proteinas_totales"),
                         rs.getDouble("grasas_totales"),
@@ -73,8 +76,8 @@ public class JdbcResumenDiarioRepository implements ResumenDiarioRepository {
                         rs.getDouble("kcal_quemadas_totales")
                 );
             }
-
-            // Sin comidas registradas ese día: devolver ceros en lugar de 404
+            // Rama defensiva: no debería alcanzarse con la query actual,
+            // que siempre devuelve una fila.
             return new ResumenDiarioResponse(usuarioId, fecha, 0, 0, 0, 0, 0);
         }, usuarioId, fecha, usuarioId, fecha);
     }

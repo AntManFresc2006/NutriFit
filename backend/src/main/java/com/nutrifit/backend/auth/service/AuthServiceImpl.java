@@ -16,7 +16,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 /**
- * Implementación de la lógica de registro, login y logout.
+ * Lógica de autenticación: crea cuentas, abre y cierra sesiones.
+ *
+ * <p>Las contraseñas nunca se almacenan en texto plano: {@code PasswordService}
+ * delega en BCrypt. Los tokens son UUIDs aleatorios, sin estado en el servidor
+ * más allá de su presencia en la tabla {@code sesiones}.</p>
  */
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -40,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse register(RegisterRequest request) {
+        // Normalizar email antes de buscar y guardar para evitar duplicados por capitalización
         String email = request.getEmail().trim().toLowerCase();
 
         usuarioRepository.findByEmail(email).ifPresent(usuario -> {
@@ -53,8 +58,8 @@ public class AuthServiceImpl implements AuthService {
 
         Usuario guardado = usuarioRepository.save(usuario);
 
+        // Abrir sesión automáticamente tras el registro: el cliente no necesita hacer login por separado
         String token = tokenService.generateToken();
-
         Sesion sesion = new Sesion();
         sesion.setUsuarioId(guardado.getId());
         sesion.setToken(token);
@@ -73,6 +78,8 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest request) {
         String email = request.getEmail().trim().toLowerCase();
 
+        // El mismo mensaje tanto si el email no existe como si la contraseña es incorrecta,
+        // para no facilitar la enumeración de cuentas registradas
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException("Credenciales inválidas"));
 
@@ -82,7 +89,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String token = tokenService.generateToken();
-
         Sesion sesion = new Sesion();
         sesion.setUsuarioId(usuario.getId());
         sesion.setToken(token);
@@ -103,6 +109,7 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("El token es obligatorio para cerrar sesión");
         }
 
+        // Borrar el token invalida la sesión; el AuthInterceptor rechazará cualquier petición futura con él
         sesionRepository.deleteByToken(token);
     }
 }

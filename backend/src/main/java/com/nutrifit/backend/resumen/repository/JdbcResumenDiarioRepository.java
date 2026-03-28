@@ -7,7 +7,12 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 
 /**
- * Implementación JDBC del resumen diario nutricional.
+ * Agrega en una sola query SQL la ingesta nutricional y el gasto calórico del día.
+ *
+ * <p>Se usa {@code jdbcTemplate.query} con un {@code ResultSetExtractor} en lugar
+ * de {@code queryForObject} porque la query puede devolver cero filas (día sin comidas)
+ * y en ese caso hay que retornar un resumen con todos los valores a cero, no lanzar
+ * una excepción de "no rows".</p>
  */
 @Repository
 public class JdbcResumenDiarioRepository implements ResumenDiarioRepository {
@@ -20,6 +25,20 @@ public class JdbcResumenDiarioRepository implements ResumenDiarioRepository {
 
     @Override
     public ResumenDiarioResponse obtenerResumenDiario(Long usuarioId, LocalDate fecha) {
+        /*
+         * Estructura de la query:
+         *
+         *  - La tabla principal es `comidas` (una fila por comida del día).
+         *  - LEFT JOIN a `comida_alimentos` y `alimentos` para calcular los macros
+         *    proporcionales a los gramos registrados: (kcal_por_100g * gramos) / 100.
+         *    LEFT JOIN en lugar de INNER porque una comida puede existir sin alimentos.
+         *  - Subconsulta sobre `ejercicios_registro` que suma las kcal quemadas del día.
+         *    Se precalcula como subquery y se une al resultado principal para evitar
+         *    un producto cartesiano si hubiera varios registros de ejercicio.
+         *  - COALESCE(..., 0) para que días sin datos devuelvan cero en lugar de NULL.
+         *  - El `usuarioId` y `fecha` aparecen dos veces: una en la subconsulta de
+         *    ejercicios y otra en el WHERE principal; por eso se pasan 4 parámetros.
+         */
         String sql = """
                 SELECT
                     c.usuario_id,
@@ -55,6 +74,7 @@ public class JdbcResumenDiarioRepository implements ResumenDiarioRepository {
                 );
             }
 
+            // Sin comidas registradas ese día: devolver ceros en lugar de 404
             return new ResumenDiarioResponse(usuarioId, fecha, 0, 0, 0, 0, 0);
         }, usuarioId, fecha, usuarioId, fecha);
     }

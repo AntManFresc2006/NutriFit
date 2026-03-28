@@ -15,7 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Implementación JDBC del repositorio de comidas.
+ * Acceso a datos JDBC para comidas y sus alimentos asociados.
+ *
+ * <p>La relación entre comidas y alimentos es N:M a través de {@code comida_alimentos},
+ * que además almacena los gramos consumidos. Los macros no se guardan precalculados:
+ * se calculan en SQL cada vez que se consultan los ítems de una comida.</p>
  */
 @Repository
 public class JdbcComidaRepository implements ComidaRepository {
@@ -46,47 +50,57 @@ public class JdbcComidaRepository implements ComidaRepository {
     }
 
     @Override
-public void addAlimentoToComida(Long comidaId, Long alimentoId, double gramos) {
-    String sql = """
-            INSERT INTO comida_alimentos (comida_id, alimento_id, gramos)
-            VALUES (?, ?, ?)
-            """;
+    public void addAlimentoToComida(Long comidaId, Long alimentoId, double gramos) {
+        String sql = """
+                INSERT INTO comida_alimentos (comida_id, alimento_id, gramos)
+                VALUES (?, ?, ?)
+                """;
 
-    jdbcTemplate.update(sql, comidaId, alimentoId, gramos);
-}
+        jdbcTemplate.update(sql, comidaId, alimentoId, gramos);
+    }
 
-@Override
-public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
-    String sql = """
-            SELECT
-                ca.id AS item_id,
-                ca.comida_id,
-                ca.alimento_id,
-                a.nombre,
-                ca.gramos,
-                ROUND((a.kcal_por_100g * ca.gramos) / 100, 2) AS kcal_estimadas,
-                ROUND((a.proteinas_g * ca.gramos) / 100, 2) AS proteinas_estimadas,
-                ROUND((a.grasas_g * ca.gramos) / 100, 2) AS grasas_estimadas,
-                ROUND((a.carbos_g * ca.gramos) / 100, 2) AS carbos_estimados
-            FROM comida_alimentos ca
-            INNER JOIN alimentos a ON a.id = ca.alimento_id
-            WHERE ca.comida_id = ?
-            ORDER BY ca.id ASC
-            """;
+    /**
+     * Devuelve los ítems de una comida con los macros estimados calculados en SQL.
+     *
+     * <p>Se usa INNER JOIN porque si un alimento fue borrado del catálogo el ítem
+     * quedaría sin datos nutricionales; con LEFT JOIN mostraría ceros engañosos.
+     * En la práctica los alimentos no se eliminan si tienen ítems vinculados (FK).</p>
+     *
+     * <p>Fórmula de estimación: {@code (valor_por_100g * gramos) / 100}.
+     * Los valores en la tabla están expresados por 100 g de alimento.</p>
+     */
+    @Override
+    public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
+        String sql = """
+                SELECT
+                    ca.id AS item_id,
+                    ca.comida_id,
+                    ca.alimento_id,
+                    a.nombre,
+                    ca.gramos,
+                    ROUND((a.kcal_por_100g * ca.gramos) / 100, 2) AS kcal_estimadas,
+                    ROUND((a.proteinas_g * ca.gramos) / 100, 2) AS proteinas_estimadas,
+                    ROUND((a.grasas_g * ca.gramos) / 100, 2) AS grasas_estimadas,
+                    ROUND((a.carbos_g * ca.gramos) / 100, 2) AS carbos_estimados
+                FROM comida_alimentos ca
+                INNER JOIN alimentos a ON a.id = ca.alimento_id
+                WHERE ca.comida_id = ?
+                ORDER BY ca.id ASC
+                """;
 
-    return jdbcTemplate.query(sql, (rs, rowNum) ->
-            new ComidaItemDetalleResponse(
-                    rs.getLong("item_id"),
-                    rs.getLong("comida_id"),
-                    rs.getLong("alimento_id"),
-                    rs.getString("nombre"),
-                    rs.getDouble("gramos"),
-                    rs.getDouble("kcal_estimadas"),
-                    rs.getDouble("proteinas_estimadas"),
-                    rs.getDouble("grasas_estimadas"),
-                    rs.getDouble("carbos_estimados")
-            ), comidaId);
-}
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new ComidaItemDetalleResponse(
+                        rs.getLong("item_id"),
+                        rs.getLong("comida_id"),
+                        rs.getLong("alimento_id"),
+                        rs.getString("nombre"),
+                        rs.getDouble("gramos"),
+                        rs.getDouble("kcal_estimadas"),
+                        rs.getDouble("proteinas_estimadas"),
+                        rs.getDouble("grasas_estimadas"),
+                        rs.getDouble("carbos_estimados")
+                ), comidaId);
+    }
 
     @Override
     public Optional<Comida> findById(Long id) {
@@ -115,12 +129,14 @@ public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId)
                 VALUES (?, ?, ?)
                 """;
 
+        // GeneratedKeyHolder es necesario para recuperar el id autoincremental
+        // que MariaDB asigna tras el INSERT
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, comida.getUsuarioId());
-            ps.setObject(2, comida.getFecha());
+            ps.setObject(2, comida.getFecha());  // setObject maneja LocalDate sin conversión manual
             ps.setString(3, comida.getTipo());
             return ps;
         }, keyHolder);

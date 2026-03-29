@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -30,6 +31,9 @@
                 <Button text="Recargar"
                         onAction="#onRecargar"
                         style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+                <Button text="Evaluar mi día"
+                        onAction="#onEvaluarDia"
+                        style="-fx-background-color: #7c3aed; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
                 <Button text="Volver"
                         onAction="#onVolver"
                         style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
@@ -59,6 +63,13 @@
                 <Label text="Balance neto (kcal)" style="-fx-text-fill: #e5e7eb; -fx-font-size: 16px;" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
                 <Label fx:id="balanceNetoLabel" text="0 kcal" style="-fx-text-fill: #a78bfa; -fx-font-size: 18px; -fx-font-weight: bold;" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
             </GridPane>
+
+            <TextArea fx:id="evaluacionArea"
+                      editable="false"
+                      wrapText="true"
+                      prefHeight="130"
+                      promptText="Pulsa 'Evaluar mi día' para obtener una valoración nutricional con IA."
+                      style="-fx-control-inner-background: #0f172a; -fx-text-fill: #e2e8f0; -fx-font-size: 13px; -fx-background-radius: 10; -fx-border-color: #334155; -fx-border-radius: 10;"/>
         </VBox>
     </center>
 

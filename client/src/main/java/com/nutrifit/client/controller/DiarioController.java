@@ -1,12 +1,15 @@
 package com.nutrifit.client.controller;
 
+import com.nutrifit.client.model.EvaluacionIaDto;
 import com.nutrifit.client.model.ResumenDiarioDto;
+import com.nutrifit.client.service.EvaluacionIaApiClient;
 import com.nutrifit.client.service.ResumenDiarioApiClient;
 import com.nutrifit.client.session.SessionManager;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 
 import com.nutrifit.client.NutriFitClientApplication;
 import javafx.fxml.FXMLLoader;
@@ -45,7 +48,11 @@ public class DiarioController {
     @FXML
     private Label statusLabel;
 
+    @FXML
+    private TextArea evaluacionArea;
+
     private final ResumenDiarioApiClient resumenDiarioApiClient = new ResumenDiarioApiClient();
+    private final EvaluacionIaApiClient evaluacionIaApiClient = new EvaluacionIaApiClient();
 
     @FXML
     public void initialize() {
@@ -121,6 +128,43 @@ public class DiarioController {
     }
 
     private enum TipoEstado { INFO, EXITO, ERROR }
+
+    @FXML
+    private void onEvaluarDia() {
+        if (!SessionManager.isLoggedIn()) {
+            mostrarEstado("No hay sesión activa", TipoEstado.ERROR);
+            return;
+        }
+
+        LocalDate fecha = fechaPicker.getValue();
+        if (fecha == null) {
+            mostrarEstado("Selecciona una fecha válida", TipoEstado.ERROR);
+            return;
+        }
+
+        Task<EvaluacionIaDto> task = new Task<>() {
+            @Override
+            protected EvaluacionIaDto call() throws Exception {
+                return evaluacionIaApiClient.evaluarDia(SessionManager.getUsuarioId(), fecha.toString());
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            evaluacionArea.setText(task.getValue().getEvaluacion());
+            mostrarEstado("Evaluación generada correctamente", TipoEstado.EXITO);
+        });
+
+        task.setOnFailed(event -> {
+            Throwable error = task.getException();
+            mostrarEstado("Error al evaluar el día: " + (error != null ? error.getMessage() : "Error desconocido"), TipoEstado.ERROR);
+        });
+
+        evaluacionArea.setText("Consultando a la IA...");
+        mostrarEstado("Generando evaluación nutricional...", TipoEstado.INFO);
+        Thread hilo = new Thread(task);
+        hilo.setDaemon(true);
+        hilo.start();
+    }
 
     @FXML
     private void onVolver() {

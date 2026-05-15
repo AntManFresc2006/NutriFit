@@ -20,7 +20,7 @@ jobs:
           cache: maven
 
       - name: Compilar backend
-        run: mvn -f ./backend/pom.xml -DskipTests clean package
+        run: mvn -f ./backend/pom.xml clean test
 
       - name: Compilar client
         run: mvn -f ./client/pom.xml -DskipTests clean package

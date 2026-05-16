@@ -1,6 +1,8 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { logout as apiLogout } from '../api/auth'
+import { onServerReady } from '../api/client'
+import { useEffect, useState } from 'react'
 
 const navItems = [
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
@@ -13,6 +15,13 @@ const navItems = [
 export default function Layout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [warming, setWarming] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setWarming(false), 65000)
+    onServerReady(() => setWarming(false))
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -63,8 +72,16 @@ export default function Layout() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
-        <Outlet />
+      <main className="flex-1 overflow-auto flex flex-col">
+        {warming && (
+          <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center gap-2 text-sm text-amber-400 shrink-0">
+            <div className="animate-spin w-3.5 h-3.5 border-2 border-amber-400 border-t-transparent rounded-full shrink-0" />
+            Servidor iniciándose... La primera carga puede tardar hasta 60 segundos.
+          </div>
+        )}
+        <div className="flex-1">
+          <Outlet />
+        </div>
       </main>
     </div>
   )

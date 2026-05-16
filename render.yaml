@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: nutrifit-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      # Render inyecta propiedades individuales de la DB.
+      # application.properties las combina en la JDBC URL: jdbc:postgresql://host:port/db
+      - key: DB_HOST
+        fromDatabase:
+          name: nutrifit-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: nutrifit-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: nutrifit-db
+          property: database
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: nutrifit-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: nutrifit-db
+          property: password
+      # Añade tus claves de OpenRouter en Render > Environment > Add env var
+      - key: OPENROUTER_GEMMA_API_KEY
+        sync: false
+      - key: OPENROUTER_DEEPSEEK_API_KEY
+        sync: false
+
+databases:
+  - name: nutrifit-db
+    databaseName: nutrifit
+    user: nutrifit
+    plan: free

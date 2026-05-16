@@ -1,17 +1,16 @@
 services:
 
   db:
-    image: mariadb:11
+    image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-changeme}
-      MARIADB_DATABASE: nutrifit
-      MARIADB_USER: nutrifit
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-nutrifit}
+      POSTGRES_DB: nutrifit
+      POSTGRES_USER: nutrifit
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nutrifit}
     volumes:
-      - nutrifit_db_data:/var/lib/mysql
+      - nutrifit_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ["CMD-SHELL", "pg_isready -U nutrifit -d nutrifit"]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -23,12 +22,11 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/nutrifit
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/nutrifit
       SPRING_DATASOURCE_USERNAME: nutrifit
-      SPRING_DATASOURCE_PASSWORD: ${MARIADB_PASSWORD:-nutrifit}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.mariadb.jdbc.Driver
-      SPRING_FLYWAY_ENABLED: "true"
-      SPRING_FLYWAY_LOCATIONS: classpath:db/migration
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-nutrifit}
+      OPENROUTER_GEMMA_API_KEY: ${OPENROUTER_GEMMA_API_KEY:-}
+      OPENROUTER_DEEPSEEK_API_KEY: ${OPENROUTER_DEEPSEEK_API_KEY:-}
     depends_on:
       db:
         condition: service_healthy

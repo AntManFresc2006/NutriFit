@@ -23,6 +23,22 @@ export interface AlimentoRequest {
   proteinasG: number
   grasasG: number
   carbosG: number
+  fuente?: string
+}
+
+export interface AlimentoExterno {
+  nombre: string
+  kcalPor100g: number
+  proteinasG: number
+  grasasG: number
+  carbosG: number
+  fuente: string
+}
+
+export interface EjercicioExterno {
+  nombre: string
+  met: number
+  categoria: string
 }
 
 export interface Comida {
@@ -58,7 +74,7 @@ export interface Ejercicio {
   id: number
   nombre: string
   categoria: string
-  kcalPorHora: number
+  met: number
 }
 
 export interface ResumenDiario {

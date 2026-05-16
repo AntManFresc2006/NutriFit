@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { getEjercicios, getRegistros, registrarEjercicio, deleteRegistro } from '../api/ejercicios'
-import type { Ejercicio, RegistroEjercicio } from '../types'
+import { getEjercicios, getRegistros, registrarEjercicio, deleteRegistro, buscarExternoEjercicios, createEjercicio } from '../api/ejercicios'
+import type { Ejercicio, EjercicioExterno, RegistroEjercicio } from '../types'
 
 function today() {
   return new Date().toISOString().split('T')[0]
@@ -14,6 +14,8 @@ export default function Ejercicios() {
   const [loading, setLoading] = useState(true)
   const [showSearch, setShowSearch] = useState(false)
   const [ejercicios, setEjercicios] = useState<Ejercicio[]>([])
+  const [ejerciciosExterno, setEjerciciosExterno] = useState<EjercicioExterno[]>([])
+  const [loadingExterno, setLoadingExterno] = useState(false)
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Ejercicio | null>(null)
   const [duracion, setDuracion] = useState(30)
@@ -31,10 +33,25 @@ export default function Ejercicios() {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (showSearch) getEjercicios(query || undefined).then(setEjercicios)
-    }, 300)
+      if (showSearch) {
+        getEjercicios(query || undefined).then(setEjercicios)
+        if (query.trim().length >= 2) {
+          setLoadingExterno(true)
+          buscarExternoEjercicios(query.trim())
+            .then(setEjerciciosExterno)
+            .finally(() => setLoadingExterno(false))
+        } else {
+          setEjerciciosExterno([])
+        }
+      }
+    }, 400)
     return () => clearTimeout(t)
   }, [query, showSearch])
+
+  const handleSelectExterno = async (ext: EjercicioExterno) => {
+    const saved = await createEjercicio(ext)
+    setSelected(saved)
+  }
 
   const handleAdd = async () => {
     if (!selected || !user) return
@@ -99,8 +116,8 @@ export default function Ejercicios() {
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
           />
-          {!selected && ejercicios.length > 0 && (
-            <div className="max-h-52 overflow-y-auto space-y-1">
+          {!selected && (ejercicios.length > 0 || ejerciciosExterno.length > 0) && (
+            <div className="max-h-64 overflow-y-auto space-y-1">
               {ejercicios.map((e) => (
                 <button
                   key={e.id}
@@ -109,18 +126,41 @@ export default function Ejercicios() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-slate-200 text-sm font-medium">{e.nombre}</span>
-                    <span className="text-xs text-slate-500">{e.kcalPorHora} kcal/h</span>
+                    <span className="text-xs text-slate-500">{Math.round(e.met * 70)} kcal/h</span>
                   </div>
                   <span className="text-xs text-slate-500">{e.categoria}</span>
                 </button>
               ))}
+              {loadingExterno && (
+                <p className="text-xs text-slate-500 px-3 py-1">Buscando en wger.de…</p>
+              )}
+              {!loadingExterno && ejerciciosExterno.length > 0 && (
+                <>
+                  <p className="text-xs text-slate-500 px-3 pt-2 pb-1 border-t border-slate-700 mt-1">
+                    🌐 wger.de
+                  </p>
+                  {ejerciciosExterno.map((ext, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSelectExterno(ext)}
+                      className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-700 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-300 text-sm font-medium">{ext.nombre}</span>
+                        <span className="text-xs text-slate-500">{Math.round(ext.met * 70)} kcal/h</span>
+                      </div>
+                      <span className="text-xs text-slate-500">{ext.categoria}</span>
+                    </button>
+                  ))}
+                </>
+              )}
             </div>
           )}
           {selected && (
             <div className="bg-slate-700/40 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="text-green-400 font-medium">🏃 {selected.nombre}</span>
-                <span className="text-slate-500 text-xs">({selected.kcalPorHora} kcal/h)</span>
+                <span className="text-slate-500 text-xs">({Math.round(selected.met * 70)} kcal/h)</span>
                 <button onClick={() => setSelected(null)} className="text-slate-500 text-xs hover:text-slate-300 ml-auto">Cambiar</button>
               </div>
               <div className="flex items-center gap-3">
@@ -134,7 +174,7 @@ export default function Ejercicios() {
                   onChange={(e) => setDuracion(parseInt(e.target.value) || 0)}
                 />
                 <span className="text-slate-400 text-sm">
-                  ≈ {Math.round((selected.kcalPorHora / 60) * duracion)} kcal
+                  ≈ {Math.round((selected.met * 70 / 60) * duracion)} kcal
                 </span>
               </div>
               <button onClick={handleAdd} className="btn-primary" disabled={saving}>

@@ -1,8 +1,10 @@
 package com.nutrifit.backend.ejercicio.controller;
 
+import com.nutrifit.backend.ejercicio.dto.EjercicioExternoResponse;
 import com.nutrifit.backend.ejercicio.dto.EjercicioRequest;
 import com.nutrifit.backend.ejercicio.dto.EjercicioResponse;
 import com.nutrifit.backend.ejercicio.service.EjercicioService;
+import com.nutrifit.backend.ejercicio.service.WgerService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +23,11 @@ import java.util.List;
 public class EjercicioController {
 
     private final EjercicioService ejercicioService;
+    private final WgerService wgerService;
 
-    public EjercicioController(EjercicioService ejercicioService) {
+    public EjercicioController(EjercicioService ejercicioService, WgerService wgerService) {
         this.ejercicioService = ejercicioService;
+        this.wgerService = wgerService;
     }
 
     /**
@@ -58,5 +62,11 @@ public class EjercicioController {
     @ResponseStatus(HttpStatus.CREATED)
     public EjercicioResponse create(@Valid @RequestBody EjercicioRequest request) {
         return ejercicioService.save(request);
+    }
+
+    @GetMapping("/externo")
+    public List<EjercicioExternoResponse> buscarExterno(@RequestParam String q) {
+        if (q == null || q.isBlank()) return List.of();
+        return wgerService.buscar(q);
     }
 }

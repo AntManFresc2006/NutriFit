@@ -1,5 +1,5 @@
 import client from './client'
-import type { Ejercicio, RegistroEjercicio } from '../types'
+import type { Ejercicio, EjercicioExterno, RegistroEjercicio } from '../types'
 
 export const getEjercicios = (q?: string) =>
   client.get<Ejercicio[]>('/api/ejercicios', { params: q ? { q } : {} }).then((r) => r.data)
@@ -14,3 +14,9 @@ export const registrarEjercicio = (usuarioId: number, ejercicioId: number, fecha
 
 export const deleteRegistro = (id: number, usuarioId: number) =>
   client.delete(`/api/ejercicios-registro/${id}`, { params: { usuarioId } })
+
+export const createEjercicio = (data: EjercicioExterno) =>
+  client.post<Ejercicio>('/api/ejercicios', data).then(r => r.data)
+
+export const buscarExternoEjercicios = (q: string) =>
+  client.get<EjercicioExterno[]>('/api/ejercicios/externo', { params: { q } }).then(r => r.data)

@@ -1,8 +1,10 @@
 package com.nutrifit.backend.alimento.controller;
 
+import com.nutrifit.backend.alimento.dto.AlimentoExternoResponse;
 import com.nutrifit.backend.alimento.dto.AlimentoRequest;
 import com.nutrifit.backend.alimento.dto.AlimentoResponse;
 import com.nutrifit.backend.alimento.service.AlimentoService;
+import com.nutrifit.backend.alimento.service.OpenFoodFactsService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +21,11 @@ import java.util.List;
 public class AlimentoController {
 
     private final AlimentoService alimentoService;
+    private final OpenFoodFactsService openFoodFactsService;
 
-    /**
-     * Inyección de dependencias mediante constructor.
-     * Recibe el servicio encargado de gestionar la lógica del módulo de alimentos.
-     */
-    public AlimentoController(AlimentoService alimentoService) {
+    public AlimentoController(AlimentoService alimentoService, OpenFoodFactsService openFoodFactsService) {
         this.alimentoService = alimentoService;
+        this.openFoodFactsService = openFoodFactsService;
     }
 
     /**
@@ -83,5 +83,11 @@ public class AlimentoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         alimentoService.deleteById(id);
+    }
+
+    @GetMapping("/externo")
+    public List<AlimentoExternoResponse> buscarExterno(@RequestParam String q) {
+        if (q == null || q.isBlank()) return List.of();
+        return openFoodFactsService.buscar(q);
     }
 }

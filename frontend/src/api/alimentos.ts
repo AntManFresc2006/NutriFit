@@ -1,5 +1,5 @@
 import client from './client'
-import type { Alimento, AlimentoRequest } from '../types'
+import type { Alimento, AlimentoExterno, AlimentoRequest } from '../types'
 
 export const getAlimentos = (q?: string) =>
   client.get<Alimento[]>('/api/alimentos', { params: q ? { q } : {} }).then((r) => r.data)
@@ -12,3 +12,6 @@ export const updateAlimento = (id: number, data: AlimentoRequest) =>
 
 export const deleteAlimento = (id: number) =>
   client.delete(`/api/alimentos/${id}`)
+
+export const buscarExternoAlimentos = (q: string) =>
+  client.get<AlimentoExterno[]>('/api/alimentos/externo', { params: { q } }).then(r => r.data)

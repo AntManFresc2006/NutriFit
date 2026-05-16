@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getComidas, createComida, deleteComida, getComidaItems, addItemToComida, deleteComidaItem } from '../api/comidas'
-import { getAlimentos } from '../api/alimentos'
-import type { Comida, ComidaItem, Alimento } from '../types'
+import { getAlimentos, buscarExternoAlimentos, createAlimento } from '../api/alimentos'
+import type { Comida, ComidaItem, Alimento, AlimentoExterno } from '../types'
 
 const TIPOS = ['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA', 'SNACK']
 
@@ -19,6 +19,8 @@ export default function Comidas() {
   const [creatingTipo, setCreatingTipo] = useState('')
   const [addingTo, setAddingTo] = useState<number | null>(null)
   const [alimentos, setAlimentos] = useState<Alimento[]>([])
+  const [alimentosExterno, setAlimentosExterno] = useState<AlimentoExterno[]>([])
+  const [loadingExterno, setLoadingExterno] = useState(false)
   const [alimentoQ, setAlimentoQ] = useState('')
   const [selectedAlimento, setSelectedAlimento] = useState<Alimento | null>(null)
   const [gramos, setGramos] = useState(100)
@@ -40,8 +42,18 @@ export default function Comidas() {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (addingTo !== null) getAlimentos(alimentoQ || undefined).then(setAlimentos)
-    }, 300)
+      if (addingTo !== null) {
+        getAlimentos(alimentoQ || undefined).then(setAlimentos)
+        if (alimentoQ.trim().length >= 2) {
+          setLoadingExterno(true)
+          buscarExternoAlimentos(alimentoQ.trim())
+            .then(setAlimentosExterno)
+            .finally(() => setLoadingExterno(false))
+        } else {
+          setAlimentosExterno([])
+        }
+      }
+    }, 400)
     return () => clearTimeout(t)
   }, [alimentoQ, addingTo])
 
@@ -69,7 +81,21 @@ export default function Comidas() {
     setSelectedAlimento(null)
     setAlimentoQ('')
     setGramos(100)
+    setAlimentosExterno([])
     getAlimentos().then(setAlimentos)
+  }
+
+  const handleSelectExterno = async (ext: AlimentoExterno) => {
+    const saved = await createAlimento({
+      nombre: ext.nombre,
+      porcionG: 100,
+      kcalPor100g: ext.kcalPor100g,
+      proteinasG: ext.proteinasG,
+      grasasG: ext.grasasG,
+      carbosG: ext.carbosG,
+      fuente: ext.fuente,
+    })
+    setSelectedAlimento(saved)
   }
 
   const handleAddItem = async () => {
@@ -131,8 +157,8 @@ export default function Comidas() {
                     onChange={(e) => setAlimentoQ(e.target.value)}
                     autoFocus
                   />
-                  {alimentos.length > 0 && !selectedAlimento && (
-                    <div className="max-h-48 overflow-y-auto space-y-1">
+                  {!selectedAlimento && (alimentos.length > 0 || alimentosExterno.length > 0) && (
+                    <div className="max-h-64 overflow-y-auto space-y-1">
                       {alimentos.map((a) => (
                         <button
                           key={a.id}
@@ -143,6 +169,26 @@ export default function Comidas() {
                           <span className="text-slate-400 ml-2">{a.kcalPor100g} kcal/100g</span>
                         </button>
                       ))}
+                      {loadingExterno && (
+                        <p className="text-xs text-slate-500 px-3 py-1">Buscando en Open Food Facts…</p>
+                      )}
+                      {!loadingExterno && alimentosExterno.length > 0 && (
+                        <>
+                          <p className="text-xs text-slate-500 px-3 pt-2 pb-1 border-t border-slate-700 mt-1">
+                            🌐 Open Food Facts
+                          </p>
+                          {alimentosExterno.map((ext, i) => (
+                            <button
+                              key={i}
+                              onClick={() => handleSelectExterno(ext)}
+                              className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-600 transition-colors text-sm"
+                            >
+                              <span className="text-slate-300">{ext.nombre}</span>
+                              <span className="text-slate-400 ml-2">{Math.round(ext.kcalPor100g)} kcal/100g</span>
+                            </button>
+                          ))}
+                        </>
+                      )}
                     </div>
                   )}
                   {selectedAlimento && (

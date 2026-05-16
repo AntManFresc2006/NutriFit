@@ -1,6 +1,7 @@
 package com.nutrifit.client.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nutrifit.client.model.AlimentoDto;
 import com.nutrifit.client.model.AlimentoFx;
@@ -155,6 +156,43 @@ public class AlimentoApiClient {
         dto.setCarbosG(fx.getCarbosG());
         dto.setFuente(fx.getFuente());
         return dto;
+    }
+
+    public List<AlimentoFx> buscarEnOpenFoodFacts(String query) throws IOException, InterruptedException {
+        String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8);
+        String url = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encoded
+                + "&json=1&lc=es&page_size=10";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("Error al consultar Open Food Facts. Código HTTP: " + response.statusCode());
+        }
+
+        JsonNode root = objectMapper.readTree(response.body());
+        JsonNode products = root.path("products");
+        if (!products.isArray() || products.isEmpty()) {
+            return List.of();
+        }
+
+        List<AlimentoFx> resultados = new java.util.ArrayList<>();
+        for (JsonNode p : products) {
+            JsonNode n = p.path("nutriments");
+            AlimentoFx alimento = new AlimentoFx();
+            alimento.setNombre(p.path("product_name").asText());
+            alimento.setKcalPor100g(n.path("energy-kcal_100g").asDouble(0.0));
+            alimento.setProteinasG(n.path("proteins_100g").asDouble(0.0));
+            alimento.setGrasasG(n.path("fat_100g").asDouble(0.0));
+            alimento.setCarbosG(n.path("carbohydrates_100g").asDouble(0.0));
+            alimento.setPorcionG(100.0);
+            alimento.setFuente("Open Food Facts");
+            resultados.add(alimento);
+        }
+        return resultados;
     }
 
     /**

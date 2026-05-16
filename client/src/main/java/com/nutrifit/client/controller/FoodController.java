@@ -13,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import javafx.scene.Node;
 import java.util.Optional;
 
 /**
@@ -102,6 +103,12 @@ public class FoodController {
     @FXML
     private Button eliminarButton;
 
+    @FXML
+    private TextField offSearchField;
+
+    @FXML
+    private Button buscarOffButton;
+
     private final AlimentoApiClient apiClient = new AlimentoApiClient();
     private AlimentoFx alimentoSeleccionado;
 
@@ -132,6 +139,7 @@ public class FoodController {
 
         // Enter en buscador = buscar
         searchField.setOnAction(event -> onBuscar());
+        offSearchField.setOnAction(event -> onBuscarOpenFoodFacts());
 
         // Enter en los campos del formulario = guardar
         nombreField.setOnAction(event -> onGuardar());
@@ -191,6 +199,8 @@ public class FoodController {
         nuevoButton.setDisable(deshabilitados);
         guardarButton.setDisable(deshabilitados);
         eliminarButton.setDisable(deshabilitados || alimentoSeleccionado == null);
+        offSearchField.setDisable(deshabilitados);
+        buscarOffButton.setDisable(deshabilitados);
     }
 
     /**
@@ -525,6 +535,71 @@ private void onAbrirDiario() {
         });
 
         ejecutarEnSegundoPlano(task, "Eliminando alimento...");
+    }
+
+    @FXML
+    private void onBuscarOpenFoodFacts() {
+        String query = offSearchField.getText().trim();
+        if (query.isEmpty()) {
+            mostrarEstado("Introduce un término de búsqueda", TipoEstado.ERROR);
+            return;
+        }
+
+        Task<java.util.List<AlimentoFx>> task = new Task<>() {
+            @Override
+            protected java.util.List<AlimentoFx> call() throws Exception {
+                return apiClient.buscarEnOpenFoodFacts(query);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            java.util.List<AlimentoFx> resultados = task.getValue();
+            if (resultados.isEmpty()) {
+                mostrarEstado("Sin resultados en Open Food Facts", TipoEstado.INFO);
+                return;
+            }
+
+            Dialog<AlimentoFx> dialog = new Dialog<>();
+            dialog.setTitle("Open Food Facts");
+            dialog.setHeaderText("Selecciona un resultado:");
+
+            ButtonType seleccionarBtn = new ButtonType("Seleccionar", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(seleccionarBtn, ButtonType.CANCEL);
+
+            ListView<AlimentoFx> listView = new ListView<>();
+            listView.getItems().addAll(resultados);
+            listView.setCellFactory(lv -> new ListCell<>() {
+                @Override
+                protected void updateItem(AlimentoFx item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : item.getNombre());
+                }
+            });
+            listView.getSelectionModel().selectFirst();
+            listView.setPrefHeight(200);
+            dialog.getDialogPane().setContent(listView);
+
+            Node botonOk = dialog.getDialogPane().lookupButton(seleccionarBtn);
+            listView.getSelectionModel().selectedItemProperty().addListener(
+                (obs, old, val) -> botonOk.setDisable(val == null));
+
+            dialog.setResultConverter(bt -> bt == seleccionarBtn
+                ? listView.getSelectionModel().getSelectedItem() : null);
+
+            Optional<AlimentoFx> seleccion = dialog.showAndWait();
+            seleccion.ifPresent(a -> {
+                nombreField.setText(a.getNombre());
+                porcionField.setText(String.valueOf(a.getPorcionG()));
+                kcalField.setText(String.valueOf(a.getKcalPor100g()));
+                proteinasField.setText(String.valueOf(a.getProteinasG()));
+                grasasField.setText(String.valueOf(a.getGrasasG()));
+                carbosField.setText(String.valueOf(a.getCarbosG()));
+                fuenteField.setText(a.getFuente());
+                mostrarEstado("Datos importados: " + a.getNombre(), TipoEstado.EXITO);
+            });
+        });
+
+        ejecutarEnSegundoPlano(task, "Buscando en Open Food Facts...");
     }
 
     @FXML

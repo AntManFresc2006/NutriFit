@@ -5,10 +5,10 @@ import type { Perfil as PerfilType } from '../types'
 
 const NIVEL_ACTIVIDAD = [
   { value: 'SEDENTARIO', label: 'Sedentario (sin ejercicio)' },
-  { value: 'LIGERAMENTE_ACTIVO', label: 'Ligeramente activo (1-3 días/sem)' },
-  { value: 'MODERADAMENTE_ACTIVO', label: 'Moderadamente activo (3-5 días/sem)' },
-  { value: 'MUY_ACTIVO', label: 'Muy activo (6-7 días/sem)' },
-  { value: 'EXTRA_ACTIVO', label: 'Extra activo (trabajo físico + deporte)' },
+  { value: 'LIGERO', label: 'Ligeramente activo (1-3 días/sem)' },
+  { value: 'MODERADO', label: 'Moderadamente activo (3-5 días/sem)' },
+  { value: 'ALTO', label: 'Muy activo (6-7 días/sem)' },
+  { value: 'MUY_ALTO', label: 'Extra activo (trabajo físico + deporte)' },
 ]
 
 export default function Perfil() {
@@ -18,13 +18,14 @@ export default function Perfil() {
   const [form, setForm] = useState<Partial<PerfilType>>({})
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
-    getPerfil(user.usuarioId).then((p) => {
-      setPerfil(p)
-      setForm(p)
-    })
+    setError(null)
+    getPerfil(user.usuarioId)
+      .then((p) => { setPerfil(p); setForm(p) })
+      .catch(() => setError('No se pudo cargar el perfil. El servidor puede estar iniciándose, intenta de nuevo en unos segundos.'))
   }, [user])
 
   const handleSave = async (e: React.FormEvent) => {
@@ -72,6 +73,22 @@ export default function Perfil() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="p-6 max-w-3xl mx-auto">
+        <div className="card text-center py-12 space-y-4">
+          <p className="text-red-400 font-medium">{error}</p>
+          <button
+            className="btn-primary"
+            onClick={() => { setError(null); getPerfil(user!.usuarioId).then((p) => { setPerfil(p); setForm(p) }).catch(() => setError('No se pudo cargar el perfil. El servidor puede estar iniciándose, intenta de nuevo en unos segundos.')) }}
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!perfil) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -110,7 +127,7 @@ export default function Perfil() {
             {f('alturaCm', 'Altura (cm)', 'number')}
             {f('pesoKgActual', 'Peso actual (kg)', 'number')}
             {f('pesoObjetivo', 'Peso objetivo (kg)', 'number')}
-            {f('sexo', 'Sexo', 'text', [{ value: 'MASCULINO', label: 'Masculino' }, { value: 'FEMENINO', label: 'Femenino' }])}
+            {f('sexo', 'Sexo', 'text', [{ value: 'H', label: 'Masculino' }, { value: 'M', label: 'Femenino' }])}
             <div className="sm:col-span-2">
               {f('nivelActividad', 'Nivel de actividad', 'text', NIVEL_ACTIVIDAD)}
             </div>
@@ -127,11 +144,11 @@ export default function Perfil() {
             <InfoRow label="Nombre" value={perfil.nombre} />
             <InfoRow label="Email" value={perfil.email} />
             <InfoRow label="Fecha de nacimiento" value={perfil.fechaNacimiento ?? '—'} />
-            <InfoRow label="Sexo" value={perfil.sexo} />
+            <InfoRow label="Sexo" value={perfil.sexo === 'H' ? 'Masculino' : 'Femenino'} />
             <InfoRow label="Altura" value={`${perfil.alturaCm} cm`} />
             <InfoRow label="Peso actual" value={`${perfil.pesoKgActual} kg`} />
             <InfoRow label="Peso objetivo" value={perfil.pesoObjetivo ? `${perfil.pesoObjetivo} kg` : '—'} />
-            <InfoRow label="Nivel de actividad" value={perfil.nivelActividad?.replace(/_/g, ' ')} />
+            <InfoRow label="Nivel de actividad" value={NIVEL_ACTIVIDAD.find(n => n.value === perfil.nivelActividad)?.label ?? perfil.nivelActividad} />
           </dl>
         </div>
       )}

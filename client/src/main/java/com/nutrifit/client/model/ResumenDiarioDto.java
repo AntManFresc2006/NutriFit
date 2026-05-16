@@ -13,8 +13,12 @@ public class ResumenDiarioDto {
     private double carbosTotales;
     private double kcalQuemadasTotales;
     private double balanceNeto;
+    private double tdee;
+    private double balanceReal;
+    private String estadoBalance;
 
     public ResumenDiarioDto() {
+        // requerido por Jackson
     }
 
     public Long getUsuarioId() {
@@ -80,4 +84,13 @@ public class ResumenDiarioDto {
     public void setBalanceNeto(double balanceNeto) {
         this.balanceNeto = balanceNeto;
     }
+
+    public double getTdee() { return tdee; }
+    public void setTdee(double tdee) { this.tdee = tdee; }
+
+    public double getBalanceReal() { return balanceReal; }
+    public void setBalanceReal(double balanceReal) { this.balanceReal = balanceReal; }
+
+    public String getEstadoBalance() { return estadoBalance; }
+    public void setEstadoBalance(String estadoBalance) { this.estadoBalance = estadoBalance; }
 }

@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "openrouter.gemma.api.key",
+      "type": "java.lang.String",
+      "description": "OpenRouter API key for Google Gemma (primary model). Required for POST /api/resumen/evaluacion-ia."
+    },
+    {
+      "name": "openrouter.deepseek.api.key",
+      "type": "java.lang.String",
+      "description": "OpenRouter API key for DeepSeek (fallback model). Used when Gemma fails."
+    }
+  ]
+}

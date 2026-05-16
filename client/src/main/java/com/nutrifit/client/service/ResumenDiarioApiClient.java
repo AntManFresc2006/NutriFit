@@ -1,6 +1,7 @@
 package com.nutrifit.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nutrifit.client.model.EvaluacionIaRequest;
 import com.nutrifit.client.model.ResumenDiarioDto;
 import com.nutrifit.client.session.SessionManager;
 
@@ -42,6 +43,23 @@ public class ResumenDiarioApiClient {
         validarRespuesta(response, "Error al obtener el resumen diario");
 
         return objectMapper.readValue(response.body(), ResumenDiarioDto.class);
+    }
+
+    public String evaluarConIa(EvaluacionIaRequest request) throws IOException, InterruptedException {
+        String url = "http://localhost:8080/api/resumen/evaluacion-ia";
+        String body = objectMapper.writeValueAsString(request);
+
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header(AUTH_HEADER, bearerToken())
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+        validarRespuesta(response, "Error al evaluar con IA");
+
+        return objectMapper.readTree(response.body()).path("evaluacion").asText();
     }
 
     private void validarRespuesta(HttpResponse<String> response, String prefijo) throws IOException {

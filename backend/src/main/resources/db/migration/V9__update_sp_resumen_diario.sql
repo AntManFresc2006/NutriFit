@@ -4,6 +4,8 @@
 -- pero sin comidas registradas usando dos subqueries de agregación
 -- unidas con CROSS JOIN, igual que JdbcResumenDiarioRepository.
 
+DROP FUNCTION IF EXISTS sp_resumen_diario(BIGINT, DATE);
+
 CREATE OR REPLACE FUNCTION sp_resumen_diario(p_usuario_id BIGINT, p_fecha DATE)
 RETURNS TABLE (
     usuario_id            BIGINT,

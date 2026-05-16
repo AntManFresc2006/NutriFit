@@ -41,7 +41,8 @@ public class JdbcPerfilRepository implements PerfilRepository {
             perfil.setFechaNacimiento(fechaDate != null ? fechaDate.toLocalDate() : java.time.LocalDate.of(2000, 1, 1));
             perfil.setAlturaCm(rs.getInt("altura_cm"));
             perfil.setPesoKgActual(rs.getDouble("peso_kg_actual"));
-            perfil.setPesoObjetivo(rs.getObject("peso_objetivo", Double.class));
+            double pesoObj = rs.getDouble("peso_objetivo");
+            perfil.setPesoObjetivo(rs.wasNull() ? null : pesoObj);
             String nivelStr = rs.getString("nivel_actividad");
             perfil.setNivelActividad(nivelStr != null ? NivelActividad.valueOf(nivelStr) : NivelActividad.SEDENTARIO);
             return perfil;

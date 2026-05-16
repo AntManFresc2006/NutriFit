@@ -6,6 +6,8 @@ import com.nutrifit.backend.ejercicio.dto.EjercicioExternoResponse;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,6 +21,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class WgerService {
+
+    private static final Logger log = LoggerFactory.getLogger(WgerService.class);
 
     private static final String WGER_URL =
             "https://wger.de/api/v2/exerciseinfo/?format=json&language=2&limit=845";
@@ -48,14 +52,18 @@ public class WgerService {
         try {
             List<EjercicioExternoResponse> all = getAll();
             String q = query.toLowerCase().trim();
-            return all.stream()
+            List<EjercicioExternoResponse> result = all.stream()
                     .filter(e -> e.nombre().toLowerCase().contains(q))
                     .limit(10)
                     .toList();
+            log.info("[Wger] query='{}' cache={} resultados={}", q, all.size(), result.size());
+            return result;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            log.error("[Wger] interrumpido buscando '{}'", query, e);
             return List.of();
         } catch (IOException e) {
+            log.error("[Wger] error buscando '{}': {}", query, e.getMessage(), e);
             return List.of();
         }
     }
@@ -63,8 +71,10 @@ public class WgerService {
     private List<EjercicioExternoResponse> getAll() throws IOException, InterruptedException {
         List<EjercicioExternoResponse> cached = cache.get();
         if (cached != null && (System.currentTimeMillis() - cacheTimestamp) < CACHE_TTL_MS) {
+            log.debug("[Wger] cache hit ({} ejercicios)", cached.size());
             return cached;
         }
+        log.info("[Wger] fetching {} ...", WGER_URL);
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(WGER_URL))
                 .timeout(Duration.ofSeconds(30))
@@ -72,7 +82,9 @@ public class WgerService {
                 .GET()
                 .build();
         HttpResponse<String> res = http.send(req, HttpResponse.BodyHandlers.ofString());
+        log.info("[Wger] status={} bodyLen={}", res.statusCode(), res.body().length());
         List<EjercicioExternoResponse> parsed = parseAll(res.body());
+        log.info("[Wger] parseados {} ejercicios", parsed.size());
         cache.set(parsed);
         cacheTimestamp = System.currentTimeMillis();
         return parsed;

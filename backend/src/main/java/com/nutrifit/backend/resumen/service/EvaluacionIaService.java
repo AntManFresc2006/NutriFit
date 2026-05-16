@@ -30,7 +30,9 @@ public class EvaluacionIaService {
     private String deepseekApiKey;
 
     private final PerfilService perfilService;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(java.time.Duration.ofSeconds(10))
+            .build();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public EvaluacionIaService(PerfilService perfilService) {
@@ -108,14 +110,14 @@ public class EvaluacionIaService {
                 .uri(URI.create(OPENROUTER_URL))
                 .header("Authorization", "Bearer " + key)
                 .header("Content-Type", "application/json")
-                .header("HTTP-Referer", "https://nutrifit.local")
+                .timeout(java.time.Duration.ofSeconds(30))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new RuntimeException("OpenRouter error " + response.statusCode() + ": " + response.body());
+            throw new IOException("OpenRouter error " + response.statusCode() + ": " + response.body());
         }
 
         JsonNode json = objectMapper.readTree(response.body());

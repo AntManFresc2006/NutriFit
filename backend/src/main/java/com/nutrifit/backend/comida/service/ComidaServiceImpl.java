@@ -5,6 +5,7 @@ import com.nutrifit.backend.comida.dto.ComidaResponse;
 import com.nutrifit.backend.comida.model.Comida;
 import com.nutrifit.backend.comida.repository.ComidaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.nutrifit.backend.comida.dto.ComidaAlimentoRequest;
 import com.nutrifit.backend.comida.model.ComidaAlimento;
 import com.nutrifit.backend.common.exception.ResourceNotFoundException;
@@ -35,6 +36,7 @@ public class ComidaServiceImpl implements ComidaService {
     }
 
     @Override
+    @Transactional
     public void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request) {
         // Validar existencia antes de insertar para devolver 404 claro en lugar de error SQL
         comidaRepository.findById(comidaId)
@@ -82,6 +84,7 @@ public class ComidaServiceImpl implements ComidaService {
     }
 
     @Override
+    @Transactional
     public void deleteItem(Long comidaId, Long itemId) {
         ComidaAlimento item = comidaRepository.findItemById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un item con id " + itemId));

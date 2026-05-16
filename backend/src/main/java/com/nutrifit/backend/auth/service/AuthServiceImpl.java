@@ -12,6 +12,7 @@ import com.nutrifit.backend.auth.security.TokenService;
 import com.nutrifit.backend.common.exception.BadRequestException;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -43,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
         // Normalizar email antes de buscar y guardar para evitar duplicados por capitalización
         String email = request.getEmail().trim().toLowerCase();
@@ -75,6 +77,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         String email = request.getEmail().trim().toLowerCase();
 

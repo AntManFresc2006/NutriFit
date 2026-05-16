@@ -12,6 +12,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.2</javafx.version>
+        <app.version>0.1.0</app.version>
     </properties>
 
     <dependencies>
@@ -20,7 +21,6 @@
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
@@ -44,12 +44,82 @@
                 </configuration>
             </plugin>
 
+            <!-- Para desarrollo: mvn javafx:run -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.nutrifit.client.NutriFitClientApplication</mainClass>
+                </configuration>
+            </plugin>
+
+            <!--
+                Fat JAR con todas las dependencias incluidas.
+                Necesario para jpackage, que empaqueta un JAR autónomo
+                junto con el JRE en el instalador nativo.
+                Uso: mvn package  →  target/nutrifit-client-fat.jar
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>shade</goal></goals>
+                        <configuration>
+                            <finalName>nutrifit-client-fat</finalName>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.nutrifit.client.NutriFitClientApplication</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                Instalador nativo con jpackage (incluido en JDK 17+).
+                Genera .exe (Windows), .deb/.rpm (Linux) o .dmg (macOS)
+                según la plataforma donde se ejecute el build.
+
+                Uso: mvn package jpackage:jpackage
+                Requiere: WiX Toolset en Windows, dpkg/rpm en Linux, Xcode CLI en macOS.
+
+                El CI en .github/workflows/release.yml ejecuta esto en matrices
+                de runners windows/ubuntu/macos para producir los tres instaladores.
+            -->
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.6.5</version>
+                <configuration>
+                    <name>NutriFit</name>
+                    <appVersion>${app.version}</appVersion>
+                    <vendor>NutriFit</vendor>
+                    <destination>${project.build.directory}/installer</destination>
+                    <mainJar>nutrifit-client-fat.jar</mainJar>
+                    <mainClass>com.nutrifit.client.NutriFitClientApplication</mainClass>
+                    <input>${project.build.directory}</input>
+                    <javaOptions>
+                        <option>--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</option>
+                    </javaOptions>
+                    <winDirChooser>true</winDirChooser>
+                    <winMenu>true</winMenu>
+                    <winShortcut>true</winShortcut>
+                    <linuxShortcut>true</linuxShortcut>
                 </configuration>
             </plugin>
         </plugins>

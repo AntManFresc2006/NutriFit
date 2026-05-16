@@ -76,6 +76,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Demasiados intentos de login/registro desde la misma IP en poco tiempo.
+     */
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ApiError> handleTooManyRequests(TooManyRequestsException ex, HttpServletRequest request) {
+        ApiError error = buildError(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(error);
+    }
+
+    /**
      * Token ausente, inválido o caducado; lo lanza el {@code AuthInterceptor}.
      */
     @ExceptionHandler(UnauthorizedException.class)

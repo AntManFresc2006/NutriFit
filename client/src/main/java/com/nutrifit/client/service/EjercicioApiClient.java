@@ -14,12 +14,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class EjercicioApiClient {
 
@@ -82,6 +80,26 @@ public class EjercicioApiClient {
         return objectMapper.readValue(response.body(), EjercicioDto.class);
     }
 
+    public List<CategoriaWger> obtenerCategorias() throws IOException, InterruptedException {
+        String url = "https://wger.de/api/v2/exercisecategory/?format=json";
+        HttpResponse<String> resp = httpClient.send(
+                HttpRequest.newBuilder().uri(URI.create(url)).timeout(Duration.ofSeconds(10)).GET().build(),
+                HttpResponse.BodyHandlers.ofString());
+        if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
+            throw new IOException("Error al obtener categorías wger. Código HTTP: " + resp.statusCode());
+        }
+        JsonNode root = objectMapper.readTree(resp.body());
+        JsonNode results = root.path("results");
+        List<CategoriaWger> categorias = new ArrayList<>();
+        if (!results.isArray()) return categorias;
+        for (JsonNode c : results) {
+            int id = c.path("id").asInt();
+            String nombre = traducirCategoria(c.path("name").asText());
+            categorias.add(new CategoriaWger(id, nombre));
+        }
+        return categorias;
+    }
+
     public List<WgerEjercicio> cargarCatalogoWger() throws IOException, InterruptedException {
         // Primera página para obtener el total
         String primeraUrl = "https://wger.de/api/v2/exerciseinfo/?format=json&language=2&limit=100&offset=0";
@@ -111,8 +129,7 @@ public class EjercicioApiClient {
         }
         for (CompletableFuture<List<WgerEjercicio>> f : paginas) catalogo.addAll(f.join());
 
-        // Traducir nombres al español en batches paralelos
-        return traducirAEspanol(catalogo);
+        return catalogo;
     }
 
     private List<WgerEjercicio> parsearPagina(JsonNode root) {
@@ -125,50 +142,10 @@ public class EjercicioApiClient {
                 if (t.path("language").asInt() == 2) { nombre = t.path("name").asText(); break; }
             }
             if (nombre.isBlank()) continue;
+            int catId = r.path("category").path("id").asInt();
             JsonNode catNode = r.path("category").path("name");
             String cat = catNode.isMissingNode() || catNode.isNull() ? "General" : catNode.asText();
-            resultado.add(new WgerEjercicio(nombre, traducirCategoria(cat)));
-        }
-        return resultado;
-    }
-
-    private List<WgerEjercicio> traducirAEspanol(List<WgerEjercicio> catalogo) {
-        int batchSize = 20;
-        List<CompletableFuture<List<String>>> futures = new ArrayList<>();
-
-        for (int i = 0; i < catalogo.size(); i += batchSize) {
-            List<WgerEjercicio> batch = catalogo.subList(i, Math.min(i + batchSize, catalogo.size()));
-            String textos = batch.stream().map(WgerEjercicio::getNombre).collect(Collectors.joining("\n"));
-            URI uri;
-            try {
-                uri = new URI("https", "api.mymemory.translated.net", "/get",
-                        "q=" + textos + "&langpair=en|es", null);
-            } catch (java.net.URISyntaxException e) {
-                continue;
-            }
-
-            futures.add(httpClient.sendAsync(
-                    HttpRequest.newBuilder().uri(uri).timeout(Duration.ofSeconds(10)).GET().build(),
-                    HttpResponse.BodyHandlers.ofString()
-            ).thenApply(r -> {
-                try {
-                    JsonNode root = objectMapper.readTree(r.body());
-                    String traducido = root.path("responseData").path("translatedText").asText();
-                    return Arrays.stream(traducido.split("\n")).map(String::trim).toList();
-                } catch (Exception e) { return List.<String>of(); }
-            }).exceptionally(e -> List.of()));
-        }
-
-        List<WgerEjercicio> resultado = new ArrayList<>(catalogo.size());
-        for (int i = 0; i < futures.size(); i++) {
-            int offset = i * batchSize;
-            List<WgerEjercicio> batch = catalogo.subList(offset, Math.min(offset + batchSize, catalogo.size()));
-            List<String> nombres = futures.get(i).join();
-            for (int j = 0; j < batch.size(); j++) {
-                String nombre = (j < nombres.size() && !nombres.get(j).isBlank())
-                        ? nombres.get(j) : batch.get(j).getNombre();
-                resultado.add(new WgerEjercicio(nombre, batch.get(j).getCategoria()));
-            }
+            resultado.add(new WgerEjercicio(nombre, traducirCategoria(cat), catId));
         }
         return resultado;
     }
@@ -196,16 +173,35 @@ public class EjercicioApiClient {
     public static class WgerEjercicio {
         private final String nombre;
         private final String categoria;
+        private final int categoriaId;
 
-        public WgerEjercicio(String nombre, String categoria) {
+        public WgerEjercicio(String nombre, String categoria, int categoriaId) {
             this.nombre = nombre;
             this.categoria = categoria;
+            this.categoriaId = categoriaId;
         }
 
         public String getNombre() { return nombre; }
         public String getCategoria() { return categoria; }
+        public int getCategoriaId() { return categoriaId; }
 
         @Override
         public String toString() { return nombre + " (" + categoria + ")"; }
+    }
+
+    public static class CategoriaWger {
+        private final int id;
+        private final String nombre;
+
+        public CategoriaWger(int id, String nombre) {
+            this.id = id;
+            this.nombre = nombre;
+        }
+
+        public int getId() { return id; }
+        public String getNombre() { return nombre; }
+
+        @Override
+        public String toString() { return nombre; }
     }
 }

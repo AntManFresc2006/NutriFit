@@ -4,6 +4,7 @@ import com.nutrifit.client.NutriFitClientApplication;
 import com.nutrifit.client.model.EjercicioDto;
 import com.nutrifit.client.model.RegistroEjercicioDto;
 import com.nutrifit.client.service.EjercicioApiClient;
+import com.nutrifit.client.service.EjercicioApiClient.CategoriaWger;
 import com.nutrifit.client.service.EjercicioApiClient.WgerEjercicio;
 import com.nutrifit.client.service.RegistroEjercicioApiClient;
 import com.nutrifit.client.session.SessionManager;
@@ -232,24 +233,63 @@ public class EjercicioController {
 
     @FXML
     private void onImportarWger() {
-        Task<List<WgerEjercicio>> task = new Task<>() {
+        record Catalogo(List<CategoriaWger> categorias, List<WgerEjercicio> ejercicios) {}
+
+        Task<Catalogo> task = new Task<>() {
             @Override
-            protected List<WgerEjercicio> call() throws Exception {
-                return ejercicioApiClient.cargarCatalogoWger();
+            protected Catalogo call() throws Exception {
+                List<CategoriaWger> cats  = ejercicioApiClient.obtenerCategorias();
+                List<WgerEjercicio> ejers = ejercicioApiClient.cargarCatalogoWger();
+                return new Catalogo(cats, ejers);
             }
         };
 
         task.setOnSucceeded(event -> {
-            List<WgerEjercicio> catalogo = task.getValue();
-            if (catalogo.isEmpty()) {
+            Catalogo res = task.getValue();
+            if (res.categorias().isEmpty() || res.ejercicios().isEmpty()) {
                 mostrarEstado("No se pudo cargar el catálogo de wger.de", TipoEstado.INFO);
                 return;
             }
-            mostrarDialogoSeleccion(catalogo)
-                    .ifPresent(sel -> mostrarDialogoMet(sel).ifPresent(this::importarDesdeWger));
+            mostrarDialogoCategorias(res.categorias())
+                    .ifPresent(cat -> mostrarDialogoSeleccion(
+                            res.ejercicios().stream()
+                               .filter(e -> e.getCategoriaId() == cat.getId())
+                               .toList()
+                    ).ifPresent(sel -> mostrarDialogoMet(sel).ifPresent(this::importarDesdeWger)));
         });
 
         ejecutarEnSegundoPlano(task, "Cargando catálogo de wger.de...");
+    }
+
+    private Optional<CategoriaWger> mostrarDialogoCategorias(List<CategoriaWger> categorias) {
+        Dialog<CategoriaWger> dialog = new Dialog<>();
+        dialog.setTitle("Importar desde wger.de");
+        dialog.setHeaderText("Selecciona una categoría");
+
+        ButtonType selType = new ButtonType("Ver ejercicios", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(selType, ButtonType.CANCEL);
+
+        ListView<CategoriaWger> lista = new ListView<>();
+        lista.getItems().setAll(categorias);
+        lista.setPrefHeight(220);
+        lista.setPrefWidth(300);
+        lista.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(CategoriaWger item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getNombre());
+            }
+        });
+
+        Node selBtn = dialog.getDialogPane().lookupButton(selType);
+        selBtn.setDisable(true);
+        lista.getSelectionModel().selectedItemProperty().addListener(
+                (obs, old, sel) -> selBtn.setDisable(sel == null));
+
+        dialog.getDialogPane().setContent(lista);
+        dialog.setResultConverter(bt -> bt == selType ? lista.getSelectionModel().getSelectedItem() : null);
+
+        return dialog.showAndWait();
     }
 
     private Optional<WgerEjercicio> mostrarDialogoSeleccion(List<WgerEjercicio> catalogo) {

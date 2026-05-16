@@ -7,18 +7,10 @@ services:
     envVars:
       # Render inyecta propiedades individuales de la DB.
       # application.properties las combina en la JDBC URL: jdbc:postgresql://host:port/db
-      - key: DB_HOST
+      - key: DATABASE_URL
         fromDatabase:
           name: nutrifit-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: nutrifit-db
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: nutrifit-db
-          property: database
+          property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
           name: nutrifit-db

@@ -8,7 +8,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -97,7 +96,7 @@ public class JdbcRegistroEjercicioRepository implements RegistroEjercicioReposit
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setLong(1, registro.getUsuarioId());
             ps.setLong(2, registro.getEjercicioId());
             ps.setObject(3, registro.getFecha());  // LocalDate → DATE sin conversión manual

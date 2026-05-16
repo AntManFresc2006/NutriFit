@@ -9,7 +9,6 @@ import com.nutrifit.backend.comida.model.ComidaAlimento;
 import com.nutrifit.backend.comida.dto.ComidaItemDetalleResponse;
 
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -134,7 +133,7 @@ public class JdbcComidaRepository implements ComidaRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setLong(1, comida.getUsuarioId());
             ps.setObject(2, comida.getFecha());  // setObject maneja LocalDate sin conversión manual
             ps.setString(3, comida.getTipo());

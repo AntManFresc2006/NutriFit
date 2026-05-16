@@ -1,6 +1,7 @@
 package com.nutrifit.backend.ejercicio.repository;
 
 import com.nutrifit.backend.ejercicio.dto.RegistroEjercicioResponse;
+import com.nutrifit.backend.ejercicio.dto.RecuperacionResponse;
 import com.nutrifit.backend.ejercicio.model.RegistroEjercicio;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -116,5 +117,28 @@ public class JdbcRegistroEjercicioRepository implements RegistroEjercicioReposit
     public boolean deleteById(Long id) {
         String sql = "DELETE FROM ejercicios_registro WHERE id = ?";
         return jdbcTemplate.update(sql, id) > 0;
+    }
+
+    @Override
+    public Optional<RecuperacionResponse> findUltimoIntensivoHoy(Long usuarioId, LocalDate fecha) {
+        String sql = """
+                SELECT e.nombre AS nombre_ejercicio, e.met
+                FROM ejercicios_registro er
+                INNER JOIN ejercicios e ON e.id = er.ejercicio_id
+                WHERE er.usuario_id = ? AND er.fecha = ? AND e.met > 5.0
+                ORDER BY er.id DESC
+                LIMIT 1
+                """;
+
+        List<RecuperacionResponse> results = jdbcTemplate.query(sql, (rs, rowNum) ->
+                new RecuperacionResponse(
+                        true,
+                        rs.getString("nombre_ejercicio"),
+                        rs.getDouble("met"),
+                        null,
+                        50
+                ), usuarioId, fecha);
+
+        return results.stream().findFirst();
     }
 }

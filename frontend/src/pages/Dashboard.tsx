@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { getResumenDiario, getEvaluacionIA } from '../api/resumen'
+import { getResumenDiario, getEvaluacionIA, getGamificacion } from '../api/resumen'
+import { getRecuperacion } from '../api/ejercicios'
 import MacroRing from '../components/MacroRing'
 import type { ResumenDiario } from '../types'
+import type { Gamificacion } from '../api/resumen'
+import type { RecuperacionData } from '../api/ejercicios'
 
 function today() {
   return new Date().toISOString().split('T')[0]
@@ -24,6 +27,8 @@ export default function Dashboard() {
   const [ia, setIa] = useState('')
   const [loadingIa, setLoadingIa] = useState(false)
   const [fecha, setFecha] = useState(today())
+  const [gamificacion, setGamificacion] = useState<Gamificacion | null>(null)
+  const [recuperacion, setRecuperacion] = useState<RecuperacionData | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -33,6 +38,12 @@ export default function Dashboard() {
       .then(setResumen)
       .catch(() => setResumen(null))
       .finally(() => setLoadingResumen(false))
+    getGamificacion(user.usuarioId, fecha)
+      .then(setGamificacion)
+      .catch(() => setGamificacion(null))
+    getRecuperacion(user.usuarioId, fecha)
+      .then(setRecuperacion)
+      .catch(() => setRecuperacion(null))
   }, [user, fecha])
 
   const handleIa = async () => {
@@ -84,8 +95,24 @@ export default function Dashboard() {
           <p>Sin datos para este día. Registra comidas y ejercicios primero.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Macro ring */}
+        <>
+          {recuperacion?.tieneEjercicioIntensivo && (
+            <div className="card border border-blue-500/30 bg-blue-500/5 mb-4">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">💪</span>
+                <div>
+                  <p className="font-semibold text-blue-300 text-sm">Ventana de recuperación activa</p>
+                  <p className="text-slate-300 text-sm mt-0.5">
+                    Registraste <strong>{recuperacion.ejercicioNombre}</strong> hoy (MET {recuperacion.met?.toFixed(1)}).
+                    {' '}Prioriza: <strong>{recuperacion.sugerenciaProteinaG}g proteína</strong> + <strong>{recuperacion.sugerenciaCarbosG}g carbohidratos</strong> para recuperación muscular.
+                  </p>
+                  <p className="text-slate-500 text-xs mt-1">Opciones: atún + arroz · yogur griego + plátano · pollo + pasta.</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Macro ring */}
           <div className="card lg:col-span-1 flex flex-col items-center">
             <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4 self-start">
               Calorías y macros
@@ -112,7 +139,45 @@ export default function Dashboard() {
                 color={resumen.balanceReal > 0 ? 'text-amber-400' : 'text-blue-400'}
                 extra={<span className={balanceBadge(resumen.estadoBalance)}>{resumen.estadoBalance}</span>}
               />
+              {resumen.fechaObjetivo && (
+                <StatCard
+                  icon="🎯"
+                  label="Fecha estimada objetivo"
+                  value={resumen.fechaObjetivo}
+                  color="text-green-400"
+                  extra={<span className="text-xs text-slate-500">{resumen.diasParaObjetivo} días desde hoy</span>}
+                />
+              )}
             </div>
+
+            {/* Racha y NutriScore */}
+            {gamificacion && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="card py-4">
+                  <p className="text-xs text-slate-500 uppercase tracking-wide">Racha de registro</p>
+                  <p className="text-xl font-bold mt-1 text-orange-400">
+                    🔥 {gamificacion.racha} {gamificacion.racha === 1 ? 'día' : 'días'}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">días consecutivos</p>
+                </div>
+                <div className="card py-4">
+                  <p className="text-xs text-slate-500 uppercase tracking-wide">NutriScore hoy</p>
+                  <p className={`text-xl font-bold mt-1 ${
+                    ['A','B'].includes(gamificacion.nutriGrade) ? 'text-green-400' :
+                    gamificacion.nutriGrade === 'C' ? 'text-yellow-400' : 'text-red-400'
+                  }`}>
+                    {gamificacion.nutriGrade}
+                    <span className="text-sm font-normal text-slate-400 ml-1">({gamificacion.nutriScore}/100)</span>
+                  </p>
+                  <div className="mt-1 flex gap-2 text-xs text-slate-400 flex-wrap">
+                    <span title="Proteína">{gamificacion.cumpleProteina ? '✅' : '❌'} Prot.</span>
+                    <span title="Balance">{gamificacion.cumpleBalance ? '✅' : '❌'} Bal.</span>
+                    <span title="Ejercicio">{gamificacion.cumpleEjercicio ? '✅' : '❌'} Ej.</span>
+                    <span title="Variedad">{gamificacion.cumpleVariedad ? '✅' : '❌'} Var.</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* IA evaluation */}
             <div className="card">
@@ -136,7 +201,8 @@ export default function Dashboard() {
               )}
             </div>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </div>
   )

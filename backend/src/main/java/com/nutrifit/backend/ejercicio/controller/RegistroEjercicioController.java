@@ -2,7 +2,9 @@ package com.nutrifit.backend.ejercicio.controller;
 
 import com.nutrifit.backend.ejercicio.dto.RegistroEjercicioRequest;
 import com.nutrifit.backend.ejercicio.dto.RegistroEjercicioResponse;
+import com.nutrifit.backend.ejercicio.dto.RecuperacionResponse;
 import com.nutrifit.backend.ejercicio.service.RegistroEjercicioService;
+import com.nutrifit.backend.perfil.service.PerfilService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -22,9 +24,11 @@ import java.util.List;
 public class RegistroEjercicioController {
 
     private final RegistroEjercicioService registroService;
+    private final PerfilService perfilService;
 
-    public RegistroEjercicioController(RegistroEjercicioService registroService) {
+    public RegistroEjercicioController(RegistroEjercicioService registroService, PerfilService perfilService) {
         this.registroService = registroService;
+        this.perfilService = perfilService;
     }
 
     /**
@@ -78,5 +82,29 @@ public class RegistroEjercicioController {
             @RequestParam Long usuarioId,
             @PathVariable Long id) {
         registroService.deleteById(usuarioId, id);
+    }
+
+    /**
+     * Devuelve datos de recuperación post-ejercicio si hay un ejercicio intensivo (MET > 5) registrado hoy.
+     *
+     * @param usuarioId id del usuario autenticado
+     * @param fecha     día a consultar en formato ISO-8601 (yyyy-MM-dd)
+     * @return datos con sugerencias de nutrición o indicador de ausencia
+     */
+    @GetMapping("/recuperacion")
+    public RecuperacionResponse getRecuperacion(
+            @RequestParam Long usuarioId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        return registroService.findUltimoIntensivoHoy(usuarioId, fecha)
+                .map(r -> {
+                    try {
+                        double peso = perfilService.getPerfil(usuarioId).getPesoKgActual();
+                        r.setSugerenciaProteinaG((int) Math.round(0.3 * peso));
+                    } catch (Exception e) {
+                        r.setSugerenciaProteinaG(25);
+                    }
+                    return r;
+                })
+                .orElse(new RecuperacionResponse(false, null, null, null, null));
     }
 }

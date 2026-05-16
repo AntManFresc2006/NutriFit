@@ -18,6 +18,8 @@ public class ResumenDiarioResponse {
     private double tdee;
     private double balanceReal;
     private String estadoBalance;
+    private Integer diasParaObjetivo;
+    private String fechaObjetivo;
 
     public ResumenDiarioResponse() {
     }
@@ -127,5 +129,21 @@ public class ResumenDiarioResponse {
 
     public void setEstadoBalance(String estadoBalance) {
         this.estadoBalance = estadoBalance;
+    }
+
+    public Integer getDiasParaObjetivo() {
+        return diasParaObjetivo;
+    }
+
+    public void setDiasParaObjetivo(Integer diasParaObjetivo) {
+        this.diasParaObjetivo = diasParaObjetivo;
+    }
+
+    public String getFechaObjetivo() {
+        return fechaObjetivo;
+    }
+
+    public void setFechaObjetivo(String fechaObjetivo) {
+        this.fechaObjetivo = fechaObjetivo;
     }
 }

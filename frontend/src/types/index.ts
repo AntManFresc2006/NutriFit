@@ -89,6 +89,8 @@ export interface ResumenDiario {
   tdee: number
   balanceReal: number
   estadoBalance: string
+  diasParaObjetivo?: number | null
+  fechaObjetivo?: string | null
 }
 
 export interface Perfil {
@@ -103,4 +105,10 @@ export interface Perfil {
   nivelActividad: string
   tmb: number
   tdee: number
+}
+
+export interface PesoHistorial {
+  id: number
+  fecha: string
+  pesoKg: number
 }

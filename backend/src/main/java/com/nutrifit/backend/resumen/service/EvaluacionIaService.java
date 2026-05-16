@@ -84,11 +84,21 @@ public class EvaluacionIaService {
         sb.append("- Balance real vs mantenimiento: ").append(Math.round(req.getBalanceReal()))
           .append(" kcal (").append(estado).append(")\n\n");
 
+        if (req.getKcalMedia7d() > 0 || req.getDiasConEjercicio7d() > 0) {
+            sb.append("CONTEXTO DE LA ÚLTIMA SEMANA (7 días):\n");
+            sb.append("- Kcal media diaria: ").append(Math.round(req.getKcalMedia7d())).append(" kcal\n");
+            sb.append("- Proteínas medias: ").append(String.format("%.1f", req.getProteinasMedia7d())).append(" g/día\n");
+            sb.append("- Días con ejercicio: ").append(req.getDiasConEjercicio7d()).append("/7\n");
+            sb.append("- Balance medio semanal: ").append(Math.round(req.getBalanceMedia7d()))
+              .append(" kcal/día (").append(req.getBalanceMedia7d() < -100 ? "DÉFICIT" :
+                                             req.getBalanceMedia7d() > 100 ? "SUPERÁVIT" : "MANTENIMIENTO").append(")\n\n");
+        }
+
         sb.append("Proporciona una evaluación en español de 3-4 párrafos breves que incluya:\n");
         sb.append("1. Balance del día: valora el déficit/superávit y si es adecuado al objetivo.\n");
         sb.append("2. Análisis de macros: evalúa si las proporciones de proteínas, grasas y carbohidratos son correctas.\n");
-        sb.append("3. Recomendación concreta para el día siguiente o para mejorar.\n");
-        sb.append("Sé directo, motivador y concreto. No uses asteriscos ni formato markdown.");
+        sb.append("3. Sugerencia concreta para mañana basada tanto en el día de hoy como en el patrón de la semana.\n");
+        sb.append("Si tienes datos semanales, úsalos para identificar patrones y dar consejos más precisos. Sé directo, motivador y concreto. No uses asteriscos ni formato markdown.");
 
         return sb.toString();
     }

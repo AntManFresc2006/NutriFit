@@ -3,6 +3,7 @@ package com.nutrifit.backend.ejercicio.service;
 import com.nutrifit.backend.common.exception.ResourceNotFoundException;
 import com.nutrifit.backend.ejercicio.dto.RegistroEjercicioRequest;
 import com.nutrifit.backend.ejercicio.dto.RegistroEjercicioResponse;
+import com.nutrifit.backend.ejercicio.dto.RecuperacionResponse;
 import com.nutrifit.backend.ejercicio.model.Ejercicio;
 import com.nutrifit.backend.ejercicio.model.RegistroEjercicio;
 import com.nutrifit.backend.ejercicio.repository.EjercicioRepository;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Lógica para registrar la actividad física diaria del usuario.
@@ -92,6 +94,11 @@ public class RegistroEjercicioServiceImpl implements RegistroEjercicioService {
         }
 
         registroRepository.deleteById(registroId);
+    }
+
+    @Override
+    public Optional<RecuperacionResponse> findUltimoIntensivoHoy(Long usuarioId, LocalDate fecha) {
+        return registroRepository.findUltimoIntensivoHoy(usuarioId, fecha);
     }
 
     /**

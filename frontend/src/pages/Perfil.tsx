@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getPerfil, updatePerfil } from '../api/perfil'
-import type { Perfil as PerfilType } from '../types'
+import { getPesoHistorial, registrarPeso } from '../api/pesoHistorial'
+import WeightChart from '../components/WeightChart'
+import type { Perfil as PerfilType, PesoHistorial } from '../types'
 
 const NIVEL_ACTIVIDAD = [
   { value: 'SEDENTARIO', label: 'Sedentario (sin ejercicio)' },
@@ -19,13 +21,17 @@ export default function Perfil() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pesoHistorial, setPesoHistorial] = useState<PesoHistorial[]>([])
+  const [pesoHoy, setPesoHoy] = useState('')
+  const [savingPeso, setSavingPeso] = useState(false)
 
   useEffect(() => {
     if (!user) return
     setError(null)
-    getPerfil(user.usuarioId)
-      .then((p) => { setPerfil(p); setForm(p) })
-      .catch(() => setError('No se pudo cargar el perfil. El servidor puede estar iniciándose, intenta de nuevo en unos segundos.'))
+    Promise.all([
+      getPerfil(user.usuarioId).then((p) => { setPerfil(p); setForm(p) }),
+      getPesoHistorial(user.usuarioId).then((ph) => setPesoHistorial(ph)),
+    ]).catch(() => setError('No se pudo cargar el perfil. El servidor puede estar iniciándose, intenta de nuevo en unos segundos.'))
   }, [user])
 
   const handleSave = async (e: React.FormEvent) => {
@@ -41,6 +47,23 @@ export default function Perfil() {
       setTimeout(() => setSaved(false), 2500)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleRegistrarPeso = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user || !pesoHoy) return
+    setSavingPeso(true)
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const nuevo = await registrarPeso(user.usuarioId, today, parseFloat(pesoHoy))
+      setPesoHistorial(prev => {
+        const sinHoy = prev.filter(p => p.fecha !== today)
+        return [...sinHoy, nuevo].sort((a, b) => a.fecha.localeCompare(b.fecha))
+      })
+      setPesoHoy('')
+    } finally {
+      setSavingPeso(false)
     }
   }
 
@@ -116,6 +139,29 @@ export default function Perfil() {
         <StatCard label="TDEE" value={`${Math.round(perfil.tdee)} kcal`} color="text-green-400" />
         <StatCard label="Peso actual" value={`${perfil.pesoKgActual} kg`} />
         <StatCard label="Peso objetivo" value={perfil.pesoObjetivo ? `${perfil.pesoObjetivo} kg` : '—'} />
+      </div>
+
+      {/* Historial de peso */}
+      <div className="card mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Evolución del peso</h2>
+          <form onSubmit={handleRegistrarPeso} className="flex items-center gap-2">
+            <input
+              type="number"
+              step="0.1"
+              min="20"
+              max="500"
+              placeholder="kg hoy"
+              value={pesoHoy}
+              onChange={e => setPesoHoy(e.target.value)}
+              className="input w-24 py-1 text-sm"
+            />
+            <button type="submit" className="btn-primary text-sm py-1.5" disabled={savingPeso}>
+              {savingPeso ? '...' : 'Registrar'}
+            </button>
+          </form>
+        </div>
+        <WeightChart data={pesoHistorial} />
       </div>
 
       {editing ? (

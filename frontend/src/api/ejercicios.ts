@@ -20,3 +20,14 @@ export const createEjercicio = (data: EjercicioExterno) =>
 
 export const buscarExternoEjercicios = (q: string) =>
   client.get<EjercicioExterno[]>('/api/ejercicios/externo', { params: { q } }).then(r => r.data)
+
+export interface RecuperacionData {
+  tieneEjercicioIntensivo: boolean
+  ejercicioNombre: string | null
+  met: number | null
+  sugerenciaProteinaG: number | null
+  sugerenciaCarbosG: number | null
+}
+
+export const getRecuperacion = (usuarioId: number, fecha: string) =>
+  client.get<RecuperacionData>('/api/ejercicios-registro/recuperacion', { params: { usuarioId, fecha } }).then(r => r.data)

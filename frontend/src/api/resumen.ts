@@ -15,3 +15,16 @@ export const getEvaluacionIA = (data: {
   tdee: number
   balanceReal: number
 }) => client.post<{ evaluacion: string }>('/api/resumen/evaluacion-ia', data).then((r) => r.data)
+
+export interface Gamificacion {
+  racha: number
+  nutriScore: number
+  nutriGrade: string
+  cumpleProteina: boolean
+  cumpleBalance: boolean
+  cumpleEjercicio: boolean
+  cumpleVariedad: boolean
+}
+
+export const getGamificacion = (usuarioId: number, fecha: string) =>
+  client.get<Gamificacion>('/api/gamificacion', { params: { usuarioId, fecha } }).then((r) => r.data)

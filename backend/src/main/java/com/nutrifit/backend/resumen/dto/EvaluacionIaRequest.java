@@ -11,6 +11,10 @@ public class EvaluacionIaRequest {
     private double carbosTotales;
     private double tdee;
     private double balanceReal;
+    private double kcalMedia7d;
+    private double proteinasMedia7d;
+    private int diasConEjercicio7d;
+    private double balanceMedia7d;
 
     public EvaluacionIaRequest() {
     }
@@ -41,4 +45,16 @@ public class EvaluacionIaRequest {
 
     public double getBalanceReal() { return balanceReal; }
     public void setBalanceReal(double balanceReal) { this.balanceReal = balanceReal; }
+
+    public double getKcalMedia7d() { return kcalMedia7d; }
+    public void setKcalMedia7d(double kcalMedia7d) { this.kcalMedia7d = kcalMedia7d; }
+
+    public double getProteinasMedia7d() { return proteinasMedia7d; }
+    public void setProteinasMedia7d(double proteinasMedia7d) { this.proteinasMedia7d = proteinasMedia7d; }
+
+    public int getDiasConEjercicio7d() { return diasConEjercicio7d; }
+    public void setDiasConEjercicio7d(int diasConEjercicio7d) { this.diasConEjercicio7d = diasConEjercicio7d; }
+
+    public double getBalanceMedia7d() { return balanceMedia7d; }
+    public void setBalanceMedia7d(double balanceMedia7d) { this.balanceMedia7d = balanceMedia7d; }
 }

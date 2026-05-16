@@ -1,6 +1,7 @@
 package com.nutrifit.backend.ejercicio.repository;
 
 import com.nutrifit.backend.ejercicio.dto.RegistroEjercicioResponse;
+import com.nutrifit.backend.ejercicio.dto.RecuperacionResponse;
 import com.nutrifit.backend.ejercicio.model.RegistroEjercicio;
 
 import java.time.LocalDate;
@@ -16,4 +17,6 @@ public interface RegistroEjercicioRepository {
     RegistroEjercicio save(RegistroEjercicio registro);
 
     boolean deleteById(Long id);
+
+    Optional<RecuperacionResponse> findUltimoIntensivoHoy(Long usuarioId, LocalDate fecha);
 }

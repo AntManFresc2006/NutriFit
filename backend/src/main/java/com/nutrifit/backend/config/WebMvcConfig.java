@@ -1,14 +1,22 @@
 package com.nutrifit.backend.config;
 
 import com.nutrifit.backend.auth.security.AuthInterceptor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Configuración MVC: registra el interceptor de autenticación para todos los
  * endpoints de la API excepto el login y el registro.
+ *
+ * CORS se gestiona con CorsFilter (nivel servlet), que actúa antes del
+ * DispatcherServlet y de cualquier interceptor, evitando que el AuthInterceptor
+ * bloquee los preflights OPTIONS con un 500 antes de que Spring pueda añadir
+ * las cabeceras CORS a la respuesta.
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -19,13 +27,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
         this.authInterceptor = authInterceptor;
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(false);
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOriginPattern("*");
+        config.addAllowedMethod("*");
+        config.addAllowedHeader("*");
+        config.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 
     @Override

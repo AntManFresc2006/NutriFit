@@ -4,6 +4,7 @@ import com.nutrifit.client.NutriFitClientApplication;
 import com.nutrifit.client.model.EjercicioDto;
 import com.nutrifit.client.model.RegistroEjercicioDto;
 import com.nutrifit.client.service.EjercicioApiClient;
+import com.nutrifit.client.service.EjercicioApiClient.WgerEjercicio;
 import com.nutrifit.client.service.RegistroEjercicioApiClient;
 import com.nutrifit.client.session.SessionManager;
 
@@ -12,8 +13,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.time.LocalDate;
@@ -226,6 +231,161 @@ public class EjercicioController {
     }
 
     @FXML
+    private void onImportarWger() {
+        Task<List<WgerEjercicio>> task = new Task<>() {
+            @Override
+            protected List<WgerEjercicio> call() throws Exception {
+                return ejercicioApiClient.cargarCatalogoWger();
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            List<WgerEjercicio> catalogo = task.getValue();
+            if (catalogo.isEmpty()) {
+                mostrarEstado("No se pudo cargar el catálogo de wger.de", TipoEstado.INFO);
+                return;
+            }
+            mostrarDialogoSeleccion(catalogo)
+                    .ifPresent(sel -> mostrarDialogoMet(sel).ifPresent(this::importarDesdeWger));
+        });
+
+        ejecutarEnSegundoPlano(task, "Cargando catálogo de wger.de...");
+    }
+
+    private Optional<WgerEjercicio> mostrarDialogoSeleccion(List<WgerEjercicio> catalogo) {
+        Dialog<WgerEjercicio> dialog = new Dialog<>();
+        dialog.setTitle("Importar desde wger.de");
+        dialog.setHeaderText(catalogo.size() + " ejercicios — selecciona uno");
+
+        ButtonType selType = new ButtonType("Seleccionar", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(selType, ButtonType.CANCEL);
+
+        TextField busqueda = new TextField();
+        busqueda.setPromptText("Buscar ejercicio...");
+
+        ListView<WgerEjercicio> lista = new ListView<>();
+        lista.getItems().setAll(catalogo);
+        lista.setPrefHeight(320);
+        lista.setPrefWidth(440);
+        lista.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(WgerEjercicio item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getNombre() + "  (" + item.getCategoria() + ")");
+            }
+        });
+
+        busqueda.textProperty().addListener((obs, old, texto) -> {
+            String filtro = texto.toLowerCase();
+            lista.getItems().setAll(catalogo.stream()
+                    .filter(e -> e.getNombre().toLowerCase().contains(filtro)
+                              || e.getCategoria().toLowerCase().contains(filtro))
+                    .toList());
+            lista.getSelectionModel().clearSelection();
+        });
+
+        Node selBtn = dialog.getDialogPane().lookupButton(selType);
+        selBtn.setDisable(true);
+        lista.getSelectionModel().selectedItemProperty().addListener(
+                (obs, old, sel) -> selBtn.setDisable(sel == null));
+
+        dialog.getDialogPane().setContent(new VBox(8, busqueda, lista));
+        dialog.setResultConverter(bt -> bt == selType ? lista.getSelectionModel().getSelectedItem() : null);
+
+        return dialog.showAndWait();
+    }
+
+    private Optional<EjercicioDto> mostrarDialogoMet(WgerEjercicio sel) {
+        Dialog<EjercicioDto> dialog = new Dialog<>();
+        dialog.setTitle("Confirmar importación");
+        dialog.setHeaderText(sel.getNombre());
+
+        ButtonType importarType = new ButtonType("Importar", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(importarType, ButtonType.CANCEL);
+
+        TextField metField = new TextField(String.format("%.1f", metPorCategoria(sel.getCategoria())));
+        metField.setPromptText("0.1 – 20.0");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(8);
+        grid.setPadding(new Insets(10, 0, 0, 0));
+        grid.add(new Label("Categoría:"), 0, 0);
+        grid.add(new Label(categoriaNutriFit(sel.getCategoria())), 1, 0);
+        grid.add(new Label("MET:"), 0, 1);
+        grid.add(metField, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
+
+        Node importarBtn = dialog.getDialogPane().lookupButton(importarType);
+        importarBtn.setDisable(!esMetValido(metField.getText()));
+        metField.textProperty().addListener((o, a, b) -> importarBtn.setDisable(!esMetValido(b.trim())));
+
+        dialog.setResultConverter(bt -> {
+            if (bt != importarType) return null;
+            EjercicioDto dto = new EjercicioDto();
+            dto.setNombre(sel.getNombre());
+            dto.setMet(Double.parseDouble(metField.getText().trim()));
+            dto.setCategoria(categoriaNutriFit(sel.getCategoria()));
+            return dto;
+        });
+
+        return dialog.showAndWait();
+    }
+
+    private void importarDesdeWger(EjercicioDto dto) {
+        Task<EjercicioDto> taskCrear = new Task<>() {
+            @Override
+            protected EjercicioDto call() throws Exception {
+                return ejercicioApiClient.crear(dto.getNombre(), dto.getMet(), dto.getCategoria());
+            }
+        };
+
+        taskCrear.setOnSucceeded(event -> {
+            EjercicioDto creado = taskCrear.getValue();
+            Task<List<EjercicioDto>> taskReload = new Task<>() {
+                @Override
+                protected List<EjercicioDto> call() throws Exception {
+                    return ejercicioApiClient.getAll();
+                }
+            };
+            taskReload.setOnSucceeded(e -> {
+                ejercicioComboBox.getItems().setAll(taskReload.getValue());
+                ejercicioComboBox.getItems().stream()
+                        .filter(ex -> ex.getId().equals(creado.getId()))
+                        .findFirst()
+                        .ifPresent(ejercicioComboBox::setValue);
+                mostrarEstado("Importado: " + creado.getNombre(), TipoEstado.EXITO);
+            });
+            ejecutarEnSegundoPlano(taskReload, "Actualizando catálogo...");
+        });
+
+        ejecutarEnSegundoPlano(taskCrear, "Importando ejercicio...");
+    }
+
+    private static double metPorCategoria(String categoria) {
+        return switch (categoria.toLowerCase()) {
+            case "abdominales" -> 3.5;
+            case "piernas", "pantorrillas" -> 4.5;
+            case "cardio" -> 7.0;
+            default -> 4.0;
+        };
+    }
+
+    private static String categoriaNutriFit(String wgerCategory) {
+        return "cardio".equalsIgnoreCase(wgerCategory) ? "Cardio" : "Fuerza";
+    }
+
+    private static boolean esMetValido(String s) {
+        try {
+            double v = Double.parseDouble(s);
+            return v >= 0.1 && v <= 20.0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    @FXML
     private void onVolver() {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -247,6 +407,7 @@ public class EjercicioController {
 
         task.setOnFailed(event -> {
             Throwable error = task.getException();
+            if (error != null) error.printStackTrace();
             mostrarEstado(
                     "Error: " + (error != null ? error.getMessage() : "Error desconocido"),
                     TipoEstado.ERROR

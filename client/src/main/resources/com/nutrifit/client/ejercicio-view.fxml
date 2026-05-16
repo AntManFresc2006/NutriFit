@@ -81,6 +81,11 @@
                     <Label text="Registrar ejercicio"
                            style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
 
+                    <Button text="Importar desde wger.de"
+                            onAction="#onImportarWger"
+                            maxWidth="Infinity"
+                            style="-fx-background-color: #1d4ed8; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 8 14;"/>
+
                     <Label text="Ejercicio"
                            style="-fx-text-fill: #e5e7eb; -fx-font-size: 13px;"/>
 

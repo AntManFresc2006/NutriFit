@@ -111,6 +111,7 @@ public class FoodController {
 
     private final AlimentoApiClient apiClient = new AlimentoApiClient();
     private AlimentoFx alimentoSeleccionado;
+    private java.util.List<AlimentoFx> todosLosAlimentos = new java.util.ArrayList<>();
 
     /**
      * Configura columnas, eventos y estado inicial de la pantalla.
@@ -137,8 +138,7 @@ public class FoodController {
             actualizarModoFormulario();
         });
 
-        // Enter en buscador = buscar
-        searchField.setOnAction(event -> onBuscar());
+        searchField.textProperty().addListener((obs, old, nuevo) -> aplicarFiltro());
         offSearchField.setOnAction(event -> onBuscarOpenFoodFacts());
 
         // Enter en los campos del formulario = guardar
@@ -245,7 +245,8 @@ public class FoodController {
         };
 
         task.setOnSucceeded(event -> {
-            foodTable.getItems().setAll(task.getValue());
+            todosLosAlimentos = task.getValue();
+            aplicarFiltro();
             mostrarEstado("Alimentos cargados correctamente", TipoEstado.EXITO);
         });
 
@@ -347,28 +348,22 @@ public class FoodController {
         return null;
     }
 
+    private void aplicarFiltro() {
+        String texto = searchField.getText().trim().toLowerCase();
+        if (texto.isEmpty()) {
+            foodTable.getItems().setAll(todosLosAlimentos);
+        } else {
+            foodTable.getItems().setAll(
+                todosLosAlimentos.stream()
+                    .filter(a -> a.getNombre().toLowerCase().contains(texto))
+                    .toList()
+            );
+        }
+    }
+
     @FXML
     private void onBuscar() {
-        String query = searchField.getText().trim();
-
-        if (query.isEmpty()) {
-            cargarAlimentos();
-            return;
-        }
-
-        Task<java.util.List<AlimentoFx>> task = new Task<>() {
-            @Override
-            protected java.util.List<AlimentoFx> call() throws Exception {
-                return apiClient.search(query);
-            }
-        };
-
-        task.setOnSucceeded(event -> {
-            foodTable.getItems().setAll(task.getValue());
-            mostrarEstado("Búsqueda completada", TipoEstado.EXITO);
-        });
-
-        ejecutarEnSegundoPlano(task, "Buscando alimentos...");
+        aplicarFiltro();
     }
 
     @FXML

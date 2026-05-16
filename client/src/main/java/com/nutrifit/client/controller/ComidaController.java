@@ -105,6 +105,7 @@ public class ComidaController {
     private ComidaDto comidaSeleccionada;
     private ComidaItemDto itemSeleccionado;
     private AlimentoFx alimentoBusquedaSeleccionado;
+    private List<AlimentoFx> todosLosAlimentos = new java.util.ArrayList<>();
 
     private static final DateTimeFormatter FECHA_FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
@@ -158,10 +159,11 @@ public class ComidaController {
             anadirItemButton.setDisable(nuevo == null || comidaSeleccionada == null);
         });
 
-        buscarAlimentoField.setOnAction(event -> onBuscarAlimento());
+        buscarAlimentoField.textProperty().addListener((obs, old, nuevo) -> aplicarFiltroAlimentos());
 
         actualizarBotonesComida();
         cargarComidas();
+        cargarTodosLosAlimentos();
     }
 
     private void cargarComidas() {
@@ -270,27 +272,38 @@ public class ComidaController {
         ejecutarEnSegundoPlano(task, "Eliminando comida...");
     }
 
-    @FXML
-    private void onBuscarAlimento() {
-        String query = buscarAlimentoField.getText().trim();
-        if (query.isEmpty()) {
-            alimentosBusquedaTable.getItems().clear();
-            return;
-        }
-
+    private void cargarTodosLosAlimentos() {
         Task<List<AlimentoFx>> task = new Task<>() {
             @Override
             protected List<AlimentoFx> call() throws Exception {
-                return alimentoApiClient.search(query);
+                return alimentoApiClient.getAll();
             }
         };
 
         task.setOnSucceeded(event -> {
-            alimentosBusquedaTable.getItems().setAll(task.getValue());
-            mostrarEstado("Búsqueda completada", TipoEstado.INFO);
+            todosLosAlimentos = task.getValue();
+            aplicarFiltroAlimentos();
         });
 
-        ejecutarEnSegundoPlano(task, "Buscando alimentos...");
+        ejecutarEnSegundoPlano(task, "Cargando alimentos...");
+    }
+
+    private void aplicarFiltroAlimentos() {
+        String texto = buscarAlimentoField.getText().trim().toLowerCase();
+        if (texto.isEmpty()) {
+            alimentosBusquedaTable.getItems().setAll(todosLosAlimentos);
+        } else {
+            alimentosBusquedaTable.getItems().setAll(
+                todosLosAlimentos.stream()
+                    .filter(a -> a.getNombre().toLowerCase().contains(texto))
+                    .toList()
+            );
+        }
+    }
+
+    @FXML
+    private void onBuscarAlimento() {
+        aplicarFiltroAlimentos();
     }
 
     @FXML

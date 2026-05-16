@@ -20,6 +20,11 @@
 .env
 .env.*
 !.env.example
+!frontend/.env.production
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
 
 # Claude Code
 CLAUDE.md

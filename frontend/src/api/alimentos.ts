@@ -1,0 +1,14 @@
+import client from './client'
+import type { Alimento, AlimentoRequest } from '../types'
+
+export const getAlimentos = (q?: string) =>
+  client.get<Alimento[]>('/api/alimentos', { params: q ? { q } : {} }).then((r) => r.data)
+
+export const createAlimento = (data: AlimentoRequest) =>
+  client.post<Alimento>('/api/alimentos', data).then((r) => r.data)
+
+export const updateAlimento = (id: number, data: AlimentoRequest) =>
+  client.put<Alimento>(`/api/alimentos/${id}`, data).then((r) => r.data)
+
+export const deleteAlimento = (id: number) =>
+  client.delete(`/api/alimentos/${id}`)

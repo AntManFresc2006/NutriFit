@@ -1,16 +1,37 @@
 package com.nutrifit.backend.resumen.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public class EvaluacionIaRequest {
 
+    @NotNull
     private Long usuarioId;
+
+    @NotBlank
     private String fecha;
+
+    @Min(0)
     private double kcalConsumidas;
+
+    @Min(0)
     private double kcalQuemadas;
+
+    @Min(0)
     private double proteinasTotales;
+
+    @Min(0)
     private double grasasTotales;
+
+    @Min(0)
     private double carbosTotales;
+
+    @Min(0)
     private double tdee;
+
     private double balanceReal;
+
     private double kcalMedia7d;
     private double proteinasMedia7d;
     private int diasConEjercicio7d;

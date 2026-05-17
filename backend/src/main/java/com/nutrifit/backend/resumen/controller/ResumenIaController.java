@@ -2,6 +2,7 @@ package com.nutrifit.backend.resumen.controller;
 
 import com.nutrifit.backend.resumen.dto.EvaluacionIaRequest;
 import com.nutrifit.backend.resumen.service.EvaluacionIaService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,7 @@ public class ResumenIaController {
     }
 
     @PostMapping("/evaluacion-ia")
-    public ResponseEntity<Map<String, String>> evaluar(@RequestBody EvaluacionIaRequest request) {
+    public ResponseEntity<Map<String, String>> evaluar(@Valid @RequestBody EvaluacionIaRequest request) {
         try {
             LocalDate fechaFin = LocalDate.parse(request.getFecha());
             Context7Dias context = calcular7DiasContext(request.getUsuarioId(), fechaFin, request.getTdee());

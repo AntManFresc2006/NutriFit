@@ -3,6 +3,8 @@ package com.nutrifit.backend.comida.controller;
 import com.nutrifit.backend.comida.dto.ComidaRequest;
 import com.nutrifit.backend.comida.dto.ComidaResponse;
 import com.nutrifit.backend.comida.service.ComidaService;
+import com.nutrifit.backend.common.exception.UnauthorizedException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +44,13 @@ public class ComidaController {
     @GetMapping
     public List<ComidaResponse> getByUsuarioAndFecha(
             @RequestParam Long usuarioId,
-            @RequestParam LocalDate fecha
+            @RequestParam LocalDate fecha,
+            HttpServletRequest request
     ) {
+        Long authId = (Long) request.getAttribute("authenticatedUserId");
+        if (!usuarioId.equals(authId)) {
+            throw new UnauthorizedException("Acceso denegado");
+        }
         return comidaService.findByUsuarioAndFecha(usuarioId, fecha);
     }
 
@@ -61,8 +68,13 @@ public class ComidaController {
     @ResponseStatus(HttpStatus.CREATED)
     public ComidaResponse create(
             @RequestParam Long usuarioId,
-            @Valid @RequestBody ComidaRequest request
+            @Valid @RequestBody ComidaRequest request,
+            HttpServletRequest httpRequest
     ) {
+        Long authId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        if (!usuarioId.equals(authId)) {
+            throw new UnauthorizedException("Acceso denegado");
+        }
         return comidaService.save(usuarioId, request);
     }
 

@@ -24,21 +24,32 @@ export default function Comidas() {
   const [alimentoQ, setAlimentoQ] = useState('')
   const [selectedAlimento, setSelectedAlimento] = useState<Alimento | null>(null)
   const [gramos, setGramos] = useState(100)
+  const [confirmDeleteComida, setConfirmDeleteComida] = useState<number | null>(null)
 
   const loadComidas = () => {
     if (!user) return
     setLoading(true)
+    let mounted = true
+
     getComidas(user.usuarioId, fecha)
       .then(async (cs) => {
+        if (!mounted) return
         setComidas(cs)
         const itemsMap: Record<number, ComidaItem[]> = {}
         await Promise.all(cs.map(async (c) => { itemsMap[c.id] = await getComidaItems(c.id) }))
+        if (!mounted) return
         setItems(itemsMap)
       })
-      .finally(() => setLoading(false))
+      .catch(() => { if (mounted) setComidas([]) })
+      .finally(() => { if (mounted) setLoading(false) })
+
+    return () => { mounted = false }
   }
 
-  useEffect(() => { loadComidas() }, [user, fecha])
+  useEffect(() => {
+    const cleanup = loadComidas()
+    return cleanup
+  }, [user, fecha])
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -70,10 +81,14 @@ export default function Comidas() {
   }
 
   const handleDeleteComida = async (id: number) => {
-    if (!confirm('¿Eliminar esta comida y todos sus alimentos?')) return
+    setConfirmDeleteComida(id)
+  }
+
+  const confirmDeleteComidaAction = async (id: number) => {
     await deleteComida(id)
     setComidas((prev) => prev.filter((c) => c.id !== id))
     setItems((prev) => { const n = { ...prev }; delete n[id]; return n })
+    setConfirmDeleteComida(null)
   }
 
   const openAddItem = (comidaId: number) => {
@@ -143,7 +158,14 @@ export default function Comidas() {
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => openAddItem(c.id)} className="btn-secondary text-sm py-1.5">+ Alimento</button>
-                  <button onClick={() => handleDeleteComida(c.id)} className="btn-danger">🗑</button>
+                  {confirmDeleteComida === c.id ? (
+                    <div className="flex gap-1">
+                      <button onClick={() => confirmDeleteComidaAction(c.id)} className="btn-danger text-xs py-1 px-2">Sí</button>
+                      <button onClick={() => setConfirmDeleteComida(null)} className="btn-secondary text-xs py-1 px-2">No</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => handleDeleteComida(c.id)} className="btn-danger">🗑</button>
+                  )}
                 </div>
               </div>
 

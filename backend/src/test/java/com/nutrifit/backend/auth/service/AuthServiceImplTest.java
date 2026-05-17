@@ -92,7 +92,7 @@ class AuthServiceImplTest {
             assertThatThrownBy(() -> service.register(
                     registerRequest("Ana", "ana@ejemplo.com", "secreto123")))
                     .isInstanceOf(BadRequestException.class)
-                    .hasMessage("Ya existe un usuario registrado con ese email");
+                    .hasMessage("No se puede completar el registro con estos datos.");
 
             verify(usuarioRepository, never()).save(any());
             verify(sesionRepository, never()).save(any());

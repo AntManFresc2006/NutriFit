@@ -11,6 +11,8 @@ import com.nutrifit.backend.auth.security.PasswordService;
 import com.nutrifit.backend.auth.security.TokenService;
 import com.nutrifit.backend.common.exception.BadRequestException;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,8 @@ import java.time.LocalDateTime;
  */
 @Service
 public class AuthServiceImpl implements AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final UsuarioRepository usuarioRepository;
     private final SesionRepository sesionRepository;
@@ -50,7 +54,8 @@ public class AuthServiceImpl implements AuthService {
         String email = request.getEmail().trim().toLowerCase();
 
         usuarioRepository.findByEmail(email).ifPresent(usuario -> {
-            throw new BadRequestException("Ya existe un usuario registrado con ese email");
+            log.warn("Intento de registro con email ya existente: {}", email);
+            throw new BadRequestException("No se puede completar el registro con estos datos.");
         });
 
         Usuario usuario = new Usuario();

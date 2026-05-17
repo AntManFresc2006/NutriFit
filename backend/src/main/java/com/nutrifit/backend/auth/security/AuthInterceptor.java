@@ -58,8 +58,12 @@ public class AuthInterceptor implements HandlerInterceptor {
         // La expiración se almacena en base de datos; la comprobamos aquí para no
         // aceptar tokens que ya caducaron aunque sigan presentes en sesiones
         if (sesion.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new UnauthorizedException("La sesión ha expirado");
+            throw new UnauthorizedException("La sesión ha expirada");
         }
+
+        // Exponer el ID del usuario autenticado al controlador para verificar
+        // que no intenta acceder a datos de otros usuarios (prevención de IDOR)
+        request.setAttribute("authenticatedUserId", sesion.getUsuarioId());
 
         return true;
     }

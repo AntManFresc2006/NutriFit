@@ -4,7 +4,9 @@ import com.nutrifit.backend.ejercicio.dto.RegistroEjercicioRequest;
 import com.nutrifit.backend.ejercicio.dto.RegistroEjercicioResponse;
 import com.nutrifit.backend.ejercicio.dto.RecuperacionResponse;
 import com.nutrifit.backend.ejercicio.service.RegistroEjercicioService;
+import com.nutrifit.backend.common.exception.UnauthorizedException;
 import com.nutrifit.backend.perfil.service.PerfilService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -44,7 +46,12 @@ public class RegistroEjercicioController {
     @GetMapping
     public List<RegistroEjercicioResponse> getByFecha(
             @RequestParam Long usuarioId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            HttpServletRequest request) {
+        Long authId = (Long) request.getAttribute("authenticatedUserId");
+        if (!usuarioId.equals(authId)) {
+            throw new UnauthorizedException("Acceso denegado");
+        }
         return registroService.findByUsuarioAndFecha(usuarioId, fecha);
     }
 
@@ -62,7 +69,12 @@ public class RegistroEjercicioController {
     @ResponseStatus(HttpStatus.CREATED)
     public RegistroEjercicioResponse registrar(
             @RequestParam Long usuarioId,
-            @Valid @RequestBody RegistroEjercicioRequest request) {
+            @Valid @RequestBody RegistroEjercicioRequest request,
+            HttpServletRequest httpRequest) {
+        Long authId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        if (!usuarioId.equals(authId)) {
+            throw new UnauthorizedException("Acceso denegado");
+        }
         return registroService.registrar(usuarioId, request);
     }
 
@@ -80,7 +92,12 @@ public class RegistroEjercicioController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
             @RequestParam Long usuarioId,
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            HttpServletRequest request) {
+        Long authId = (Long) request.getAttribute("authenticatedUserId");
+        if (!usuarioId.equals(authId)) {
+            throw new UnauthorizedException("Acceso denegado");
+        }
         registroService.deleteById(usuarioId, id);
     }
 
@@ -94,7 +111,12 @@ public class RegistroEjercicioController {
     @GetMapping("/recuperacion")
     public RecuperacionResponse getRecuperacion(
             @RequestParam Long usuarioId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            HttpServletRequest request) {
+        Long authId = (Long) request.getAttribute("authenticatedUserId");
+        if (!usuarioId.equals(authId)) {
+            throw new UnauthorizedException("Acceso denegado");
+        }
         return registroService.findUltimoIntensivoHoy(usuarioId, fecha)
                 .map(r -> {
                     try {

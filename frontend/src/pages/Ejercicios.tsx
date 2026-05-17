@@ -20,6 +20,7 @@ export default function Ejercicios() {
   const [selected, setSelected] = useState<Ejercicio | null>(null)
   const [duracion, setDuracion] = useState(30)
   const [saving, setSaving] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
   const loadRegistros = () => {
     if (!user) return
@@ -68,9 +69,14 @@ export default function Ejercicios() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!user || !confirm('¿Eliminar este registro?')) return
+    setConfirmDeleteId(id)
+  }
+
+  const confirmDeleteEjercicio = async (id: number) => {
+    if (!user) return
     await deleteRegistro(id, user.usuarioId)
     setRegistros((prev) => prev.filter((r) => r.id !== id))
+    setConfirmDeleteId(null)
   }
 
   const totalKcal = registros.reduce((s, r) => s + r.kcalQuemadas, 0)
@@ -213,7 +219,14 @@ export default function Ejercicios() {
                     <td className="px-4 py-3 text-right text-slate-300">{r.duracionMin} min</td>
                     <td className="px-4 py-3 text-right text-green-400 font-semibold">{Math.round(r.kcalQuemadas)}</td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => handleDelete(r.id)} className="btn-danger">🗑</button>
+                      {confirmDeleteId === r.id ? (
+                        <div className="flex gap-1 justify-end">
+                          <button onClick={() => confirmDeleteEjercicio(r.id)} className="btn-danger text-xs py-1 px-2">Sí</button>
+                          <button onClick={() => setConfirmDeleteId(null)} className="btn-secondary text-xs py-1 px-2">No</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => handleDelete(r.id)} className="btn-danger">🗑</button>
+                      )}
                     </td>
                   </tr>
                 ))}

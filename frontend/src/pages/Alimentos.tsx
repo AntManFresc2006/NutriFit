@@ -12,6 +12,8 @@ export default function Alimentos() {
   const [form, setForm] = useState<AlimentoRequest>(empty)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
+  const [deleteError, setDeleteError] = useState('')
 
   const load = (q?: string) => {
     setLoading(true)
@@ -44,12 +46,17 @@ export default function Alimentos() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Eliminar este alimento?')) return
+    setConfirmDelete(id)
+    setDeleteError('')
+  }
+
+  const confirmDeleteFood = async (id: number) => {
     try {
       await deleteAlimento(id)
       setAlimentos((prev) => prev.filter((a) => a.id !== id))
+      setConfirmDelete(null)
     } catch {
-      alert('No se pudo eliminar')
+      setDeleteError('No se pudo eliminar')
     }
   }
 
@@ -108,6 +115,8 @@ export default function Alimentos() {
         />
       </div>
 
+      {deleteError && <p className="text-red-400 text-sm mb-4">{deleteError}</p>}
+
       {loading ? (
         <div className="flex justify-center py-16">
           <div className="animate-spin w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full" />
@@ -144,7 +153,14 @@ export default function Alimentos() {
                       <span className="badge bg-slate-700 text-slate-400">{a.fuente ?? 'manual'}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <button onClick={() => handleDelete(a.id)} className="btn-danger">🗑</button>
+                      {confirmDelete === a.id ? (
+                        <div className="flex gap-1">
+                          <button onClick={() => confirmDeleteFood(a.id)} className="btn-danger text-xs py-1 px-2">Sí</button>
+                          <button onClick={() => setConfirmDelete(null)} className="btn-secondary text-xs py-1 px-2">No</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => handleDelete(a.id)} className="btn-danger">🗑</button>
+                      )}
                     </td>
                   </tr>
                 ))}

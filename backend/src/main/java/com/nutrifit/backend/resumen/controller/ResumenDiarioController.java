@@ -2,6 +2,8 @@ package com.nutrifit.backend.resumen.controller;
 
 import com.nutrifit.backend.resumen.dto.ResumenDiarioResponse;
 import com.nutrifit.backend.resumen.service.ResumenDiarioService;
+import com.nutrifit.backend.common.exception.UnauthorizedException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,8 +40,13 @@ public class ResumenDiarioController {
     @GetMapping
     public ResumenDiarioResponse getResumenDiario(
             @RequestParam Long usuarioId,
-            @RequestParam LocalDate fecha
+            @RequestParam LocalDate fecha,
+            HttpServletRequest request
     ) {
+        Long authId = (Long) request.getAttribute("authenticatedUserId");
+        if (!usuarioId.equals(authId)) {
+            throw new UnauthorizedException("Acceso denegado");
+        }
         return resumenDiarioService.obtenerResumenDiario(usuarioId, fecha);
     }
 }

@@ -3,6 +3,7 @@ package com.nutrifit.backend.alimento.controller;
 import com.nutrifit.backend.alimento.dto.AlimentoExternoResponse;
 import com.nutrifit.backend.alimento.dto.AlimentoRequest;
 import com.nutrifit.backend.alimento.dto.AlimentoResponse;
+import com.nutrifit.backend.alimento.dto.EscanearFotoRequest;
 import com.nutrifit.backend.alimento.service.AlimentoService;
 import com.nutrifit.backend.alimento.service.OpenFoodFactsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -136,5 +137,20 @@ public class AlimentoController {
             @RequestParam String q) {
         if (q == null || q.isBlank()) return List.of();
         return openFoodFactsService.buscar(q);
+    }
+
+    @Operation(summary = "Escanear producto con IA desde foto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Análisis completado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
+            @ApiResponse(responseCode = "500", description = "Error al procesar la imagen")
+    })
+    @PostMapping("/escanear-foto")
+    public EscanearFotoResponse escanearFoto(@Valid @RequestBody EscanearFotoRequest request) {
+        try {
+            return alimentoService.escanearFoto(request.getImagenBase64(), request.getMimeType());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al escanear foto: " + e.getMessage(), e);
+        }
     }
 }

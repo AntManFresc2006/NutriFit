@@ -22,7 +22,7 @@ public class JdbcEjercicioRepository implements EjercicioRepository {
     @Override
     public List<Ejercicio> findAll() {
         String sql = """
-                SELECT id, nombre, met, categoria
+                SELECT id, nombre, met, categoria, tipo
                 FROM ejercicios
                 ORDER BY nombre ASC
                 """;
@@ -32,7 +32,7 @@ public class JdbcEjercicioRepository implements EjercicioRepository {
     @Override
     public List<Ejercicio> searchByNombre(String query) {
         String sql = """
-                SELECT id, nombre, met, categoria
+                SELECT id, nombre, met, categoria, tipo
                 FROM ejercicios
                 WHERE LOWER(nombre) LIKE LOWER(?)
                 ORDER BY nombre ASC
@@ -43,7 +43,7 @@ public class JdbcEjercicioRepository implements EjercicioRepository {
     @Override
     public Optional<Ejercicio> findById(Long id) {
         String sql = """
-                SELECT id, nombre, met, categoria
+                SELECT id, nombre, met, categoria, tipo
                 FROM ejercicios
                 WHERE id = ?
                 """;
@@ -54,8 +54,8 @@ public class JdbcEjercicioRepository implements EjercicioRepository {
     @Override
     public Ejercicio save(Ejercicio ejercicio) {
         String sql = """
-                INSERT INTO ejercicios (nombre, met, categoria)
-                VALUES (?, ?, ?)
+                INSERT INTO ejercicios (nombre, met, categoria, tipo)
+                VALUES (?, ?, ?, ?)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -64,6 +64,7 @@ public class JdbcEjercicioRepository implements EjercicioRepository {
             ps.setString(1, ejercicio.getNombre());
             ps.setDouble(2, ejercicio.getMet());
             ps.setString(3, ejercicio.getCategoria());
+            ps.setString(4, ejercicio.getTipo() != null ? ejercicio.getTipo() : "AEROBICO");
             return ps;
         }, keyHolder);
 
@@ -79,7 +80,8 @@ public class JdbcEjercicioRepository implements EjercicioRepository {
                 rs.getLong("id"),
                 rs.getString("nombre"),
                 rs.getDouble("met"),
-                rs.getString("categoria")
+                rs.getString("categoria"),
+                rs.getString("tipo")
         );
     }
 }

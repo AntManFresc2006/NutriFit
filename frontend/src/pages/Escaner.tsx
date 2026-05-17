@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Html5QrcodeScanner } from 'html5-qrcode'
 import { escanearBarcode, type EscanerResult } from '../api/escaner'
+import { escanearFoto, createAlimento, type FotoScanResult } from '../api/alimentos'
 import { getComidas, createComida } from '../api/comidas'
 import { useAuth } from '../contexts/AuthContext'
 import type { Comida } from '../types'
@@ -34,11 +35,51 @@ export default function Escaner() {
   const [addingToMeal, setAddingToMeal] = useState(false)
   const [addError, setAddError] = useState('')
 
+  // States for AI vision scanning
+  const [fotoResult, setFotoResult] = useState<FotoScanResult | null>(null)
+  const [escaneoLoading, setEscaneoLoading] = useState(false)
+  const fotoInputRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     if (resultado && user) {
       cargarComidas()
     }
   }, [resultado, user])
+
+  // Initialize scanner when cameraActive becomes true
+  useEffect(() => {
+    if (!cameraActive) return
+
+    const scanner = new Html5QrcodeScanner(
+      'html5-qrcode-reader',
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.33,
+      },
+      false
+    )
+
+    scanner.render(
+      (decodedText) => {
+        setBarcode(decodedText)
+        buscarProducto(decodedText)
+        detenerScanner()
+      },
+      (error) => {
+        if (error && !error.includes('NotFoundException')) {
+          console.log('[Scanner]', error)
+        }
+      }
+    )
+
+    scannerRef.current = scanner
+
+    return () => {
+      scanner.clear().catch(() => {})
+      scannerRef.current = null
+    }
+  }, [cameraActive])
 
   const cargarComidas = async () => {
     if (!user) return
@@ -58,29 +99,6 @@ export default function Escaner() {
 
     setCameraActive(true)
     setError('')
-
-    scannerRef.current = new Html5QrcodeScanner(
-      'html5-qrcode-reader',
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.33,
-      },
-      false
-    )
-
-    scannerRef.current.render(
-      (decodedText) => {
-        setBarcode(decodedText)
-        buscarProducto(decodedText)
-        detenerScanner()
-      },
-      (error) => {
-        if (error && !error.includes('NotFoundException')) {
-          console.log('[Scanner]', error)
-        }
-      }
-    )
   }
 
   const detenerScanner = () => {
@@ -144,6 +162,56 @@ export default function Escaner() {
     } catch (err: any) {
       const message = err.response?.data?.message || 'Error al añadir a comida'
       setAddError(message)
+    } finally {
+      setAddingToMeal(false)
+    }
+  }
+
+  const handleFotoSeleccionada = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setEscaneoLoading(true)
+    const reader = new FileReader()
+    reader.onload = async (event) => {
+      const base64String = event.target?.result as string
+      const base64Data = base64String.split(',')[1]
+      const mimeType = file.type || 'image/jpeg'
+
+      try {
+        const data = await escanearFoto(base64Data, mimeType)
+        setFotoResult(data)
+        setError('')
+      } catch (err: any) {
+        setError(err.response?.data?.message || err.message || 'Error al procesar la imagen')
+      } finally {
+        setEscaneoLoading(false)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleGuardarAlimento = async () => {
+    if (!fotoResult) return
+
+    setAddingToMeal(true)
+    setAddError('')
+    try {
+      await createAlimento({
+        nombre: fotoResult.nombre,
+        porcionG: fotoResult.porcion,
+        kcalPor100g: fotoResult.kcalPor100g,
+        proteinasG: fotoResult.proteinas,
+        grasasG: fotoResult.grasas,
+        carbosG: fotoResult.carbos,
+        fuente: 'Escaneo con IA'
+      })
+
+      setFotoResult(null)
+      if (fotoInputRef.current) fotoInputRef.current.value = ''
+      setError('Alimento guardado exitosamente')
+    } catch (err: any) {
+      setAddError(err.response?.data?.message || 'Error al guardar alimento')
     } finally {
       setAddingToMeal(false)
     }
@@ -216,6 +284,121 @@ export default function Escaner() {
               className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm"
             >
               {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* AI Vision Scanning Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
+        className="card mb-6"
+      >
+        <h2 className="text-base font-semibold gradient-text mb-4">Escanear con IA</h2>
+        <p className="text-white/50 text-sm mb-4">Toma una foto del producto o su código de barras</p>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => fotoInputRef.current?.click()}
+          className="w-full py-3 px-3 rounded-xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 border border-blue-500/50 hover:border-blue-500/70 text-blue-300 hover:text-blue-200 transition-colors font-medium text-sm flex items-center justify-center gap-2"
+        >
+          📷 Subir foto del producto
+        </motion.button>
+        <input
+          ref={fotoInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handleFotoSeleccionada}
+        />
+
+        <AnimatePresence>
+          {escaneoLoading && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-400 text-sm text-center"
+            >
+              Analizando con IA...
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {fotoResult && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="mt-4 p-4 bg-white/5 rounded-lg border border-white/10"
+            >
+              <h4 className="text-lg font-semibold gradient-text mb-3">{fotoResult.nombre}</h4>
+
+              <motion.div
+                variants={macroVariants}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4"
+              >
+                <motion.div
+                  variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+                  className="bg-white/5 border-t-2 border-emerald-500 border-l border-r border-b border-white/10 rounded-lg p-3"
+                >
+                  <p className="text-slate-400 text-xs font-medium">Kcal</p>
+                  <p className="text-emerald-400 text-lg font-bold">{fotoResult.kcalPor100g}</p>
+                  <p className="text-slate-500 text-xs">por 100g</p>
+                </motion.div>
+                <motion.div
+                  variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+                  className="bg-white/5 border-t-2 border-blue-500 border-l border-r border-b border-white/10 rounded-lg p-3"
+                >
+                  <p className="text-slate-400 text-xs font-medium">Proteínas</p>
+                  <p className="text-blue-400 text-lg font-bold">{fotoResult.proteinas}g</p>
+                  <p className="text-slate-500 text-xs">por 100g</p>
+                </motion.div>
+                <motion.div
+                  variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+                  className="bg-white/5 border-t-2 border-yellow-500 border-l border-r border-b border-white/10 rounded-lg p-3"
+                >
+                  <p className="text-slate-400 text-xs font-medium">Grasas</p>
+                  <p className="text-yellow-400 text-lg font-bold">{fotoResult.grasas}g</p>
+                  <p className="text-slate-500 text-xs">por 100g</p>
+                </motion.div>
+                <motion.div
+                  variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+                  className="bg-white/5 border-t-2 border-orange-500 border-l border-r border-b border-white/10 rounded-lg p-3"
+                >
+                  <p className="text-slate-400 text-xs font-medium">Carbos</p>
+                  <p className="text-orange-400 text-lg font-bold">{fotoResult.carbos}g</p>
+                  <p className="text-slate-500 text-xs">por 100g</p>
+                </motion.div>
+              </motion.div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleGuardarAlimento}
+                disabled={addingToMeal}
+                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-500/50 hover:border-emerald-500/70 text-emerald-300 hover:text-emerald-200 transition-colors font-medium text-sm disabled:opacity-50"
+              >
+                {addingToMeal ? 'Guardando...' : '✓ Guardar en Alimentos'}
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  setFotoResult(null)
+                  if (fotoInputRef.current) fotoInputRef.current.value = ''
+                }}
+                className="w-full mt-2 py-2 px-3 rounded-xl bg-white/8 hover:bg-white/12 border border-white/10 hover:border-white/20 text-slate-200 transition-colors text-sm font-medium"
+              >
+                Escanear otro producto
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>

@@ -75,6 +75,7 @@ export interface Ejercicio {
   nombre: string
   categoria: string
   met: number
+  tipo?: string
 }
 
 export interface ResumenDiario {

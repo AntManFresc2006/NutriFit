@@ -60,7 +60,7 @@ public class RegistroEjercicioServiceImpl implements RegistroEjercicioService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No existe un usuario con id " + usuarioId));
 
-        double kcalQuemadas = calcularKcal(ejercicio.getMet(), perfil.getPesoKgActual(), request.getDuracionMin());
+        double kcalQuemadas = calcularKcal(ejercicio, perfil.getPesoKgActual(), request.getDuracionMin());
 
         RegistroEjercicio registro = new RegistroEjercicio();
         registro.setUsuarioId(usuarioId);
@@ -107,20 +107,27 @@ public class RegistroEjercicioServiceImpl implements RegistroEjercicioService {
     }
 
     /**
-     * Calcula las kcal quemadas según la fórmula estándar MET.
+     * Calcula las kcal quemadas según el tipo de ejercicio.
      *
-     * <p>Fórmula: {@code kcal = MET × peso_kg × (duracion_min / 60.0)}<br>
-     * El MET (Metabolic Equivalent of Task) representa el coste metabólico relativo
-     * al reposo; multiplicado por peso y horas da kcal absolutas.
+     * <p>Para ejercicios AEROBICOS: {@code kcal = MET × peso_kg × (duracion_min / 60.0)}<br>
+     * El MET (Metabolic Equivalent of Task) representa el coste metabólico relativo al reposo.<br>
+     * <br>
+     * Para ejercicios ANAEROBICOS: {@code kcal = met_per_serie × num_series}<br>
+     * El campo MET para anaeróbicos almacena kcal-por-serie, y duracionMin representa series.
      * Se redondea a 2 decimales para no acumular ruido de punto flotante.</p>
      *
-     * @param met         valor MET del ejercicio (extraído del catálogo)
+     * @param ejercicio   objeto ejercicio con tipo y MET
      * @param pesoKg      peso actual del usuario en kilogramos
-     * @param duracionMin duración de la sesión en minutos
+     * @param duracionMin duración (minutos para aeróbicos, series para anaeróbicos)
      * @return kcal quemadas redondeadas a 2 decimales
      */
-    static double calcularKcal(double met, double pesoKg, int duracionMin) {
-        double resultado = met * pesoKg * (duracionMin / 60.0);
+    static double calcularKcal(Ejercicio ejercicio, double pesoKg, int duracionMin) {
+        double resultado;
+        if ("ANAEROBICO".equals(ejercicio.getTipo())) {
+            resultado = ejercicio.getMet() * duracionMin;
+        } else {
+            resultado = ejercicio.getMet() * pesoKg * (duracionMin / 60.0);
+        }
         return BigDecimal.valueOf(resultado)
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();

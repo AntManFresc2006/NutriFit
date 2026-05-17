@@ -2,6 +2,7 @@ package com.nutrifit.backend.alimento.service;
 
 import com.nutrifit.backend.alimento.dto.AlimentoRequest;
 import com.nutrifit.backend.alimento.dto.AlimentoResponse;
+import com.nutrifit.backend.alimento.dto.EscanearFotoResponse;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface AlimentoService {
     AlimentoResponse update(Long id, AlimentoRequest request);
 
     boolean deleteById(Long id);
+
+    EscanearFotoResponse escanearFoto(String imagenBase64, String mimeType) throws Exception;
 }

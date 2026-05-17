@@ -33,6 +33,7 @@ export default function ListaCompra() {
   const [categoria, setCategoria] = useState('OTROS')
   const [loading, setLoading] = useState(false)
   const [expandSugerencias, setExpandSugerencias] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -41,15 +42,21 @@ export default function ListaCompra() {
 
   const cargarDatos = async () => {
     if (!user) return
+    // Load items independently - don't block on sugerencias
     try {
-      const [listaData, sugsData] = await Promise.all([
-        getItems(user.usuarioId),
-        getSugerencias(user.usuarioId),
-      ])
+      const listaData = await getItems(user.usuarioId)
       setItems(listaData || {})
-      setSugerencias(sugsData.sugerencias || [])
     } catch (err) {
-      console.error('Error cargando datos:', err)
+      console.error('Error cargando items:', err)
+      setError('No se pudieron cargar los elementos')
+    }
+    // Load sugerencias separately, non-blocking
+    try {
+      const sugsData = await getSugerencias(user.usuarioId)
+      setSugerencias(sugsData?.sugerencias || [])
+    } catch (err) {
+      console.error('Error cargando sugerencias:', err)
+      setSugerencias([])
     }
   }
 
@@ -58,14 +65,17 @@ export default function ListaCompra() {
     if (!user || !nombre.trim()) return
 
     setLoading(true)
+    setError(null)
     try {
       await addItem(user.usuarioId, { nombre, cantidad: cantidad || undefined, categoria })
       setNombre('')
       setCantidad('')
       setCategoria('OTROS')
+      setError(null)
       await cargarDatos()
     } catch (err) {
       console.error('Error añadiendo item:', err)
+      setError('No se pudo añadir el elemento. Intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -241,6 +251,26 @@ export default function ListaCompra() {
             {loading ? 'Añadiendo...' : 'Añadir +'}
           </motion.button>
         </motion.form>
+
+        {/* Error message */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              className="mb-6 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center justify-between"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+            >
+              {error}
+              <button
+                onClick={() => setError(null)}
+                className="ml-4 text-red-400/50 hover:text-red-400 transition-colors"
+              >
+                ✕
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Sugerencias */}
         <AnimatePresence>

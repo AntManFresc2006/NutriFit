@@ -27,6 +27,7 @@ export default function Perfil() {
   const [error, setError] = useState<string | null>(null)
   const [pesoHistorial, setPesoHistorial] = useState<PesoHistorial[]>([])
   const [pesoHoy, setPesoHoy] = useState('')
+  const [pesoFecha, setPesoFecha] = useState<string>(new Date().toISOString().split('T')[0])
   const [savingPeso, setSavingPeso] = useState(false)
 
   useEffect(() => {
@@ -59,11 +60,10 @@ export default function Perfil() {
     if (!user || !pesoHoy) return
     setSavingPeso(true)
     try {
-      const today = new Date().toISOString().split('T')[0]
-      const nuevo = await registrarPeso(user.usuarioId, today, parseFloat(pesoHoy))
+      const nuevo = await registrarPeso(user.usuarioId, pesoFecha, parseFloat(pesoHoy))
       setPesoHistorial(prev => {
-        const sinHoy = prev.filter(p => p.fecha !== today)
-        return [...sinHoy, nuevo].sort((a, b) => a.fecha.localeCompare(b.fecha))
+        const sinFecha = prev.filter(p => p.fecha !== pesoFecha)
+        return [...sinFecha, nuevo].sort((a, b) => a.fecha.localeCompare(b.fecha))
       })
       setPesoHoy('')
     } finally {
@@ -210,6 +210,13 @@ export default function Perfil() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wide">📈 Evolución del peso</h2>
             <form onSubmit={handleRegistrarPeso} className="flex items-center gap-2">
+              <input
+                type="date"
+                value={pesoFecha}
+                max={new Date().toISOString().split('T')[0]}
+                onChange={e => setPesoFecha(e.target.value)}
+                className="input w-32 py-1 text-sm"
+              />
               <input
                 type="number"
                 step="0.1"

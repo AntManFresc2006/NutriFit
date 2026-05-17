@@ -64,6 +64,7 @@ export default function Ejercicios() {
       setShowSearch(false)
       setSelected(null)
       setQuery('')
+      setDuracion(30)
     } finally {
       setSaving(false)
     }
@@ -174,7 +175,10 @@ export default function Ejercicios() {
                   <motion.button
                     key={e.id}
                     whileHover={{ x: 4, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-                    onClick={() => setSelected(e)}
+                    onClick={() => {
+                      setSelected(e)
+                      setDuracion(e.tipo === 'ANAEROBICO' ? 3 : 30)
+                    }}
                     className="w-full text-left px-3 py-2.5 rounded-lg transition-colors"
                   >
                     <div className="flex items-center justify-between">
@@ -196,7 +200,10 @@ export default function Ejercicios() {
                       <motion.button
                         key={i}
                         whileHover={{ x: 4, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-                        onClick={() => handleSelectExterno(ext)}
+                        onClick={() => {
+                          handleSelectExterno(ext)
+                          setDuracion(30)
+                        }}
                         className="w-full text-left px-3 py-2.5 rounded-lg transition-colors"
                       >
                         <div className="flex items-center justify-between">
@@ -230,7 +237,9 @@ export default function Ejercicios() {
                     </motion.button>
                   </div>
                   <div className="flex items-center gap-3">
-                    <label htmlFor="duracion" className="label mb-0 shrink-0">Duración (min):</label>
+                    <label htmlFor="duracion" className="label mb-0 shrink-0">
+                      {selected?.tipo === 'ANAEROBICO' ? 'Series:' : 'Duración (min):'}
+                    </label>
                     <input
                       id="duracion"
                       type="number"
@@ -241,7 +250,7 @@ export default function Ejercicios() {
                       onChange={(e) => setDuracion(Number.parseInt(e.target.value) || 0)}
                     />
                     <span className="text-slate-400 text-sm">
-                      ≈ {Math.round((selected.met * 70 / 60) * duracion)} kcal
+                      ≈ {selected?.tipo === 'ANAEROBICO' ? Math.round(selected.met * duracion) : Math.round((selected.met * 70 / 60) * duracion)} kcal
                     </span>
                   </div>
                   <motion.button

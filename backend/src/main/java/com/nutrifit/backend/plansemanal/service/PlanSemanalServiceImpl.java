@@ -126,7 +126,7 @@ public class PlanSemanalServiceImpl implements PlanSemanalService {
         String requestBody = objectMapper.writeValueAsString(Map.of(
                 "model", model,
                 "messages", List.of(Map.of("role", "user", "content", userPrompt)),
-                "max_tokens", 2000
+                "max_tokens", 4000
         ));
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -144,6 +144,20 @@ public class PlanSemanalServiceImpl implements PlanSemanalService {
         }
 
         JsonNode json = objectMapper.readTree(response.body());
-        return json.path("choices").get(0).path("message").path("content").asText();
+        String content = json.path("choices").get(0).path("message").path("content").asText();
+        return limpiarJson(content);
+    }
+
+    private String limpiarJson(String raw) {
+        if (raw == null) return raw;
+        String s = raw.strip();
+        if (s.startsWith("```")) {
+            int first = s.indexOf('\n');
+            int last  = s.lastIndexOf("```");
+            if (first != -1 && last > first) {
+                s = s.substring(first + 1, last).strip();
+            }
+        }
+        return s;
     }
 }

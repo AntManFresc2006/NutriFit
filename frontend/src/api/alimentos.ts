@@ -15,3 +15,18 @@ export const deleteAlimento = (id: number) =>
 
 export const buscarExternoAlimentos = (q: string) =>
   client.get<AlimentoExterno[]>('/api/alimentos/externo', { params: { q } }).then(r => r.data)
+
+export interface FotoScanResult {
+  nombre: string
+  kcalPor100g: number
+  proteinas: number
+  grasas: number
+  carbos: number
+  porcion: number
+}
+
+export const escanearFoto = (imagenBase64: string, mimeType: string) =>
+  client.post<FotoScanResult>('/api/alimentos/escanear-foto', {
+    imagenBase64,
+    mimeType
+  }).then(r => r.data)

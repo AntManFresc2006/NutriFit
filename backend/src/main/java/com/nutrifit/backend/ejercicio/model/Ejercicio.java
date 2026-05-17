@@ -6,6 +6,7 @@ public class Ejercicio {
     private String nombre;
     private double met;
     private String categoria;
+    private String tipo;
 
     public Ejercicio() {}
 
@@ -14,6 +15,14 @@ public class Ejercicio {
         this.nombre = nombre;
         this.met = met;
         this.categoria = categoria;
+    }
+
+    public Ejercicio(Long id, String nombre, double met, String categoria, String tipo) {
+        this.id = id;
+        this.nombre = nombre;
+        this.met = met;
+        this.categoria = categoria;
+        this.tipo = tipo;
     }
 
     public Long getId() { return id; }
@@ -27,4 +36,7 @@ public class Ejercicio {
 
     public String getCategoria() { return categoria; }
     public void setCategoria(String categoria) { this.categoria = categoria; }
+
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
 }

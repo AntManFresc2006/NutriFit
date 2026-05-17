@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Html5Qrcode } from 'html5-qrcode'
 import { escanearBarcode, type EscanerResult } from '../api/escaner'
-import { escanearFoto, createAlimento, type FotoScanResult } from '../api/alimentos'
+import { createAlimento } from '../api/alimentos'
 import { getComidas, createComida, addItemToComida } from '../api/comidas'
 import { useAuth } from '../contexts/AuthContext'
 import type { Comida } from '../types'
 
-type Metodo = 'camara' | 'manual' | 'ia' | null
+type Metodo = 'camara' | 'manual' | null
 
 const COMIDA_TIPOS = ['DESAYUNO', 'ALMUERZO', 'CENA', 'MERIENDA']
 
@@ -28,10 +28,6 @@ export default function Escaner() {
   const [addingToMeal, setAddingToMeal] = useState(false)
   const [addError, setAddError] = useState('')
   const [addSuccess, setAddSuccess] = useState('')
-
-  const [fotoResult, setFotoResult] = useState<FotoScanResult | null>(null)
-  const [escaneoLoading, setEscaneoLoading] = useState(false)
-  const fotoInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (resultado && user) cargarComidas()
@@ -109,7 +105,7 @@ export default function Escaner() {
     }
   }
 
-  const handleBuscar = (e: React.FormEvent) => {
+  const handleBuscar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!barcode.trim()) { setError('Ingresa un código de barras'); return }
     buscarProducto(barcode)
@@ -144,60 +140,12 @@ export default function Escaner() {
     }
   }
 
-  const handleFotoSeleccionada = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setEscaneoLoading(true)
-    const reader = new FileReader()
-    reader.onload = async (event) => {
-      const base64String = event.target?.result as string
-      const base64Data = base64String.split(',')[1]
-      const mimeType = file.type || 'image/jpeg'
-      try {
-        const data = await escanearFoto(base64Data, mimeType)
-        setFotoResult(data)
-        setError('')
-      } catch (err: any) {
-        setError(err.response?.data?.message || err.message || 'Error al procesar la imagen')
-      } finally {
-        setEscaneoLoading(false)
-      }
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleGuardarAlimento = async () => {
-    if (!fotoResult) return
-    setAddingToMeal(true)
-    setAddError('')
-    try {
-      await createAlimento({
-        nombre: fotoResult.nombre,
-        porcionG: fotoResult.porcion,
-        kcalPor100g: fotoResult.kcalPor100g,
-        proteinasG: fotoResult.proteinas,
-        grasasG: fotoResult.grasas,
-        carbosG: fotoResult.carbos,
-        fuente: 'Escaneo con IA'
-      })
-      setFotoResult(null)
-      if (fotoInputRef.current) fotoInputRef.current.value = ''
-      setMetodo(null)
-      setAddSuccess('Alimento guardado correctamente')
-    } catch (err: any) {
-      setAddError(err.response?.data?.message || 'Error al guardar alimento')
-    } finally {
-      setAddingToMeal(false)
-    }
-  }
-
   const resetTodo = () => {
     setResultado(null)
     setBarcode('')
     setError('')
     setAddError('')
     setAddSuccess('')
-    setFotoResult(null)
     setMetodo(null)
   }
 
@@ -364,18 +312,6 @@ export default function Escaner() {
                   <span className="text-white/25 group-hover:text-white/50 text-xl transition-colors">›</span>
                 </button>
 
-                <button onClick={() => seleccionarMetodo('ia')}
-                  className="w-full card flex items-center gap-4 p-4 hover:border-purple-500/40 transition-all text-left group cursor-pointer"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/15 flex items-center justify-center text-2xl shrink-0 group-hover:bg-purple-500/25 transition-colors">
-                    🤖
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white font-medium text-sm">Analizar con IA</p>
-                    <p className="text-white/40 text-xs mt-0.5">Sube una foto del producto o su etiqueta</p>
-                  </div>
-                  <span className="text-white/25 group-hover:text-white/50 text-xl transition-colors">›</span>
-                </button>
               </div>
             )}
 
@@ -433,98 +369,6 @@ export default function Escaner() {
               </motion.div>
             )}
 
-            {/* Método: IA */}
-            {metodo === 'ia' && (
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                <button onClick={() => seleccionarMetodo(null)}
-                  className="flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors text-sm"
-                >
-                  ← Volver
-                </button>
-                <div className="card">
-                  {!fotoResult && !escaneoLoading && (
-                    <>
-                      <p className="text-white font-medium text-sm mb-1">Analizar con IA</p>
-                      <p className="text-white/40 text-xs mb-4">
-                        La IA leerá la etiqueta nutricional y extraerá los macros automáticamente.
-                      </p>
-                      <button
-                        onClick={() => fotoInputRef.current?.click()}
-                        className="w-full py-10 rounded-xl border-2 border-dashed border-white/15 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all flex flex-col items-center gap-2 group"
-                      >
-                        <span className="text-4xl">📷</span>
-                        <span className="text-white/50 group-hover:text-white/70 text-sm font-medium transition-colors">
-                          Subir foto del producto
-                        </span>
-                        <span className="text-white/30 text-xs">Toca para seleccionar o hacer una foto</span>
-                      </button>
-                    </>
-                  )}
-
-                  {escaneoLoading && (
-                    <div className="text-center py-12">
-                      <div className="w-10 h-10 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                      <p className="text-white/50 text-sm">Analizando imagen con IA...</p>
-                      <p className="text-white/25 text-xs mt-1">Esto puede tardar unos segundos</p>
-                    </div>
-                  )}
-
-                  {fotoResult && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="text-2xl">✅</span>
-                        <div>
-                          <p className="text-white font-semibold text-sm">{fotoResult.nombre}</p>
-                          <p className="text-white/40 text-xs">Identificado con IA</p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-4 gap-2 mb-4">
-                        <div className="bg-white/5 rounded-xl p-2.5 border-t-2 border-emerald-500 border border-white/10">
-                          <p className="text-white/40 text-[10px]">Kcal</p>
-                          <p className="text-emerald-400 text-sm font-bold">{fotoResult.kcalPor100g}</p>
-                          <p className="text-white/25 text-[10px]">/100g</p>
-                        </div>
-                        <div className="bg-white/5 rounded-xl p-2.5 border-t-2 border-blue-500 border border-white/10">
-                          <p className="text-white/40 text-[10px]">Prot.</p>
-                          <p className="text-blue-400 text-sm font-bold">{fotoResult.proteinas}g</p>
-                          <p className="text-white/25 text-[10px]">/100g</p>
-                        </div>
-                        <div className="bg-white/5 rounded-xl p-2.5 border-t-2 border-yellow-500 border border-white/10">
-                          <p className="text-white/40 text-[10px]">Grasas</p>
-                          <p className="text-yellow-400 text-sm font-bold">{fotoResult.grasas}g</p>
-                          <p className="text-white/25 text-[10px]">/100g</p>
-                        </div>
-                        <div className="bg-white/5 rounded-xl p-2.5 border-t-2 border-orange-500 border border-white/10">
-                          <p className="text-white/40 text-[10px]">Carbos</p>
-                          <p className="text-orange-400 text-sm font-bold">{fotoResult.carbos}g</p>
-                          <p className="text-white/25 text-[10px]">/100g</p>
-                        </div>
-                      </div>
-
-                      {addError && <p className="mb-3 text-red-400 text-sm">{addError}</p>}
-                      {addSuccess && <p className="mb-3 text-emerald-400 text-sm">✓ {addSuccess}</p>}
-
-                      <div className="space-y-2">
-                        <button onClick={handleGuardarAlimento} disabled={addingToMeal}
-                          className="w-full btn-primary disabled:opacity-50"
-                        >
-                          {addingToMeal ? 'Guardando...' : '✓ Guardar en Alimentos'}
-                        </button>
-                        <button
-                          onClick={() => { setFotoResult(null); if (fotoInputRef.current) fotoInputRef.current.value = '' }}
-                          className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/8 border border-white/10 text-white/40 hover:text-white/60 text-sm transition-colors"
-                        >
-                          Analizar otro producto
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <input ref={fotoInputRef} type="file" accept="image/*" capture="environment"
-                  className="hidden" onChange={handleFotoSeleccionada}
-                />
-              </motion.div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>

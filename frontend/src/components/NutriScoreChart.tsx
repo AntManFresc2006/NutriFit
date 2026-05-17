@@ -54,16 +54,6 @@ export default function NutriScoreChart({ data }: Props) {
           />
           <YAxis stroke="#64748B" tick={{ fontSize: 12 }} domain={[0, 100]} />
           <Tooltip
-            contentStyle={{
-              backgroundColor: '#1e293b',
-              border: '1px solid #475569',
-              borderRadius: '8px',
-            }}
-            labelStyle={{ color: '#e2e8f0' }}
-            formatter={(value: number, name: string) => {
-              if (name === 'score') return [`${value}/100`, 'Score']
-              return value
-            }}
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const data = payload[0].payload

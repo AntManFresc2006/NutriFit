@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Html5QrcodeScanner } from 'html5-qrcode'
 import { escanearBarcode, type EscanerResult } from '../api/escaner'
 import { escanearFoto, createAlimento, type FotoScanResult } from '../api/alimentos'
-import { getComidas, createComida } from '../api/comidas'
+import { getComidas, createComida, addItemToComida } from '../api/comidas'
 import { useAuth } from '../contexts/AuthContext'
 import type { Comida } from '../types'
 
@@ -34,6 +34,7 @@ export default function Escaner() {
   const [comidas, setComidas] = useState<Comida[]>([])
   const [addingToMeal, setAddingToMeal] = useState(false)
   const [addError, setAddError] = useState('')
+  const [addSuccess, setAddSuccess] = useState('')
 
   // States for AI vision scanning
   const [fotoResult, setFotoResult] = useState<FotoScanResult | null>(null)
@@ -114,6 +115,7 @@ export default function Escaner() {
     setError('')
     setResultado(null)
     setAddError('')
+    setAddSuccess('')
 
     try {
       const result = await escanearBarcode(code)
@@ -140,25 +142,31 @@ export default function Escaner() {
 
     setAddingToMeal(true)
     setAddError('')
+    setAddSuccess('')
 
     try {
-      // Buscar comida existente del tipo y fecha
-      let comida = comidas.find(c => c.tipo === tipoComida && c.fecha === fecha)
+      // 1. Guardar el alimento en la BD
+      const alimento = await createAlimento({
+        nombre: resultado.nombre,
+        porcionG: 100,
+        kcalPor100g: resultado.kcalPor100g,
+        proteinasG: resultado.proteinasPor100g,
+        grasasG: resultado.grasasPor100g,
+        carbosG: resultado.carbosPor100g,
+        fuente: 'Escáner de código de barras'
+      })
 
-      // Si no existe, crearla
+      // 2. Buscar o crear la comida del tipo y fecha
+      let comida = comidas.find(c => c.tipo === tipoComida && c.fecha === fecha)
       if (!comida) {
         comida = await createComida(user.usuarioId, fecha, tipoComida)
-        setComidas([...comidas, comida])
+        setComidas(prev => [...prev, comida!])
       }
 
-      // Aquí debería buscar si el alimento existe en la BD local de NutriFit
-      // Para este módulo de escáner, asumimos que el usuario necesitará buscarlo en Alimentos
-      // Pero mostramos un mensaje informativo
-      setError('')
-      setAddError(
-        'Este producto no está en nuestra base de datos aún. Puedes buscarlo en Alimentos para añadirlo. ' +
-        'Nombre: ' + resultado.nombre + ' | Kcal: ' + resultado.kcalPor100g
-      )
+      // 3. Añadir el alimento a la comida
+      await addItemToComida(comida.id, alimento.id, gramos)
+
+      setAddSuccess(`${resultado.nombre} añadido al registro (${gramos}g)`)
     } catch (err: any) {
       const message = err.response?.data?.message || 'Error al añadir a comida'
       setAddError(message)
@@ -499,16 +507,27 @@ export default function Escaner() {
                   </motion.div>
                 </motion.div>
 
-                {/* Nota informativa */}
                 <AnimatePresence>
                   {addError && (
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-400 text-sm mb-4"
+                      className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm mb-4"
                     >
                       {addError}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <AnimatePresence>
+                  {addSuccess && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm mb-4"
+                    >
+                      ✓ {addSuccess}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -578,6 +597,7 @@ export default function Escaner() {
                 setBarcode('')
                 setError('')
                 setAddError('')
+                setAddSuccess('')
               }}
               className="mt-6 w-full py-2 px-3 rounded-xl bg-white/8 hover:bg-white/12 border border-white/10 hover:border-white/20 text-slate-200 transition-colors text-sm font-medium"
             >

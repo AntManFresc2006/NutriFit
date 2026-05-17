@@ -33,7 +33,7 @@ export default function Layout() {
 
   const handleLogout = async () => {
     try {
-      if (user) await apiLogout(user.token)
+      await apiLogout()
     } catch {}
     logout()
     navigate('/login')

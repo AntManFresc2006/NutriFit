@@ -4,6 +4,7 @@ import com.nutrifit.backend.alimento.dto.AlimentoExternoResponse;
 import com.nutrifit.backend.alimento.dto.AlimentoRequest;
 import com.nutrifit.backend.alimento.dto.AlimentoResponse;
 import com.nutrifit.backend.alimento.dto.EscanearFotoRequest;
+import com.nutrifit.backend.alimento.dto.EscanearFotoResponse;
 import com.nutrifit.backend.alimento.service.AlimentoService;
 import com.nutrifit.backend.alimento.service.OpenFoodFactsService;
 import io.swagger.v3.oas.annotations.Operation;

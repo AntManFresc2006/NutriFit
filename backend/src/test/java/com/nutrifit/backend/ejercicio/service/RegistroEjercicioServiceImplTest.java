@@ -97,21 +97,24 @@ class RegistroEjercicioServiceImplTest {
         @Test
         @DisplayName("correr (MET=8.0), 75 kg, 45 min → 450.00 kcal")
         void correr_75kg_45min_devuelve450() {
-            double resultado = RegistroEjercicioServiceImpl.calcularKcal(8.0, 75.0, 45);
+            Ejercicio e = new Ejercicio(null, "Correr", 8.0, "CARDIO", "AEROBICO");
+            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 75.0, 45);
             assertThat(resultado).isEqualTo(450.00);
         }
 
         @Test
         @DisplayName("caminar (MET=3.5), 80 kg, 30 min → 140.00 kcal")
         void caminar_80kg_30min_devuelve140() {
-            double resultado = RegistroEjercicioServiceImpl.calcularKcal(3.5, 80.0, 30);
+            Ejercicio e = new Ejercicio(null, "Caminar", 3.5, "CARDIO", "AEROBICO");
+            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 80.0, 30);
             assertThat(resultado).isEqualTo(140.00);
         }
 
         @Test
         @DisplayName("yoga (MET=2.5), 60 kg, 60 min → 150.00 kcal")
         void yoga_60kg_60min_devuelve150() {
-            double resultado = RegistroEjercicioServiceImpl.calcularKcal(2.5, 60.0, 60);
+            Ejercicio e = new Ejercicio(null, "Yoga", 2.5, "YOGA", "AEROBICO");
+            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 60.0, 60);
             assertThat(resultado).isEqualTo(150.00);
         }
 
@@ -119,7 +122,8 @@ class RegistroEjercicioServiceImplTest {
         @DisplayName("resultado con decimales se redondea a 2 cifras con HALF_UP")
         void resultadoConDecimales_seRedondeaADosCifras() {
             // MET=5.0, 70 kg, 20 min → 5.0 * 70 * (20/60.0) = 116.6666... → 116.67
-            double resultado = RegistroEjercicioServiceImpl.calcularKcal(5.0, 70.0, 20);
+            Ejercicio e = new Ejercicio(null, "Test", 5.0, "CARDIO", "AEROBICO");
+            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 70.0, 20);
             assertThat(resultado).isEqualTo(116.67);
         }
     }

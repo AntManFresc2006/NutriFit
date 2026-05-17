@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { getHidratacionDiaria, registrarAgua, eliminarAgua, type HidratacionDiaria, type AguaRegistro } from '../api/hidratacion'
+import { getHidratacionDiaria, registrarAgua, eliminarAgua, type HidratacionDiaria } from '../api/hidratacion'
 
 export default function Hidratacion() {
   const { user } = useAuth()

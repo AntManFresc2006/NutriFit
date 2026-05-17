@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Html5QrcodeScanner } from 'html5-qrcode'
 import { escanearBarcode, type EscanerResult } from '../api/escaner'
-import { getComidas, createComida, addItemToComida } from '../api/comidas'
+import { getComidas, createComida } from '../api/comidas'
 import { useAuth } from '../contexts/AuthContext'
 import type { Comida } from '../types'
 

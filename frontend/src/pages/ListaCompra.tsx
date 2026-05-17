@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getItems, addItem, toggleItem, deleteItem, clearCompletados, getSugerencias } from '../api/listaCompra'
-import { ListaItem, ListaAgrupada } from '../api/listaCompra'
+import type { ListaAgrupada } from '../api/listaCompra'
 
 const categoryIcons: Record<string, string> = {
   PROTEINAS: '💪',
@@ -42,8 +42,8 @@ export default function ListaCompra() {
     if (!user) return
     try {
       const [listaData, sugsData] = await Promise.all([
-        getItems(user.id),
-        getSugerencias(user.id),
+        getItems(user.usuarioId),
+        getSugerencias(user.usuarioId),
       ])
       setItems(listaData || {})
       setSugerencias(sugsData.sugerencias || [])
@@ -58,7 +58,7 @@ export default function ListaCompra() {
 
     setLoading(true)
     try {
-      await addItem(user.id, { nombre, cantidad: cantidad || undefined, categoria })
+      await addItem(user.usuarioId, { nombre, cantidad: cantidad || undefined, categoria })
       setNombre('')
       setCantidad('')
       setCategoria('OTROS')
@@ -73,7 +73,7 @@ export default function ListaCompra() {
   const handleToggle = async (id: number) => {
     if (!user) return
     try {
-      await toggleItem(user.id, id)
+      await toggleItem(user.usuarioId, id)
       await cargarDatos()
     } catch (err) {
       console.error('Error al toggle:', err)
@@ -83,7 +83,7 @@ export default function ListaCompra() {
   const handleDelete = async (id: number) => {
     if (!user) return
     try {
-      await deleteItem(user.id, id)
+      await deleteItem(user.usuarioId, id)
       await cargarDatos()
     } catch (err) {
       console.error('Error al eliminar:', err)
@@ -93,7 +93,7 @@ export default function ListaCompra() {
   const handleClearCompletados = async () => {
     if (!user) return
     try {
-      await clearCompletados(user.id)
+      await clearCompletados(user.usuarioId)
       await cargarDatos()
     } catch (err) {
       console.error('Error al limpiar:', err)

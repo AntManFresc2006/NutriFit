@@ -21,15 +21,30 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String authHeader = request.getHeader("Authorization");
+        String token = null;
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new UnauthorizedException("Token de autenticación requerido");
+        // 1. Intenta leer cookie nf_session
+        jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (jakarta.servlet.http.Cookie c : cookies) {
+                if ("nf_session".equals(c.getName())) {
+                    token = c.getValue();
+                    break;
+                }
+            }
         }
 
-        // substring(7) elimina el prefijo "Bearer " sin depender de replace para no fallar
-        // si el token contiene accidentalmente esa cadena más adelante
-        String token = authHeader.substring(7).trim();
+        // 2. Fallback: Authorization header
+        if (token == null) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7).trim();
+            }
+        }
+
+        if (token == null) {
+            throw new UnauthorizedException("Token de autenticación requerido");
+        }
 
         Sesion sesion = sesionRepository.findByToken(token)
                 .orElseThrow(() -> new UnauthorizedException("Token inválido o sesión no encontrada"));

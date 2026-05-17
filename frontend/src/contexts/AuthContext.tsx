@@ -5,7 +5,6 @@ interface AuthUser {
   usuarioId: number
   nombre: string
   email: string
-  token: string
 }
 
 interface AuthContextType {
@@ -29,14 +28,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(loadUser)
 
   const login = (data: AuthResponse) => {
-    const u: AuthUser = { usuarioId: data.usuarioId, nombre: data.nombre, email: data.email, token: data.token }
-    localStorage.setItem('nf_token', data.token)
+    const u: AuthUser = { usuarioId: data.usuarioId, nombre: data.nombre, email: data.email }
     localStorage.setItem('nf_user', JSON.stringify(u))
     setUser(u)
   }
 
   const logout = () => {
-    localStorage.removeItem('nf_token')
     localStorage.removeItem('nf_user')
     setUser(null)
   }

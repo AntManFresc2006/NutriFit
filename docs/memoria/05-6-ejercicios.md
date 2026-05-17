@@ -18,7 +18,7 @@ Las dos responsabilidades se corresponden con dos tablas en base de datos: `ejer
 |-------------|------------------|--------------------------------------------------|
 | `id`        | `BIGINT PK`      | Clave primaria, asignada por la base de datos    |
 | `nombre`    | `VARCHAR(150)`   | Nombre del ejercicio («Correr», «Yoga», etc.)    |
-| `met`       | `DECIMAL(4,2)`   | Factor MET del ejercicio                         |
+| `met`       | `NUMERIC(4,2)`   | Factor MET del ejercicio                         |
 | `categoria` | `VARCHAR(50)`    | Categoría opcional («CARDIO», «FUERZA», etc.)    |
 | `created_at`| `TIMESTAMP`      | Fecha de inserción, gestionada por la base de datos |
 
@@ -33,7 +33,7 @@ La tabla tiene un índice sobre `nombre` para acelerar las búsquedas por texto.
 | `ejercicio_id` | `BIGINT FK`       | Ejercicio del catálogo                                |
 | `fecha`        | `DATE`            | Fecha de la sesión                                    |
 | `duracion_min` | `SMALLINT`        | Duración en minutos                                   |
-| `kcal_quemadas`| `DECIMAL(7,2)`    | Calorías quemadas, calculadas y persistidas en el registro |
+| `kcal_quemadas`| `NUMERIC(7,2)`    | Calorías quemadas, calculadas y persistidas en el registro |
 | `created_at`   | `TIMESTAMP`       | Fecha de inserción                                    |
 
 La clave foránea `usuario_id` tiene `ON DELETE CASCADE`: si se elimina un usuario, sus registros de ejercicio desaparecen con él. La clave foránea `ejercicio_id` tiene `ON DELETE RESTRICT`: no se puede eliminar un ejercicio del catálogo mientras haya registros que lo referencien. Existe un índice compuesto sobre `(usuario_id, fecha)` para acelerar la consulta más frecuente del módulo.
@@ -213,24 +213,20 @@ public interface RegistroEjercicioRepository {
 
 ---
 
-## 5.6.10 Integración con el cliente JavaFX
+## 5.6.10 Cliente React
 
-`EjercicioController` (cliente) gestiona la pantalla `ejercicio-view.fxml`. La pantalla se articula en dos zonas. La zona superior contiene el formulario de registro: un `ComboBox<EjercicioDto>` cargado con el catálogo completo al arrancar la pantalla, un `DatePicker` con la fecha de hoy como valor por defecto, un campo de texto para la duración en minutos y un botón «Registrar». La zona inferior muestra una `TableView<RegistroEjercicioDto>` con tres columnas —ejercicio, duración y kcal quemadas— que se actualiza al cambiar la fecha o tras cada registro exitoso.
+El frontend React expone dos vistas para el módulo de ejercicios:
 
-Las columnas de la tabla se configuran con lambdas en `initialize()` en lugar de `PropertyValueFactory`, dado que `RegistroEjercicioDto` no expone propiedades JavaFX observables:
+1. **Catálogo de ejercicios:** listado del catálogo con búsqueda por nombre usando `useEjercicios` hook. El usuario puede filtrar por texto en tiempo real.
 
-```java
-// EjercicioController.java — initialize()
-colEjercicio.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getNombreEjercicio()));
-colDuracion.setCellValueFactory(cell -> new SimpleDoubleProperty(cell.getValue().getDuracionMin()));
-colKcal.setCellValueFactory(cell -> new SimpleDoubleProperty(cell.getValue().getKcalQuemadas()));
-```
+2. **Registro de sesiones:** formulario que permite seleccionar un ejercicio del catálogo, ingresar la fecha y la duración en minutos. Al registrar, el backend calcula automáticamente las calorías quemadas y devuelve el resultado. La pantalla muestra un listado de registros del día actual (o de la fecha seleccionada) con detalles de cada sesión: nombre del ejercicio, duración y calorías quemadas.
 
-La validación del formulario es previa a la llamada a la API: el controlador verifica que hay un ejercicio seleccionado en el `ComboBox`, que el campo de duración no está vacío, que el valor es un entero positivo y que no supera 999 minutos. Si alguna comprobación falla, se muestra el mensaje en el `statusLabel` y no se realiza ninguna petición.
+Los endpoints se consumen mediante hooks personalizados que manejan las peticiones HTTP:
+- `GET /api/ejercicios?q=<query>` para búsqueda
+- `GET /api/ejercicios-registro?usuarioId=<id>&fecha=<YYYY-MM-DD>` para listar registros del día
+- `POST /api/ejercicios-registro?usuarioId=<id>` con body `{ ejercicioId, fecha, duracionMin }` para registrar
 
-El botón «Eliminar» está deshabilitado hasta que el usuario selecciona una fila en la tabla. Al pulsarlo se muestra un `Alert.AlertType.CONFIRMATION` con el nombre del ejercicio seleccionado antes de ejecutar el borrado. Todas las operaciones de red se ejecutan en hilos de fondo con `javafx.concurrent.Task`; el hilo de la interfaz nunca queda bloqueado.
-
-La comunicación con los dos endpoints se delega en `EjercicioApiClient` y `RegistroEjercicioApiClient`, que incluyen el token de sesión en la cabecera `Authorization: Bearer <token>` obtenido de `SessionManager`.
+La interfaz permite eliminar registros individuales con confirmación visual.
 
 ---
 
@@ -256,3 +252,9 @@ La comunicación con los dos endpoints se delega en `EjercicioApiClient` y `Regi
 `Registrar` cubre cinco casos: registro exitoso con verificación completa del DTO devuelto, verificación de que `nombreEjercicio` proviene de la entidad recuperada del catálogo y no del request, verificación mediante `ArgumentCaptor` de que `kcalQuemadas` se calcula correctamente antes de persistir, ejercicio inexistente con comprobación de que ni el perfil ni el repositorio se consultan, y usuario sin perfil con comprobación de que `save` no se invoca.
 
 `FindByUsuarioAndFecha` verifica que el servicio delega directamente en el repositorio y que una lista vacía se devuelve sin error. `DeleteById` cubre registro existente y propio, registro inexistente y registro que pertenece a otro usuario, verificando en los dos últimos casos que `deleteById` no llega a invocarse. La descripción completa de la batería de pruebas del backend se recoge en §6.
+
+---
+
+## 5.6.13 Cambio de MariaDB a PostgreSQL
+
+El módulo fue inicialmente desarrollado con MariaDB. La migración a PostgreSQL afectó únicamente a los tipos de datos numéricos: las columnas `DECIMAL` se reemplazaron por `NUMERIC`, lo que garantiza precisión arbitraria en los cálculos sin pérdida de precisión decimal. La lógica del módulo, las fórmulas y los tests permanecen sin cambios. El repositorio sigue usando `JdbcTemplate` y SQL directo, lo que permite un cambio de base de datos sin modificar la capa de servicio.

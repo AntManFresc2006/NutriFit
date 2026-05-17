@@ -1,72 +1,135 @@
 # Frontend de NutriFit
 
-Frontend React + TypeScript con Vite, Tailwind y Framer Motion.
+Aplicación React 18 + TypeScript con Vite, Tailwind CSS y Framer Motion.
 
-## Desarrollo
+## Estructura
 
-Plugins disponibles:
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react) con Oxc
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) con SWC
+```
+src/
+├── pages/           → pantallas principales
+├── components/      → componentes reutilizables
+├── api/             → clientes HTTP (axios)
+├── hooks/           → hooks personalizados
+├── context/         → contexto global (autenticación, usuario)
+├── styles/          → Tailwind CSS
+└── types/           → tipos TypeScript compartidos
 
-El React Compiler está deshabilitado por defecto (impacto en build). Para activarlo, ver la [documentación oficial](https://react.dev/learn/react-compiler/installation).
-
-## ESLint
-
-Para reglas type-aware en producción:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+dist/               → bundle de producción (Vite build)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Requisitos
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Node.js 18+
+- npm 9+
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Inicio rápido
+
+### 1. Instalar dependencias
+
+```bash
+cd frontend
+npm install
 ```
+
+### 2. Variables de entorno
+
+Crear `frontend/.env.local`:
+
+```
+VITE_API_URL=http://localhost:8080
+```
+
+En producción (Vercel), usar:
+```
+VITE_API_URL=https://nutrifit-backend.onrender.com
+```
+
+### 3. Desarrollo
+
+```bash
+npm run dev
+```
+
+Frontend arranca en `http://localhost:5173` y hot-reload habilitado.
+
+### 4. Build
+
+```bash
+npm run build
+```
+
+Genera bundle en `dist/`.
+
+### 5. Preview del build
+
+```bash
+npm run preview
+```
+
+Sirve la versión de producción localmente para verificar.
+
+## Páginas principales
+
+- `Alimentos.tsx` — gestión de catálogo de alimentos
+- `Comidas.tsx` — comidas diarias + alimentos
+- `Dashboard.tsx` — resumen nutricional del día
+- `Ejercicios.tsx` — registro de ejercicios
+- `Escaner.tsx` — escáner de códigos de barras
+- `Hidratacion.tsx` — seguimiento de hidratación
+- `ListaCompra.tsx` — lista de la compra
+- `Login.tsx` → entrada (login/registro)
+- `OpcionesIA.tsx` — configurar modelo IA y proxy
+- `Perfil.tsx` — datos personales, BMR, TDEE
+- `PlanSemanal.tsx` — plan de comidas generado por IA
+- `Retos.tsx` — desafíos de fitness
+- `Tendencias.tsx` — gráficas de tendencias (90 días)
+
+## Stack técnico
+
+- **React 18** — librería UI
+- **TypeScript** — tipado estático
+- **Vite** — bundler de desarrollo + production
+- **Tailwind CSS** — utilidades CSS
+- **Framer Motion** — animaciones
+- **Axios** — cliente HTTP
+- **React Router** — navegación
+- **ESLint** — linting (opcional, configurable)
+
+## Desarrollo local
+
+**Con backend en localhost:8080**:
+
+```bash
+npm run dev
+```
+
+El frontend auto-detecta `VITE_API_URL` y conecta al backend.
+
+**Con backend en Render** (producción):
+
+Cambiar `VITE_API_URL` en `.env.local` al URL de Render, luego `npm run dev`.
+
+## Despliegue
+
+Frontend se despliega automáticamente en Vercel al hacer push a `main`.
+
+Vercel lee:
+- `VITE_API_URL` desde variables de entorno del proyecto
+- Build command: `npm run build`
+- Output dir: `dist`
+
+## Ambiente
+
+- **Desarrollo**: `localhost:5173`, backend en `localhost:8080`
+- **Producción**: Vercel (frontend), Render (backend)
+
+## Notas
+
+- **Hot reload**: activado en desarrollo gracias a Vite
+- **TypeScript**: tipos estrictos en `src/types/`
+- **Autenticación**: token almacenado en localStorage, enviado en header `Authorization: Bearer <token>`
+- **Errores HTTP**: capturados en service layer, mostrados en UI
+
+## Autor
+
+Antonio Manuel Fresco Gómez

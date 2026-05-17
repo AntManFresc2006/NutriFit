@@ -13,7 +13,7 @@ Se ha decidido implementar un endpoint específico de resumen diario que agregue
 - grasas totales
 - carbohidratos totales
 
-Además, se ha creado una primera pantalla JavaFX para mostrar esta información en la interfaz del cliente.
+Además, se ha creado un endpoint REST dedicado que será consumido por la interfaz web React.
 
 ## Motivo
 Esta funcionalidad conecta varias partes del sistema en una misma vista útil:
@@ -21,7 +21,7 @@ Esta funcionalidad conecta varias partes del sistema en una misma vista útil:
 - alimentos
 - relaciones entre ambas
 - cálculos nutricionales
-- consumo de API desde JavaFX
+- consumo de API desde React
 
 ## Alternativas consideradas
 
@@ -59,10 +59,10 @@ Se ha optado por:
 
 ## Decisiones técnicas relacionadas
 - Se mantiene Flyway para versionar la estructura de base de datos.
+- Se usa Spring JDBC (JdbcTemplate) para el acceso a datos, sin ORM.
 - El detalle enriquecido de items de comida se calcula con SQL y `JOIN`.
 - Se ha añadido un seed de alimentos para facilitar las pruebas y la demostración del proyecto.
-- Se ha creado una pantalla JavaFX específica para visualizar el resumen diario.
-- La navegación completa entre pantallas todavía se encuentra en evolución.
+- El resumen diario se calcula dinámicamente en cada petición sin almacenar tabla independiente.
 
 ## Alcance que queda fuera por ahora
 En esta fase no se ha implementado todavía:
@@ -73,7 +73,7 @@ En esta fase no se ha implementado todavía:
 - navegación completa y definitiva entre todas las pantallas del cliente
 
 ## Próximo paso recomendado
-Integrar esta pantalla de resumen diario en la navegación real del cliente JavaFX y, más adelante, ampliar el módulo con:
+Ampliar el módulo con:
 - objetivos calóricos y de macronutrientes
 - balance energético neto
 - histórico diario

@@ -10,9 +10,9 @@ Este módulo permite demostrar de forma temprana y clara:
 - acceso a base de datos con JDBC/Spring JDBC
 - API REST
 - validación de datos
-- base para la futura interfaz gráfica en JavaFX
+- base para la futura interfaz web en React
 
-Además, es un bloque de alto valor para la rúbrica porque conecta base de datos, backend y futura GUI en una funcionalidad real del proyecto.
+Además, es un bloque de alto valor para la rúbrica porque conecta base de datos, backend y frontend en una funcionalidad real del proyecto.
 
 ## Alcance inicial
 En esta primera fase se implementarán los endpoints:
@@ -38,10 +38,11 @@ En esta fase no se desarrollarán todavía:
 - ejercicios
 - resumen diario
 - estadísticas
-- recomendaciones IA
+- recomendaciones de IA
+- escaneo de códigos de barras
 
 ## Decisión técnica relacionada
-Primero se cerrará el backend del CRUD de alimentos y después se construirá la primera pantalla JavaFX conectada a este módulo.
+El backend del CRUD de alimentos es implementado con Spring JDBC (JdbcTemplate) en lugar de ORM, permitiendo consultas SQL transparentes y fácil integración con Flyway para migraciones.
 
 ## Estado actual
 El backend del CRUD de alimentos se encuentra implementado y probado manualmente con:

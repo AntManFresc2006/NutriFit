@@ -52,6 +52,7 @@ Inconvenientes:
 
 ## Decisiones técnicas relacionadas
 - Se mantiene Flyway para versionar la estructura de base de datos.
+- Se usa Spring JDBC (JdbcTemplate) para el acceso a datos, sin ORM.
 - El detalle enriquecido de items se calcula desde SQL en vez de hacerlo únicamente en Java.
 - Se ha añadido un seed de alimentos para facilitar las pruebas y la demostración del proyecto.
 - Se ha reforzado la validación en la capa de servicio para evitar errores de integridad referencial.
@@ -62,7 +63,7 @@ En esta fase no se ha implementado todavía:
 - borrado de items de una comida
 - edición de gramos de un item ya existente
 - resumen diario agregado por fecha
-- integración de comidas en la interfaz JavaFX
+- integración de comidas en la interfaz web React
 
 ## Próximo paso recomendado
 Construir un endpoint de resumen diario por usuario y fecha que agregue:

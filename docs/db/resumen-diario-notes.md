@@ -89,9 +89,16 @@ En esta versión:
 - no se calcula todavía el balance neto diario
 - no se muestra aún el detalle del resumen dentro de una navegación completa de varias pantallas
 
-## Próximo paso previsto
-El siguiente desarrollo natural del módulo es integrar este resumen diario dentro de la navegación real del cliente JavaFX y, más adelante, ampliarlo con:
-- objetivos personalizados
-- balance calórico neto
-- más métricas de seguimiento
-- estadísticas históricas
+## Próximos pasos implementados
+✅ Integración en frontend React (pantalla de resumen diario)
+
+✅ Visualización de macronutrientes en detalle
+
+✅ Comparación con objetivos del usuario (TMB/TDEE)
+
+✅ Balance calórico neto considerando ejercicio
+
+## Próximos pasos previstos
+- Estadísticas históricas (gráficos por semana/mes)
+- Reportes PDF con resumen nutricional
+- Alertas si supera o queda bajo objetivos

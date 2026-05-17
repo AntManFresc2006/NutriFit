@@ -70,7 +70,7 @@ Spring rechaza la petición con HTTP 400 antes de que llegue a la capa de servic
 
 ### Diseño del mecanismo
 
-NutriFit utiliza un token opaco — un UUID aleatorio — almacenado en la tabla `sesiones` de MariaDB. La decisión de no usar JWT se recoge en el ADR [0005 — Autenticación con token opaco en base de datos](../decisions/0005-token-auth.md); el razonamiento central es que el logout real con JWT requeriría una lista negra en base de datos, que es exactamente lo que ya se tiene con este enfoque.
+NutriFit utiliza un token opaco — un UUID aleatorio — almacenado en la tabla `sesiones` de PostgreSQL. La decisión de no usar JWT se recoge en el ADR [0005 — Autenticación con token opaco en base de datos](../decisions/0005-token-auth.md); el razonamiento central es que el logout real con JWT requeriría una lista negra en base de datos, que es exactamente lo que ya se tiene con este enfoque.
 
 El token se genera con `UUID.randomUUID()`, que internamente usa `SecureRandom`:
 
@@ -85,7 +85,7 @@ La tabla que lo almacena tiene la siguiente estructura:
 
 ```sql
 CREATE TABLE sesiones (
-    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id         BIGSERIAL PRIMARY KEY,
     usuario_id BIGINT NOT NULL,
     token      VARCHAR(255) NOT NULL UNIQUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -157,15 +157,39 @@ El token no se persiste en disco, no se escribe en ningún fichero de configurac
 
 ---
 
-## 7.3 Limitaciones del MVP
+## 7.3 Cifrado en tránsito y CORS
 
-Las medidas descritas en las secciones anteriores cubren los aspectos más críticos para una aplicación de escritorio local. Sin embargo, existen limitaciones conocidas que no se han abordado en el alcance del MVP y que deberían resolverse antes de cualquier despliegue en entorno compartido o con acceso de red.
+### HTTPS en producción
 
-### Sin cifrado en tránsito
+El backend está desplegado en Render, que proporciona HTTPS automático con certificados válidos. El frontend en Vercel también usa HTTPS por defecto. En el desarrollo local con HTTP, no hay vector de ataque relevante porque ambos procesos corren en la misma máquina.
 
-El backend no tiene HTTPS configurado. Las comunicaciones entre el cliente JavaFX y la API REST se realizan sobre HTTP plano. En el contexto actual — ambos procesos en la misma máquina local — esto no supone un vector de ataque real, ya que el tráfico no sale de la interfaz de loopback. En cualquier escenario donde el backend fuera accesible por red, los tokens y las contraseñas viajarían en claro.
+### Configuración CORS
 
-### Contraseña mínima de seis caracteres
+Spring Boot está configurado para aceptar peticiones desde el dominio del frontend (Vercel en producción, `localhost:5173` en desarrollo). La configuración se encuentra en `WebMvcConfig`:
+
+```java
+@Override
+public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/api/**")
+        .allowedOrigins("http://localhost:5173", "https://nutrifit.vercel.app")
+        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+        .allowedHeaders("*")
+        .allowCredentials(true)
+        .maxAge(3600);
+}
+```
+
+Los preflight (`OPTIONS`) no requieren token de autenticación. Todos los otros métodos sí.
+
+---
+
+## 7.4 Almacenamiento de claves API de IA
+
+Las claves API personalizadas para configuración de IA se almacenan en texto plano en la tabla `ia_config`. Esta es una limitación conocida del MVP: en producción, deberían cifrarse con una clave derivada del usuario o almacenarse en un servicio externo de gestión de secretos (ej., AWS Secrets Manager).
+
+---
+
+## 7.5 Contraseña mínima de seis caracteres
 
 La restricción `@Size(min = 6)` en `RegisterRequest` establece el umbral mínimo de longitud. Seis caracteres es un límite bajo para una contraseña; lo habitual en aplicaciones en producción es exigir al menos ocho, con requisitos adicionales de complejidad. La limitación es conocida y deliberada para simplificar las pruebas durante el desarrollo.
 
@@ -173,6 +197,6 @@ La restricción `@Size(min = 6)` en `RegisterRequest` establece el umbral mínim
 
 ## Cierre de la sección
 
-NutriFit implementa las medidas de seguridad más relevantes para su alcance: las contraseñas se almacenan con BCrypt, de modo que un volcado de la base de datos no expone credenciales en texto plano; el mecanismo de sesión con token opaco permite un logout real e inmediato; todos los endpoints protegidos exigen un token válido y no expirado mediante `AuthInterceptor`; y el cliente incluye el token en cada llamada autenticada. El token no se persiste fuera de la memoria de proceso.
+NutriFit implementa las medidas de seguridad más relevantes para su alcance actual: las contraseñas se almacenan con BCrypt, de modo que un volcado de la base de datos no expone credenciales en texto plano; el mecanismo de sesión con token opaco permite un logout real e inmediato; todos los endpoints protegidos exigen un token válido y no expirado mediante `AuthInterceptor`; HTTPS está habilitado en producción; CORS está configurado para permitir únicamente orígenes autorizados; y el cliente incluye el token en cada llamada autenticada.
 
-Las limitaciones documentadas —ausencia de HTTPS y umbral de contraseña bajo— son consecuencia directa del alcance del MVP y no de decisiones de diseño irreversibles.
+Las limitaciones documentadas —almacenamiento de claves API en texto plano y umbral de contraseña bajo— son consecuencia directa del alcance del MVP y no de decisiones de diseño irreversibles.

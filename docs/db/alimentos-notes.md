@@ -29,11 +29,15 @@ A nivel de aplicación, se aplicarán estas reglas:
 - `grasas_g >= 0`
 - `carbos_g >= 0`
 
-## Mejoras previstas
-En siguientes migraciones se valorará añadir:
-- índice por `nombre`
-- constraints adicionales si faltan
-- datos semilla para facilitar pruebas y demo
+## Mejoras implementadas
+✅ Índice por `nombre` para búsquedas rápidas
+✅ Constraints adicionales
+✅ Datos semilla para facilitar pruebas y demo
+
+## Integración con otros módulos
+- **Comidas**: cada comida referencia múltiples alimentos a través de `comida_alimentos`
+- **Resumen diario**: se utiliza para calcular totales nutricionales
+- **Escaneo de códigos**: importa alimentos desde OpenFoodFacts y los almacena aquí
 
 ## Observación
-La tabla de alimentos es una de las piezas fundamentales del MVP, por lo que se prioriza su estabilidad antes de construir módulos dependientes.
+La tabla de alimentos es una de las piezas fundamentales del MVP, por lo que se prioriza su estabilidad. Actualmente está completamente estabilizada.

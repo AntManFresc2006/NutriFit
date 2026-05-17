@@ -81,13 +81,19 @@ Estas cantidades se calculan con expresiones SQL del tipo:
 - Si se intenta insertar un alimento_id inexistente, la base de datos bloquea la operación por integridad referencial.
 - En la capa de servicio se ha mejorado la validación para comprobar que la comida y el alimento existan antes de insertar.
 
-## Proximo paso previsto
-El siguiente desarrollo natural del módulo es construir un resumen diario por usuario y fecha, agregando:
+## Próximos pasos implementados
+✅ Resumen diario por usuario y fecha, agregando:
+  - kcal totales
+  - proteínas totales
+  - grasas totales
+  - carbohidratos totales
 
-- kcal totales
+✅ Evaluación de comidas con IA (via OpenRouter)
 
-- proteínas totales
+✅ Integración con escaneo de códigos de barras (OpenFoodFacts)
 
-- grasas totales
-
-- carbohidratos totales
+## Observaciones actuales
+- El módulo de comidas está completamente funcional
+- Soporta múltiples tipos de comida por día
+- Permite registro por fecha histórica
+- Integrado con frontend React para visualización

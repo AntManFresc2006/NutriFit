@@ -2,9 +2,9 @@
 
 ## 3.1 Introducción
 
-Esta sección recoge los requisitos que delimitan el alcance de NutriFit en su primera versión funcional —el MVP—. Los requisitos no se formularon en una fase de análisis previa al desarrollo: emergieron de forma iterativa a medida que los módulos se definían e implementaban. El objetivo de documentarlos aquí es hacer explícito qué hace el sistema, qué restricciones de calidad cumple y qué queda deliberadamente fuera del alcance actual.
+Esta sección recoge los requisitos que delimitan el alcance de NutriFit en su versión completa de dieciocho módulos funcionales implementados. Los requisitos no se formularon en una fase de análisis previa al desarrollo, sino que emergieron de forma iterativa a medida que los módulos se definían e implementaban y se integraban con APIs externas (OpenRouter para IA, OpenFoodFacts para escaneo). El objetivo de documentarlos aquí es hacer explícito qué hace el sistema, qué restricciones de calidad cumple y las características de despliegue en producción.
 
-Los requisitos funcionales se agrupan por módulo para facilitar su lectura junto a las secciones §5.1–§5.6, donde se describe la implementación de cada uno. Los requisitos no funcionales recogen propiedades transversales que afectan al sistema en su conjunto.
+Los requisitos funcionales se agrupan por módulo para facilitar su lectura junto a las secciones §5, donde se describe la implementación de cada uno. Los requisitos no funcionales recogen propiedades transversales que afectan al sistema en su conjunto: validación, HTTPS en Render y Vercel, interceptor de autenticación, y gestión de errores uniforme.
 
 ---
 
@@ -63,11 +63,104 @@ Los requisitos funcionales se agrupan por módulo para facilitar su lectura junt
 
 | Código | Requisito |
 |--------|-----------|
-| RF-EJ-01 | El sistema mantiene un catálogo de ejercicios disponibles. Cualquier usuario autenticado puede consultarlo completo o filtrar por nombre. |
+| RF-EJ-01 | El sistema mantiene un catálogo de ejercicios disponibles con sus factores MET. Cualquier usuario autenticado puede consultarlo completo o filtrar por nombre. |
 | RF-EJ-02 | Un usuario puede registrar una sesión de ejercicio indicando el tipo de ejercicio, la fecha y la duración en minutos. |
 | RF-EJ-03 | El sistema calcula automáticamente las calorías quemadas en cada sesión aplicando la fórmula MET × peso_kg × (duración_min / 60), redondeando el resultado a dos decimales. |
 | RF-EJ-04 | El peso utilizado en el cálculo se toma del perfil del usuario en el momento del registro y se persiste junto al resultado. Si el usuario no tiene perfil configurado, el registro es rechazado. |
 | RF-EJ-05 | Un usuario puede eliminar un registro de ejercicio propio. El sistema verifica que el registro pertenece al usuario antes de borrarlo. |
+| RF-EJ-06 | El sistema permite registrar sesiones de ejercicio con diferentes valores de intensidad anaeróbica, opcionalmente. |
+
+### Módulo de historial de peso
+
+| Código | Requisito |
+|--------|-----------|
+| RF-HP-01 | Un usuario puede registrar un pesaje en una fecha concreta con el peso actual en kilogramos. |
+| RF-HP-02 | El sistema mantiene un historial completo de los pesos registrados por cada usuario, ordenado por fecha. |
+| RF-HP-03 | Un usuario puede consultar el histórico de pesos con la fecha y el peso registrado en cada ocasión. |
+| RF-HP-04 | Un usuario puede eliminar un registro de peso. El sistema verifica que el registro pertenece al usuario antes de borrarlo. |
+
+### Módulo de hidratación
+
+| Código | Requisito |
+|--------|-----------|
+| RF-HID-01 | Un usuario puede registrar el consumo de agua indicando el volumen en mililitros y la fecha/hora. |
+| RF-HID-02 | El sistema mantiene el registro completo de consumo de agua por usuario y fecha. |
+| RF-HID-03 | Un usuario puede consultar el resumen diario de hidratación: total de ml consumidos y número de registros. |
+| RF-HID-04 | Un usuario puede eliminar un registro de hidratación individual. |
+
+### Módulo de plan semanal (IA)
+
+| Código | Requisito |
+|--------|-----------|
+| RF-PS-01 | Si el usuario ha configurado OpenRouter, puede solicitar un plan nutricional semanal. El sistema invoca OpenRouter con los datos del usuario (edad, peso, altura, actividad, objetivos). |
+| RF-PS-02 | El plan semanal generado por IA se almacena en la base de datos con la fecha de generación. Un usuario puede tener múltiples planes históricos. |
+| RF-PS-03 | Un usuario puede consultar el plan semanal más reciente o cualquiera de sus planes anteriores. |
+| RF-PS-04 | Si la configuración de IA no está disponible, el sistema devuelve un error controlado indicando que debe configurarse OpenRouter. |
+
+### Módulo de retos y gamificación
+
+| Código | Requisito |
+|--------|-----------|
+| RF-RETO-01 | El sistema mantiene un catálogo de retos disponibles, cada uno con un nombre, descripción y puntos asociados. |
+| RF-RETO-02 | Un usuario autenticado puede asignarse un reto activo. El sistema registra la fecha de asignación. |
+| RF-RETO-03 | Un usuario puede marcar un reto como completado. El sistema registra la fecha de completación y suma los puntos al score total del usuario. |
+| RF-RETO-04 | Un usuario puede consultar su lista de retos activos, completados y sus puntos acumulados. |
+| RF-RETO-05 | Un usuario puede abandonar un reto activo sin penalización. |
+
+### Módulo de lista de compra
+
+| Código | Requisito |
+|--------|-----------|
+| RF-LC-01 | Un usuario puede crear una lista de compra y añadirle ítems especificando alimento y cantidad recomendada. |
+| RF-LC-02 | Si el usuario ha configurado OpenRouter, puede solicitar sugerencias automáticas de compra basadas en sus planes y comidas. |
+| RF-LC-03 | Un usuario puede marcar un ítem como comprado sin eliminarlo de la lista. |
+| RF-LC-04 | Un usuario puede eliminar un ítem de la lista de compra. |
+| RF-LC-05 | Un usuario puede consultar su lista actual, ordenada por estado (pendiente, comprado). |
+
+### Módulo de escaneo (códigos de barras)
+
+| Código | Requisito |
+|--------|-----------|
+| RF-ESC-01 | El cliente frontend permite capturar un código de barras (EAN) mediante la cámara del dispositivo. |
+| RF-ESC-02 | El backend consulta OpenFoodFacts con el EAN para obtener información nutricional. Si el producto existe, devuelve nombre, kcal, proteínas, grasas y carbohidratos. |
+| RF-ESC-03 | Si el producto no se encuentra en OpenFoodFacts, el sistema devuelve un error indicando que no hay información disponible. |
+| RF-ESC-04 | El usuario puede registrar el alimento escaneado directamente en su diario. |
+
+### Módulo de configuración de IA
+
+| Código | Requisito |
+|--------|-----------|
+| RF-IA-CFG-01 | Un usuario puede configurar su integración personal con OpenRouter: URL del proxy, modelo de IA, y API key. |
+| RF-IA-CFG-02 | La configuración se almacena en la tabla `usuario_ia_config` cifrada (si procede) o en texto plano según requisitos de seguridad. |
+| RF-IA-CFG-03 | Un usuario puede actualizar su configuración de IA en cualquier momento. |
+| RF-IA-CFG-04 | Un usuario puede consultar su configuración actual (sin mostrar el API key completo por seguridad). |
+| RF-IA-CFG-05 | Si un usuario no ha configurado IA, las operaciones que la requieren (plan semanal, sugerencias) devuelven error con instrucciones para configurar OpenRouter. |
+
+### Módulo de evaluación con IA
+
+| Código | Requisito |
+|--------|-----------|
+| RF-EVAL-IA-01 | Si el usuario ha configurado OpenRouter, puede solicitar una evaluación de sus hábitos nutricionales en un período (últimos 7 días, 30 días, etc.). |
+| RF-EVAL-IA-02 | El backend invoca OpenRouter con el resumen de comidas, ejercicios y métricas del período, solicitando análisis y feedback personalizado. |
+| RF-EVAL-IA-03 | La evaluación se devuelve como texto libre generado por el modelo de IA. |
+| RF-EVAL-IA-04 | El usuario puede solicitar múltiples evaluaciones en diferentes períodos. |
+
+### Módulo de tendencias
+
+| Código | Requisito |
+|--------|-----------|
+| RF-TEND-01 | El sistema calcula y visualiza gráficamente la evolución del peso del usuario a lo largo del tiempo. |
+| RF-TEND-02 | El sistema visualiza la evolución del consumo calórico promedio (últimos 7, 30, 90 días). |
+| RF-TEND-03 | El sistema visualiza la evolución del ejercicio (calorías quemadas totales por semana). |
+| RF-TEND-04 | Todos los gráficos son responsivos y se adaptan a mobile, tablet y desktop. |
+
+### Módulo de información de usuario
+
+| Código | Requisito |
+|--------|-----------|
+| RF-INFO-01 | Un usuario puede consultar sus datos personales (nombre, email, fecha de registro). |
+| RF-INFO-02 | Un usuario puede actualizar su nombre y preferencias. |
+| RF-INFO-03 | Un usuario puede ver su score total de puntos de retos. |
 
 ---
 
@@ -95,29 +188,45 @@ Los requisitos funcionales se agrupan por módulo para facilitar su lectura junt
 | RNF-06 | Las contraseñas se almacenan exclusivamente como hash BCrypt. El texto en claro nunca se persiste ni se registra. La verificación durante el login compara la contraseña recibida contra el hash almacenado mediante `BCryptPasswordEncoder.matches()`. |
 | RNF-07 | Los tokens de sesión son UUIDs v4 generados con `SecureRandom`. Se almacenan en la tabla `sesiones` con una fecha de expiración de siete días. Al hacer logout, la fila correspondiente se elimina de la base de datos. |
 
-### Cliente no bloqueante
+### Frontend responsivo y no bloqueante
 
 | Código | Requisito |
 |--------|-----------|
-| RNF-08 | Todas las operaciones de red del cliente JavaFX se ejecutan en hilos de fondo mediante `javafx.concurrent.Task`. El hilo de la interfaz gráfica nunca queda bloqueado esperando la respuesta del backend. Los resultados y los errores se devuelven al hilo de la UI a través de los callbacks `setOnSucceeded` y `setOnFailed`. |
+| RNF-08 | El frontend React es una single-page application responsiva que funciona en mobile, tablet y desktop. |
+| RNF-08b | Todas las operaciones de red del frontend se ejecutan de forma asincrónica mediante Promises o async/await. La interfaz gráfica nunca queda bloqueada esperando respuesta del backend. |
+| RNF-08c | El frontend muestra indicadores de carga durante las peticiones de red (spinners, skeletons). |
+| RNF-08d | Los errores de red o de validación se muestran al usuario en mensajes claros sin romper el flujo de la interfaz. |
 
-### Pruebas
+### Pruebas y HTTPS en producción
 
 | Código | Requisito |
 |--------|-----------|
 | RNF-09 | Los tests unitarios del backend se ejecutan sin base de datos activa y sin levantar el contexto de Spring. Los repositorios se sustituyen por mocks de Mockito, lo que permite probar la lógica de servicio de forma aislada y con tiempos de ejecución reducidos. |
 | RNF-10 | La lógica de negocio de cada módulo —validaciones de dominio, transformaciones, cálculos— está cubierta por tests unitarios. Los repositorios, al ser envolturas directas sobre SQL, se verifican mediante pruebas manuales de la API. |
+| RNF-11 | El backend en Render y el frontend en Vercel cuentan con HTTPS automático mediante certificados Let's Encrypt. La comunicación entre capas y la transmisión de credenciales está protegida por TLS/SSL. |
+| RNF-12 | CORS está configurado en el backend para permitir peticiones desde el dominio del frontend en Vercel (y desde localhost:5173 en desarrollo local). |
+| RNF-13 | La sesión HTTP es sin estado del lado del backend: el servidor no mantiene sesiones. La autenticación se realiza únicamente mediante el token UUID enviado en el header `Authorization`. |
 
 ---
 
-## 3.4 Alcance del MVP y exclusiones conocidas
+## 3.4 Características de seguridad en producción
 
-El MVP cubre los módulos descritos en los requisitos anteriores: autenticación, alimentos, comidas, resumen diario, perfil y ejercicios. Las siguientes funcionalidades no están implementadas en la versión actual y se reconocen como limitaciones conocidas:
+La versión completa de NutriFit implementada y desplegada en Render (backend) y Vercel (frontend) incluye:
 
-**Ausencia de HTTPS.** La comunicación entre el cliente y el backend se realiza sobre HTTP plano. En el contexto actual —ambos procesos en la misma máquina— el tráfico no sale de la interfaz de loopback. En cualquier despliegue en red, los tokens y las credenciales viajarían sin cifrar.
+**HTTPS en ambas capas.** El backend en Render y el frontend en Vercel cuentan con HTTPS automático mediante certificados Let's Encrypt. La comunicación entre capas se realiza siempre de forma cifrada.
 
-**Catálogo de alimentos compartido.** No existe separación entre usuarios dentro del catálogo: cualquier usuario puede crear, modificar o eliminar cualquier alimento. En el alcance del MVP se asume que el catálogo es un recurso compartido y de confianza.
+**Autenticación por token opaco UUID.** El token de sesión es un UUID v4 generado con `SecureRandom`, almacenado en la tabla `sesiones` con expiración a siete días. Un `HandlerInterceptor` valida el token en cada petición protegida.
 
-**Umbral mínimo de contraseña.** La restricción `@Size(min = 6)` en `RegisterRequest` establece un límite bajo respecto a los estándares habituales en aplicaciones en producción. Se mantiene así para simplificar las pruebas durante el desarrollo.
+**Catálogo de alimentos compartido.** El catálogo es un recurso compartido entre todos los usuarios. Se asume que es un recurso de confianza; cualquier usuario puede crear, modificar o eliminar alimentos.
 
-**Control de acceso por roles.** No existe diferenciación de roles entre usuarios. Todos los usuarios autenticados tienen el mismo nivel de acceso a todas las operaciones del sistema.
+**Control de acceso a datos por usuario.** Los datos personales (comidas, ejercicios, perfil, peso histórico, etc.) están protegidos: cada usuario solo puede acceder a sus propios datos. El backend valida la pertenencia del recurso al usuario autenticado antes de devolver o modificar datos.
+
+**Integración segura con IA.** La API key de OpenRouter se configura a nivel de usuario y se envía de forma segura (en POST body o header personalizado según configuración). El proxy opcional es configurable para permitir instancias privadas de OpenRouter.
+
+## 3.5 Exclusiones deliberadas
+
+**Control de acceso por roles.** No existe diferenciación de roles entre usuarios (ej: admin, moderador, usuario). Todos los usuarios autenticados tienen el mismo nivel de acceso a operaciones sobre sus propios datos.
+
+**Control granular de permisos sobre el catálogo de alimentos.** El catálogo es completamente abierto: cualquier usuario autenticado puede modificarlo o eliminarlo. En un entorno multi-tenant de producción, esto requerería capas adicionales de autorización.
+
+**Validación avanzada de datos nutricionales.** No hay validación en tiempo de inserción que verifique la plausibilidad de los valores nutricionales (ej: detectar valores imposibles). Se confía en que los usuarios ingresan datos razonables.

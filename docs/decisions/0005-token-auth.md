@@ -47,7 +47,7 @@ JWT requiere una clave secreta (HMAC) o un par de claves (RSA/EC).
 Esa clave debe almacenarse de forma segura, rotarse cuando se compromete
 y configurarse correctamente en cada entorno.
 
-En una aplicación de escritorio local eso es complejidad sin beneficio real.
+En una aplicación web local eso es complejidad sin beneficio real.
 El token UUID se genera con `UUID.randomUUID()`, que usa `SecureRandom`
 internamente — suficiente para el alcance de este proyecto.
 
@@ -95,12 +95,12 @@ sesion.setExpiresAt(LocalDateTime.now().plusDays(7));
 
 **Una consulta a BD por petición autenticada.** El backend consulta `sesiones`
 para validar el token en cada llamada protegida. Con JWT el backend podría verificar
-el token en memoria sin tocar BD. Para una aplicación de escritorio de un único usuario
-concurrente, este coste es irrelevante.
+el token en memoria sin tocar BD. Para una aplicación web de alcance académico (TFG),
+este coste es irrelevante.
 
-**Escala menos que JWT.** Si NutriFit se convirtiera en un servicio web con miles
+**Escala menos que JWT.** Si NutriFit se convirtiera en un servicio de producción con miles
 de usuarios concurrentes, la consulta a `sesiones` en cada petición sería un cuello de botella.
-En el alcance actual — aplicación local de escritorio — no aplica.
+En el alcance actual — TFG académico — no aplica.
 
 **El token no contiene información.** A diferencia de un JWT, el token UUID no puede
 decodificarse para extraer el `usuarioId` u otros datos sin consultar la BD.

@@ -33,16 +33,16 @@ La respuesta es un `ResumenDiarioResponse` con los siguientes campos:
 
 ## 5.4.3 Cálculo del resumen: la consulta de agregación
 
-La lógica central del módulo reside en `JdbcResumenDiarioRepository`. El resumen no se calcula en Java: se delega completamente a MariaDB mediante una única consulta de agregación:
+La lógica central del módulo reside en `JdbcResumenDiarioRepository`. El resumen no se calcula en Java: se delega completamente a PostgreSQL mediante una única consulta de agregación:
 
 ```sql
 SELECT
     c.usuario_id,
     c.fecha,
-    COALESCE(ROUND(SUM((a.kcal_por_100g * ca.gramos) / 100), 2), 0) AS kcal_totales,
-    COALESCE(ROUND(SUM((a.proteinas_g * ca.gramos) / 100), 2), 0)   AS proteinas_totales,
-    COALESCE(ROUND(SUM((a.grasas_g * ca.gramos) / 100), 2), 0)      AS grasas_totales,
-    COALESCE(ROUND(SUM((a.carbos_g * ca.gramos) / 100), 2), 0)      AS carbos_totales
+    COALESCE(ROUND(SUM((a.kcal_por_100g * ca.gramos) / 100)::numeric, 2), 0) AS kcal_totales,
+    COALESCE(ROUND(SUM((a.proteinas_g * ca.gramos) / 100)::numeric, 2), 0)   AS proteinas_totales,
+    COALESCE(ROUND(SUM((a.grasas_g * ca.gramos) / 100)::numeric, 2), 0)      AS grasas_totales,
+    COALESCE(ROUND(SUM((a.carbos_g * ca.gramos) / 100)::numeric, 2), 0)      AS carbos_totales
 FROM comidas c
 LEFT JOIN comida_alimentos ca ON ca.comida_id = c.id
 LEFT JOIN alimentos a ON a.id = ca.alimento_id
@@ -97,49 +97,63 @@ Si el `ResultSet` no tiene filas, se construye un `ResumenDiarioResponse` con to
 
 ---
 
-## 5.4.6 Integración con el cliente JavaFX
+## 5.4.6 Evaluación con inteligencia artificial
 
-`ResumenDiarioApiClient` encapsula la petición GET. Construye la URL con los dos query params y deserializa la respuesta en un `ResumenDiarioDto`:
+Tras calcular el resumen diario, NutriFit puede generar una evaluación personalizada del desempeño nutricional del usuario mediante inteligencia artificial. Esta funcionalidad se implementa a través del endpoint `/api/resumen/evaluacion-ia`.
 
-```java
-// ResumenDiarioApiClient.java
-String url = BASE_URL
-        + "?usuarioId=" + URLEncoder.encode(String.valueOf(usuarioId), StandardCharsets.UTF_8)
-        + "&fecha=" + URLEncoder.encode(fecha, StandardCharsets.UTF_8);
-```
+### Arquitectura del servicio de IA
 
-`DiarioController` gestiona la pantalla de diario. Al inicializarse fija la fecha al día actual y lanza la primera carga:
+`EvaluacionIaService` coordina dos componentes principales:
 
-```java
-// DiarioController.java — initialize()
-fechaPicker.setValue(LocalDate.now());
-fechaPicker.setOnAction(event -> cargarResumen());
-cargarResumen();
-```
+1. **Configuración del usuario:** consulta `IaConfigRepository.findByUsuarioId(usuarioId)` para obtener la configuración personalizada si existe (proxyUrl, modelo, apiKey).
 
-Cada vez que el usuario cambia la fecha en el `DatePicker`, se dispara una nueva llamada al backend. La carga se ejecuta en un hilo de fondo con `javafx.concurrent.Task`:
+2. **Fallback a configuración del servidor:** si el usuario no tiene configuración, utiliza valores por defecto del servidor definidos en `application.properties`:
+   - `ai.openrouter.default-model`: modelo predeterminado (ej., `openrouter/meta-llama-3-8b-instruct`)
+   - `ai.openrouter.default-api-key`: clave API por defecto
+   - `ai.openrouter.proxy-url`: URL del proxy (opcional, se usa OpenRouter directamente si no se especifica)
+
+3. **Integración con OpenRouter:** el servicio construye una petición HTTP con los datos nutricionales del usuario y envía a OpenRouter a través del proxy configurado o directamente. La respuesta contiene la evaluación en texto libre.
+
+El punto de entrada del controlador es:
 
 ```java
-// DiarioController.java — cargarResumen()
-task.setOnSucceeded(event -> {
-    ResumenDiarioDto resumen = task.getValue();
-    double tdee = SessionManager.getTdee();
-    if (tdee > 0) {
-        kcalLabel.setText(resumen.getKcalTotales() + " / " + tdee + " kcal");
-    } else {
-        kcalLabel.setText(String.valueOf(resumen.getKcalTotales()));
-    }
-    proteinasLabel.setText(String.valueOf(resumen.getProteinasTotales()));
-    grasasLabel.setText(String.valueOf(resumen.getGrasasTotales()));
-    carbosLabel.setText(String.valueOf(resumen.getCarbosTotales()));
-});
+// ResumenController.java
+@PostMapping("/evaluacion-ia")
+public ResponseEntity<Map<String, String>> evaluacionIa(@RequestBody EvaluacionIaRequest request) {
+    String evaluacion = evaluacionIaService.evaluarConIA(request);
+    return ResponseEntity.ok(Map.of("evaluacion", evaluacion));
+}
 ```
 
-Las kilocalorías se muestran con o sin referencia al TDEE según si `SessionManager.getTdee()` devuelve un valor positivo. Si el TDEE está disponible, la etiqueta muestra el formato `consumido / objetivo kcal`; si no lo está, muestra solo el total consumido. Los macronutrientes se muestran siempre como valores absolutos en gramos.
+### Estructura de la solicitud
+
+`EvaluacionIaRequest` contiene los datos nutricionales necesarios para la evaluación:
+
+```java
+{
+    "usuarioId": 1,
+    "fecha": "2026-05-17",
+    "kcalConsumidas": 2100.5,
+    "kcalQuemadas": 350.0,
+    "proteinasTotales": 85.2,
+    "grasasTotales": 65.0,
+    "carbosTotales": 280.3,
+    "balanceReal": 1750.5,     // kcalConsumidas - kcalQuemadas
+    "tdee": 2200.0             // Gasto energético diario estimado
+}
+
 
 ---
 
-## 5.4.7 Tests de `ResumenDiarioServiceImplTest`
+## 5.4.7 Cliente React
+
+El frontend React consume el endpoint de resumen diario mediante `useResumenDiario` hook, que realiza `GET /api/resumen-diario?usuarioId=<id>&fecha=<YYYY-MM-DD>`. Los datos se muestran en la pantalla de inicio con un resumen visual del consumo de calorías y macronutrientes, incluyendo un gráfico comparativo frente al TDEE si está disponible.
+
+Cuando el usuario solicita la evaluación con IA (mediante un botón «Evaluar con IA» en la pantalla de resumen), el cliente prepara el `EvaluacionIaRequest` con los datos del resumen y el TDEE del perfil, y realiza `POST /api/resumen/evaluacion-ia`. La respuesta contiene el análisis en texto libre, que se muestra en un modal o panel colateral.
+
+---
+
+## 5.4.8 Tests de `ResumenDiarioServiceImplTest`
 
 `ResumenDiarioServiceImplTest` contiene tres tests en una clase anidada `ObtenerResumenDiario`. El repositorio se sustituye por un mock de Mockito; no se requiere base de datos ni contexto de Spring.
 

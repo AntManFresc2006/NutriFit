@@ -1,261 +1,355 @@
 # Anexo A — Guía de puesta en marcha
 
-Este anexo describe los pasos necesarios para arrancar NutriFit en un entorno local desde cero. El objetivo es que cualquier persona con acceso al repositorio pueda reproducir el entorno de desarrollo sin información adicional fuera de este documento.
+Este anexo describe los pasos necesarios para arrancar NutriFit en un entorno local desde cero, así como la configuración de los servicios en producción. El objetivo es que cualquier persona con acceso al repositorio pueda reproducir el entorno de desarrollo.
 
 ---
 
-## A.1 Requisitos previos
+## A.1 Configuración en producción
+
+NutriFit está actualmente desplegado en la nube:
+
+- **Backend:** Spring Boot en Render (https://nutrifit-backend.onrender.com)
+- **Frontend:** React en Vercel (https://nutrifit.vercel.app)
+- **Base de datos:** PostgreSQL en Render
+
+No es necesario hacer nada especial para acceder a la aplicación en producción; simplemente abrir https://nutrifit.vercel.app en el navegador.
+
+---
+
+## A.2 Configuración en desarrollo local
+
+### A.2.1 Requisitos previos
 
 Antes de ejecutar el proyecto deben estar instalados los siguientes componentes:
 
 | Herramienta | Versión mínima | Uso |
 |-------------|---------------|-----|
-| Java (JDK)  | 17            | Compilación y ejecución de backend y cliente |
-| Maven       | 3.8           | Gestión de dependencias y arranque de módulos |
-| MariaDB     | 10.6          | Base de datos relacional del backend |
+| Java (JDK)  | 21            | Compilación y ejecución de backend |
+| Maven       | 3.9           | Gestión de dependencias y arranque |
+| Node.js     | 18            | Runtime para frontend (npm) |
+| npm         | 9+            | Gestor de paquetes de frontend |
+| PostgreSQL  | 14            | Base de datos (opcional si se usa Render) |
 | Git         | cualquiera    | Clonación del repositorio |
 
-Maven descarga automáticamente todas las dependencias declaradas en los ficheros `pom.xml` en el primer arranque. No es necesario instalar Spring Boot, JavaFX ni ninguna otra librería de forma manual.
-
-Para verificar que Java y Maven están disponibles antes de continuar:
+Para verificar que están disponibles:
 
 ```bash
 java -version
 mvn -version
+node -version
+npm -version
 ```
+
+Maven y npm descargan automáticamente todas las dependencias en el primer arranque.
 
 ---
 
-## A.2 Estructura del repositorio
+### A.2.2 Estructura del repositorio
 
 El repositorio es un proyecto Maven multi-módulo con el siguiente árbol de primer nivel:
 
 ```
 NutriFit/
-├── pom.xml          ← POM padre (nutrifit-parent)
-├── backend/         ← módulo Spring Boot
-├── client/          ← módulo JavaFX
-└── docs/            ← documentación, ADRs, archivos HTTP, diagramas
+├── pom.xml          ← POM padre
+├── backend/         ← módulo Spring Boot 3
+├── frontend/        ← módulo React 18 + TypeScript + Vite
+└── docs/            ← documentación, ADRs, archivos HTTP
 ```
 
-El POM padre declara `backend` y `client` como módulos hijos. Cada uno tiene su propio `pom.xml` y puede compilarse de forma independiente. El backend expone la API REST; el cliente JavaFX la consume.
+El POM padre declara `backend` y `frontend` como módulos (aunque el frontend se maneja con npm independientemente de Maven). Cada uno puede compilarse y ejecutarse de forma independiente.
 
 ---
 
-## A.3 Preparación de la base de datos
+### A.2.3 Preparación de la base de datos local
 
-### A.3.1 Crear base de datos y usuario
+#### Opción 1: PostgreSQL local (recomendado para desarrollo)
 
-El backend espera una base de datos llamada `nutrifit` y un usuario con permisos sobre ella. Ejecutar en MariaDB como administrador:
+Si no tienes PostgreSQL instalado, descárgalo desde https://www.postgresql.org/download/.
 
-```sql
+Tras la instalación, crear la base de datos y usuario para NutriFit:
+
+```bash
+# Conectarse a PostgreSQL como administrador
+psql -U postgres
+
+# Dentro del prompt de psql
 CREATE DATABASE nutrifit;
-CREATE USER 'nutrifit'@'localhost' IDENTIFIED BY 'nutrifit123';
-GRANT ALL PRIVILEGES ON nutrifit.* TO 'nutrifit'@'localhost';
-FLUSH PRIVILEGES;
+CREATE USER nutrifit WITH ENCRYPTED PASSWORD 'nutrifit123';
+GRANT ALL PRIVILEGES ON DATABASE nutrifit TO nutrifit;
 ```
 
-### A.3.2 Migraciones automáticas con Flyway
+#### Opción 2: Usar la base de datos remota de Render (más simple)
 
-No es necesario crear las tablas manualmente. El backend incluye cinco scripts de migración en `backend/src/main/resources/db/migration/` que Flyway aplica de forma automática al arrancar:
+Si prefieres no instalar PostgreSQL localmente, puedes usar la base de datos remota en Render. En ese caso:
 
-| Migración | Contenido |
-|-----------|-----------|
-| `V1__usuarios_alimentos.sql` | Tablas `usuarios` y `alimentos` |
-| `V2__create_core_tables.sql` | Tablas del núcleo de datos |
-| `V3__auth_sessions.sql`      | Tabla `sesiones` para autenticación |
-| `V4__seed_alimentos.sql`     | Datos iniciales de alimentos |
-| `V5__comidas.sql`            | Tablas de comidas e ítems |
-
-Flyway registra cada migración aplicada en la tabla `flyway_schema_history`. Si el proyecto ya arrancó antes, Flyway valida que los scripts no hayan cambiado y no los vuelve a aplicar.
+1. Obtén la URL de conexión remota de un administrador del proyecto.
+2. Configura `application-local.properties` con esa URL (ver sección A.2.4).
 
 ---
 
-## A.4 Configuración del backend
+### A.2.4 Configuración del backend
 
-El archivo `backend/src/main/resources/application-local.properties` contiene la configuración de conexión para el entorno local y ya está presente en el repositorio con los valores por defecto:
+El archivo `backend/src/main/resources/application-local.properties` contiene la configuración para el entorno local:
 
 ```properties
-spring.datasource.url=jdbc:mariadb://localhost:3306/nutrifit
+# PostgreSQL local
+spring.datasource.url=jdbc:postgresql://localhost:5432/nutrifit
 spring.datasource.username=nutrifit
 spring.datasource.password=nutrifit123
-spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+spring.datasource.driver-class-name=org.postgresql.Driver
 
+# Flyway (gestión de migraciones automáticas)
 spring.flyway.enabled=true
 spring.flyway.locations=classpath:db/migration
 
+# Servidor
 server.port=8080
+
+# IA (valores por defecto, el usuario puede configurar los suyos)
+ai.openrouter.default-model=meta-llama/llama-3-8b-instruct
+ai.openrouter.default-api-key=<solicitar-al-administrador>
 ```
 
-Si se usaron credenciales distintas en el paso A.3.1, hay que actualizar `username` y `password` en este archivo antes de arrancar.
+**Nota:** Si usas PostgreSQL local con credenciales diferentes, actualiza `username` y `password`.
 
-> **Nota:** El archivo `application.properties` principal contiene la configuración compartida del proyecto. El perfil `local` concentra la configuración específica del entorno de desarrollo, incluida la conexión a base de datos.
+Si usas la base de datos remota de Render, reemplaza la línea `spring.datasource.url` con la URL proporcionada.
 
 ---
 
-## A.5 Arranque del backend
+### A.2.5 Arranque del backend
 
-Desde el directorio `backend/`, ejecutar:
+Desde el directorio `backend/`:
 
 **Linux / macOS**
 ```bash
-cd ~/ruta/al/proyecto/NutriFit/backend
-mvn -DskipTests spring-boot:run "-Dspring-boot.run.profiles=local"
+cd backend
+mvn -DskipTests spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
 **Windows**
 ```bash
-cd C:\ruta\al\proyecto\NutriFit\backend
+cd backend
 mvn -DskipTests spring-boot:run "-Dspring-boot.run.profiles=local"
 ```
 
-El flag `-DskipTests` evita ejecutar los 29 tests unitarios en cada arranque, que aunque pasan correctamente, ralentizan el proceso de puesta en marcha.
+El flag `-DskipTests` evita ejecutar los 60 tests unitarios en cada arranque.
 
-### Señales de arranque correcto
+#### Señales de arranque correcto
 
-El backend está listo cuando el log muestra las siguientes líneas (en este orden):
+El backend está listo cuando se muestran estas líneas en el log:
 
-1. Flyway valida o aplica las migraciones pendientes:
+1. Flyway aplica las migraciones:
    ```
-   Successfully applied N migrations to schema 'nutrifit'
-   ```
-   o, si ya estaban aplicadas:
-   ```
-   Schema 'nutrifit' is up to date. No migrations necessary.
+   Successfully applied N migrations to schema 'public'
    ```
 
-2. Tomcat queda escuchando:
+2. Tomcat inicia:
    ```
    Tomcat started on port 8080 (http)
    ```
 
-3. Spring Boot confirma el arranque:
+3. Spring Boot confirma:
    ```
    Started BackendApplication in X.XXX seconds
    ```
 
 ---
 
-## A.6 Verificación del backend
+### A.2.6 Verificación del backend
 
-Con el servidor activo, hay dos formas de verificar que la API responde correctamente.
+#### A.2.6.1 Swagger UI
 
-### A.6.1 Swagger UI
-
-Abrir en el navegador:
+Con el servidor activo, abre en el navegador:
 
 ```
 http://localhost:8080/swagger-ui.html
 ```
 
-Swagger UI muestra todos los endpoints agrupados por módulo (auth, alimentos, comidas, resumen-diario, perfil) y permite ejecutar peticiones directamente desde el navegador sin herramienta adicional.
+Swagger muestra todos los endpoints interactivos. Permite registrarse, hacer login y probar endpoints autenticados.
 
-### A.6.2 Archivos HTTP
+#### A.2.6.2 Health check
 
-El directorio `docs/api/` contiene cinco archivos `.http` compatibles con IntelliJ IDEA y con la extensión REST Client de VS Code:
-
-| Archivo               | Módulo                          |
-|-----------------------|---------------------------------|
-| `auth.http`           | Registro, login, logout         |
-| `alimentos.http`      | CRUD completo de alimentos      |
-| `comidas.http`        | Comidas e ítems por fecha       |
-| `resumen-diario.http` | Resumen calórico por día        |
-| `perfil.http`         | Consulta y actualización de perfil |
-
-Para verificar el arranque basta con ejecutar el endpoint de login de `auth.http` con credenciales de un usuario registrado y comprobar que la respuesta es HTTP 200 con un token en el cuerpo.
-
----
-
-## A.7 Arranque del cliente JavaFX
-
-El cliente debe arrancarse después del backend, ya que realiza peticiones HTTP al iniciar sesión.
-
-Desde el directorio `client/`, ejecutar:
-
-**Linux / macOS**
 ```bash
-cd ~/ruta/al/proyecto/NutriFit/client
-mvn javafx:run
+curl http://localhost:8080/api/health
 ```
 
-**Windows**
+Debe responder `{ "status": "UP" }`.
+
+---
+
+### A.2.7 Configuración del frontend
+
+El archivo `.env.local` (en la raíz de `frontend/`) configura la URL de la API:
+
+```env
+VITE_API_URL=http://localhost:8080
+```
+
+Si el backend corre en otro puerto, actualiza este valor.
+
+---
+
+### A.2.8 Arranque del frontend
+
+Desde el directorio `frontend/`:
+
 ```bash
-cd C:\ruta\al\proyecto\NutriFit\client
-mvn javafx:run
+cd frontend
+npm install    # Primera vez solo
+npm run dev
 ```
 
-### Señales de arranque correcto
+El desarrollo es con hot reload: los cambios se reflejan al guardar.
 
-- Se abre la ventana de NutriFit con la pantalla de acceso (login o registro).
-- Tras iniciar sesión, la interfaz muestra los módulos disponibles: alimentos, comidas del día, resumen diario y perfil de usuario.
+#### Señales de arranque correcto
 
----
+Verás un mensaje como:
 
-## A.8 Orden de arranque y apagado
+```
+VITE v5.0.0  ready in 234 ms
 
-### Arranque
-
-El orden correcto es:
-
-1. Arrancar MariaDB (si no está ya activo como servicio del sistema).
-2. Arrancar el backend desde `backend/`.
-3. Arrancar el cliente desde `client/`.
-
-El cliente no puede completar el login si el backend no está activo, pero la ventana sí se abre y muestra la pantalla de acceso.
-
-### Apagado
-
-- **Cliente:** cerrar la ventana o usar el botón de logout seguido del cierre. Al cerrar la ventana, `SessionManager.clear()` no se invoca, pero el token en memoria desaparece al terminar el proceso.
-- **Backend:** interrumpir el proceso Maven con `Ctrl+C`. Spring Boot ejecuta el shutdown graceful de Tomcat.
-- **MariaDB:** si se arrancó manualmente, detenerlo con el gestor de servicios del sistema.
-
----
-
-## A.9 Problemas frecuentes
-
-### `Access denied for user` al arrancar el backend
-
-**Causa:** las credenciales en `application-local.properties` no coinciden con el usuario creado en MariaDB, o el usuario no tiene permisos sobre la base de datos `nutrifit`.
-
-**Solución:** verificar usuario, contraseña y privilegios con los comandos del paso A.3.1. Comprobar que el archivo `application-local.properties` existe y tiene los valores correctos.
-
----
-
-### Error de parsing en `server.port`
-
-**Causa:** comentario escrito en la misma línea que la propiedad.
-
-```properties
-# Incorrecto
-server.port=8080# comentario en la misma línea
+➜  Local:   http://localhost:5173/
 ```
 
-```properties
-# Correcto
-# comentario en línea propia
-server.port=8080
+Abre `http://localhost:5173/` en el navegador. Deberías ver la pantalla de login de NutriFit.
+
+---
+
+### A.2.9 Orden de arranque recomendado
+
+1. **PostgreSQL** (si corres local): asegúrate de que está activo
+2. **Backend**: desde `backend/` con `mvn spring-boot:run ...`
+3. **Frontend**: desde `frontend/` con `npm run dev`
+
+El frontend puede iniciarse antes o después del backend; se reconecta automáticamente cuando el backend está listo.
+
+---
+
+## A.3 Flujo de prueba rápido
+
+### Paso 1: Registrar usuario
+
+1. Ve a http://localhost:5173/
+2. Haz clic en «Crear cuenta»
+3. Ingresa email, contraseña (mín. 6 caracteres) y nombre
+4. Haz clic en «Registrar»
+
+### Paso 2: Completar perfil
+
+1. Tras login, ve a la sección «Perfil»
+2. Ingresa sexo, fecha de nacimiento, altura, peso y nivel de actividad
+3. Guarda
+
+### Paso 3: Añadir comida
+
+1. Ve a «Comidas»
+2. Crea una comida (tipo: «Desayuno», «Comida», etc.)
+3. Busca un alimento (ej., «pollo»)
+4. Añade a la comida con una cantidad en gramos
+5. Guarda
+
+### Paso 4: Ver resumen
+
+1. Ve a «Inicio»
+2. Deberías ver calorías totales, proteínas, grasas e hidratos
+3. Haz clic en «Evaluar con IA» para recibir análisis personalizado
+
+---
+
+## A.4 Solución de problemas
+
+### Error: `Access denied for user 'nutrifit'@'localhost'`
+
+**Causa:** las credenciales en `application-local.properties` no coinciden con las del usuario PostgreSQL.
+
+**Solución:**
+```bash
+psql -U postgres
+# Verifica que el usuario existe y la contraseña es correcta
+\du
+# Si no existe, créalo:
+CREATE USER nutrifit WITH ENCRYPTED PASSWORD 'nutrifit123';
 ```
 
 ---
 
-### Flyway advierte sobre versión de MariaDB no testeada
+### Error: `Connection refused` al conectar a PostgreSQL
 
-**Causa:** la versión de MariaDB instalada es más reciente que la oficialmente certificada por Flyway.
+**Causa:** PostgreSQL no está activo, o está en otro puerto.
 
-**Impacto:** advertencia en el log, no un error. Las migraciones se aplican correctamente. No requiere acción.
+**Solución:**
+```bash
+# Verifica que está activo
+pg_isready -h localhost -p 5432
+
+# Si no está corriendo, inicia el servicio (Linux/macOS)
+sudo systemctl start postgresql
+
+# O (macOS con Homebrew)
+brew services start postgresql
+```
 
 ---
 
-### Puerto 8080 ya está en uso
+### Frontend no se conecta al backend
 
-**Causa:** hay otra instancia del backend en ejecución, u otra aplicación ocupa ese puerto.
+**Causa:** La URL en `.env.local` es incorrecta, o el backend no está corriendo.
 
-**Solución:** terminar el proceso anterior o cambiar `server.port` en `application-local.properties` a otro puerto libre (por ejemplo, `8081`) y asegurarse de que el cliente apunta al mismo puerto.
+**Solución:**
+```bash
+# Verifica que el backend está activo
+curl http://localhost:8080/api/health
+
+# Si responde, verifica la URL en frontend/.env.local
+# Reinicia el frontend con Ctrl+C y npm run dev
+```
 
 ---
 
-### El cliente JavaFX no arranca en Linux
+### Puerto 8080 ya en uso
 
-**Causa habitual:** versión de Java activa en el sistema distinta de la usada para compilar, o dependencias gráficas del sistema incompletas.
+**Causa:** otra aplicación ocupa el puerto.
 
-**Solución:** verificar con `java -version` que la versión activa de Java es compatible con el proyecto, y ejecutar `mvn javafx:run` desde el directorio `client/`, revisando el mensaje exacto del error en la salida de Maven.
+**Solución:** Cambia `server.port` en `application-local.properties` a otro puerto libre (ej., `8081`) y actualiza `VITE_API_URL` en `frontend/.env.local`.
+
+---
+
+### npm command not found
+
+**Causa:** Node.js/npm no están en la variable de PATH.
+
+**Solución:** reinstala Node.js desde https://nodejs.org/ y verifica con `node -version`.
+
+---
+
+## A.5 Construcción para producción
+
+### Backend
+
+```bash
+cd backend
+mvn clean package -DskipTests
+# Genera backend/target/backend-1.0.0.jar
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm run build
+# Genera frontend/dist/ con los archivos estáticos
+```
+
+Los artefactos se despliegan en Render (backend) y Vercel (frontend) mediante CD automático desde Git.
+
+---
+
+## A.6 Variables de entorno importantes
+
+| Variable | Donde | Descripción |
+|----------|-------|-------------|
+| `VITE_API_URL` | `frontend/.env.local` | URL del backend (http://localhost:8080 en dev) |
+| `spring.datasource.url` | `backend/application-local.properties` | Conexión PostgreSQL |
+| `ai.openrouter.default-api-key` | `backend/application.properties` | Clave API OpenRouter (por defecto) |
+| `POSTGRES_URL` | Render (variable de entorno del contenedor) | URL remota de BD en producción |
+

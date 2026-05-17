@@ -50,6 +50,8 @@ La suite está compuesta por 60 tests distribuidos en seis clases, una por cada 
 | `RegistroEjercicioServiceImplTest` | 14  | registrar, findByUsuarioAndFecha, deleteById, calcularKcal |
 | **Total**                        | **60**|                                     |
 
+> **Nota:** Los 60 tests se ejecutan sin base de datos ni contexto de Spring. Cada test aislado se ejecuta en menos de 100 ms. La suite completa finaliza en menos de tres segundos.
+
 > **Figura 6.1** — Salida de Maven tras la ejecución completa:
 > `Tests run: 60, Failures: 0, Errors: 0, Skipped: 0`
 >
@@ -197,15 +199,16 @@ Todos los endpoints han sido verificados mediante peticiones HTTP reales contra 
 
 ### Archivos de peticiones HTTP
 
-El directorio `docs/api/` contiene cinco archivos `.http`, uno por módulo, compatibles con el cliente HTTP de IntelliJ IDEA y con la extensión REST Client de VS Code. Cubren los flujos principales y los casos de error más relevantes de cada módulo:
+El directorio `docs/api/` contiene archivos `.http`, uno por módulo, compatibles con el cliente HTTP de IntelliJ IDEA y con la extensión REST Client de VS Code. Cubren los flujos principales y los casos de error más relevantes de cada módulo:
 
 | Archivo               | Endpoints cubiertos                                              |
 |-----------------------|------------------------------------------------------------------|
 | `auth.http`           | registro, login, logout                                          |
 | `alimentos.http`      | GET all, GET por id, GET búsqueda, POST, PUT, DELETE             |
 | `comidas.http`        | crear comida, añadir ítem, GET por usuario/fecha, DELETE comida, DELETE ítem |
-| `resumen-diario.http` | GET resumen por usuario y fecha                                  |
+| `resumen-diario.http` | GET resumen por usuario y fecha, POST evaluación con IA          |
 | `perfil.http`         | GET perfil, PUT actualización válida e inválida, GET id inexistente |
+| `ejercicios.http`     | GET catálogo, GET por id, POST catálogo, GET registro, POST registro, DELETE registro |
 
 Además de los flujos exitosos, cada archivo incluye al menos un caso de error: id inexistente (→ 404), datos inválidos (→ 400) y, en autenticación, credenciales erróneas (→ 401).
 

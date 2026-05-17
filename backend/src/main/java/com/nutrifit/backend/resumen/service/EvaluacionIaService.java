@@ -131,6 +131,10 @@ public class EvaluacionIaService {
         }
 
         JsonNode json = objectMapper.readTree(response.body());
-        return json.path("choices").get(0).path("message").path("content").asText();
+        String content = json.path("choices").path(0).path("message").path("content").asText("");
+        if (content.isBlank() || content.equals("null")) {
+            throw new IOException("Respuesta vacía del modelo: " + response.body().substring(0, Math.min(200, response.body().length())));
+        }
+        return content;
     }
 }

@@ -148,7 +148,7 @@ public class JdbcListaCompraRepository implements ListaCompraRepository {
     @Override
     public List<String> findAlimentosMasUsados(Long usuarioId, int limit) {
         String sql = """
-                SELECT DISTINCT a.nombre
+                SELECT a.nombre
                 FROM comida_alimentos ca
                 JOIN alimentos a ON a.id = ca.alimento_id
                 JOIN comidas c ON c.id = ca.comida_id

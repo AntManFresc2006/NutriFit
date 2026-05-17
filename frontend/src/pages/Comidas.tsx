@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import { getComidas, createComida, deleteComida, getComidaItems, addItemToComida, deleteComidaItem } from '../api/comidas'
 import { getAlimentos, buscarExternoAlimentos, createAlimento } from '../api/alimentos'
@@ -133,151 +134,316 @@ export default function Comidas() {
     (items[comidaId] ?? []).reduce((s, i) => s + i.kcalEstimadas, 0)
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <motion.div
+      className="p-6 max-w-4xl mx-auto"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+    >
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-100">Comidas</h1>
-          <p className="text-slate-400 text-sm mt-0.5">Registro de comidas del día</p>
-        </div>
-        <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="input w-auto" />
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
+          <h1 className="text-2xl font-bold gradient-text">Comidas</h1>
+          <p className="text-white/50 text-sm mt-0.5">Registro de comidas del día</p>
+        </motion.div>
+        <motion.input
+          type="date"
+          value={fecha}
+          onChange={(e) => setFecha(e.target.value)}
+          className="input w-auto"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="animate-spin w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full" />
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full"
+          />
         </div>
       ) : (
-        <div className="space-y-4">
-          {comidas.map((c) => (
-            <div key={c.id} className="card">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{tipoIcon(c.tipo)}</span>
-                  <h2 className="font-semibold text-slate-200">{c.tipo}</h2>
-                  <span className="badge bg-amber-500/20 text-amber-400">{Math.round(kcalComida(c.id))} kcal</span>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => openAddItem(c.id)} className="btn-secondary text-sm py-1.5">+ Alimento</button>
-                  {confirmDeleteComida === c.id ? (
-                    <div className="flex gap-1">
-                      <button onClick={() => confirmDeleteComidaAction(c.id)} className="btn-danger text-xs py-1 px-2">Sí</button>
-                      <button onClick={() => setConfirmDeleteComida(null)} className="btn-secondary text-xs py-1 px-2">No</button>
-                    </div>
-                  ) : (
-                    <button onClick={() => handleDeleteComida(c.id)} className="btn-danger">🗑</button>
-                  )}
-                </div>
-              </div>
-
-              {addingTo === c.id && (
-                <div className="bg-slate-700/40 rounded-xl p-4 mb-3 space-y-3">
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Buscar alimento..."
-                    value={alimentoQ}
-                    onChange={(e) => setAlimentoQ(e.target.value)}
-                    autoFocus
-                  />
-                  {!selectedAlimento && (alimentos.length > 0 || alimentosExterno.length > 0) && (
-                    <div className="max-h-64 overflow-y-auto space-y-1">
-                      {alimentos.map((a) => (
-                        <button
-                          key={a.id}
-                          onClick={() => setSelectedAlimento(a)}
-                          className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-600 transition-colors text-sm"
+        <motion.div
+          className="space-y-4"
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+          initial="hidden"
+          animate="show"
+        >
+          <AnimatePresence>
+            {comidas.map((c) => (
+              <motion.div
+                key={c.id}
+                className="card"
+                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{tipoIcon(c.tipo)}</span>
+                    <h2 className="font-semibold text-white">{c.tipo}</h2>
+                    <motion.span
+                      className="px-3 py-1 rounded-full text-sm font-medium bg-amber-500/20 text-amber-400"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {Math.round(kcalComida(c.id))} kcal
+                    </motion.span>
+                  </div>
+                  <div className="flex gap-2">
+                    <motion.button
+                      onClick={() => openAddItem(c.id)}
+                      className="btn-secondary text-sm py-1.5"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      + Alimento
+                    </motion.button>
+                    <AnimatePresence mode="wait">
+                      {confirmDeleteComida === c.id ? (
+                        <motion.div
+                          key="confirm"
+                          className="flex gap-1"
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: 'auto' }}
+                          exit={{ opacity: 0, width: 0 }}
                         >
-                          <span className="text-slate-200">{a.nombre}</span>
-                          <span className="text-slate-400 ml-2">{a.kcalPor100g} kcal/100g</span>
-                        </button>
-                      ))}
-                      {loadingExterno && (
-                        <p className="text-xs text-slate-500 px-3 py-1">Buscando en Open Food Facts…</p>
+                          <motion.button
+                            onClick={() => confirmDeleteComidaAction(c.id)}
+                            className="btn-danger text-xs py-1 px-2"
+                            whileTap={{ scale: 0.9 }}
+                          >
+                            Sí
+                          </motion.button>
+                          <motion.button
+                            onClick={() => setConfirmDeleteComida(null)}
+                            className="btn-secondary text-xs py-1 px-2"
+                            whileTap={{ scale: 0.9 }}
+                          >
+                            No
+                          </motion.button>
+                        </motion.div>
+                      ) : (
+                        <motion.button
+                          key="delete"
+                          onClick={() => handleDeleteComida(c.id)}
+                          className="btn-danger"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          🗑
+                        </motion.button>
                       )}
-                      {!loadingExterno && alimentosExterno.length > 0 && (
-                        <>
-                          <p className="text-xs text-slate-500 px-3 pt-2 pb-1 border-t border-slate-700 mt-1">
-                            🌐 Open Food Facts
-                          </p>
-                          {alimentosExterno.map((ext, i) => (
-                            <button
-                              key={i}
-                              onClick={() => handleSelectExterno(ext)}
-                              className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-600 transition-colors text-sm"
-                            >
-                              <span className="text-slate-300">{ext.nombre}</span>
-                              <span className="text-slate-400 ml-2">{Math.round(ext.kcalPor100g)} kcal/100g</span>
-                            </button>
-                          ))}
-                        </>
-                      )}
-                    </div>
-                  )}
-                  {selectedAlimento && (
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="text-green-400 font-medium text-sm">{selectedAlimento.nombre}</span>
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm text-slate-400">Gramos:</label>
-                        <input
-                          type="number"
-                          className="input w-24"
-                          value={gramos}
-                          min={1}
-                          onChange={(e) => setGramos(parseFloat(e.target.value) || 0)}
-                        />
-                      </div>
-                      <button onClick={handleAddItem} className="btn-primary text-sm py-1.5">Añadir</button>
-                      <button onClick={() => setSelectedAlimento(null)} className="btn-secondary text-sm py-1.5">Cambiar</button>
-                    </div>
-                  )}
-                  <button onClick={() => setAddingTo(null)} className="text-slate-500 text-xs hover:text-slate-300">Cancelar</button>
+                    </AnimatePresence>
+                  </div>
                 </div>
-              )}
 
-              {(items[c.id] ?? []).length === 0 ? (
-                <p className="text-slate-500 text-sm">Sin alimentos registrados.</p>
-              ) : (
-                <div className="space-y-1">
-                  {(items[c.id] ?? []).map((item) => (
-                    <div key={item.itemId} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-slate-700/40">
-                      <div className="flex-1 min-w-0">
-                        <span className="text-slate-200 text-sm font-medium">{item.nombre}</span>
-                        <span className="text-slate-500 text-xs ml-2">{item.gramos}g</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs shrink-0">
-                        <span className="text-amber-400">{Math.round(item.kcalEstimadas)} kcal</span>
-                        <span className="text-blue-400 hidden sm:block">{Math.round(item.proteinasEstimadas)}g P</span>
-                        <span className="text-amber-300 hidden sm:block">{Math.round(item.grasasEstimadas)}g G</span>
-                        <span className="text-purple-400 hidden sm:block">{Math.round(item.carbosEstimados)}g C</span>
-                        <button onClick={() => handleDeleteItem(c.id, item.itemId)} className="text-slate-600 hover:text-red-400 ml-1">✕</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                <AnimatePresence>
+                  {addingTo === c.id && (
+                    <motion.div
+                      className="card bg-white/3 mb-3 space-y-3"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+                    >
+                      <input
+                        type="text"
+                        className="input"
+                        placeholder="Buscar alimento..."
+                        value={alimentoQ}
+                        onChange={(e) => setAlimentoQ(e.target.value)}
+                        autoFocus
+                      />
+                      <AnimatePresence>
+                        {!selectedAlimento && (alimentos.length > 0 || alimentosExterno.length > 0) && (
+                          <motion.div
+                            className="max-h-64 overflow-y-auto space-y-1"
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                          >
+                            {alimentos.map((a) => (
+                              <motion.button
+                                key={a.id}
+                                onClick={() => setSelectedAlimento(a)}
+                                className="w-full text-left px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm"
+                                whileHover={{ x: 4, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                <span className="text-white">{a.nombre}</span>
+                                <span className="text-white/50 ml-2">{a.kcalPor100g} kcal/100g</span>
+                              </motion.button>
+                            ))}
+                            {loadingExterno && (
+                              <motion.p
+                                className="text-xs text-white/40 px-3 py-1"
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                              >
+                                Buscando en Open Food Facts…
+                              </motion.p>
+                            )}
+                            {!loadingExterno && alimentosExterno.length > 0 && (
+                              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                                <p className="text-xs text-white/40 px-3 pt-2 pb-1 border-t border-white/10 mt-1">
+                                  🌐 Open Food Facts
+                                </p>
+                                {alimentosExterno.map((ext, i) => (
+                                  <motion.button
+                                    key={i}
+                                    onClick={() => handleSelectExterno(ext)}
+                                    className="w-full text-left px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm"
+                                    whileHover={{ x: 4 }}
+                                    whileTap={{ scale: 0.98 }}
+                                  >
+                                    <span className="text-white/80">{ext.nombre}</span>
+                                    <span className="text-white/40 ml-2">{Math.round(ext.kcalPor100g)} kcal/100g</span>
+                                  </motion.button>
+                                ))}
+                              </motion.div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      <AnimatePresence>
+                        {selectedAlimento && (
+                          <motion.div
+                            className="flex items-center gap-3 flex-wrap pt-2 border-t border-white/10"
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                          >
+                            <motion.span
+                              className="text-emerald-400 font-medium text-sm"
+                              initial={{ scale: 0.8 }}
+                              animate={{ scale: 1 }}
+                            >
+                              {selectedAlimento.nombre}
+                            </motion.span>
+                            <div className="flex items-center gap-2">
+                              <label className="text-sm text-white/50">Gramos:</label>
+                              <input
+                                type="number"
+                                className="input w-24"
+                                value={gramos}
+                                min={1}
+                                onChange={(e) => setGramos(parseFloat(e.target.value) || 0)}
+                              />
+                            </div>
+                            <motion.button
+                              onClick={handleAddItem}
+                              className="btn-primary text-sm py-1.5"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              Añadir
+                            </motion.button>
+                            <motion.button
+                              onClick={() => setSelectedAlimento(null)}
+                              className="btn-secondary text-sm py-1.5"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              Cambiar
+                            </motion.button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      <motion.button
+                        onClick={() => setAddingTo(null)}
+                        className="text-white/40 text-xs hover:text-white/60 transition-colors"
+                        whileHover={{ x: -2 }}
+                      >
+                        ← Cancelar
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {(items[c.id] ?? []).length === 0 ? (
+                  <motion.p
+                    className="text-white/40 text-sm"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    Sin alimentos registrados.
+                  </motion.p>
+                ) : (
+                  <motion.div className="space-y-1">
+                    <AnimatePresence>
+                      {(items[c.id] ?? []).map((item) => (
+                        <motion.div
+                          key={item.itemId}
+                          className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-white/5 transition-colors"
+                          layout
+                          initial={{ opacity: 0, x: -16 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 16, height: 0 }}
+                          transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <span className="text-white text-sm font-medium">{item.nombre}</span>
+                            <span className="text-white/40 text-xs ml-2">{item.gramos}g</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs shrink-0">
+                            <motion.span className="text-amber-400" whileHover={{ scale: 1.1 }}>
+                              {Math.round(item.kcalEstimadas)} kcal
+                            </motion.span>
+                            <motion.span className="text-blue-400 hidden sm:block" whileHover={{ scale: 1.1 }}>
+                              {Math.round(item.proteinasEstimadas)}g P
+                            </motion.span>
+                            <motion.span className="text-amber-300 hidden sm:block" whileHover={{ scale: 1.1 }}>
+                              {Math.round(item.grasasEstimadas)}g G
+                            </motion.span>
+                            <motion.span className="text-purple-400 hidden sm:block" whileHover={{ scale: 1.1 }}>
+                              {Math.round(item.carbosEstimados)}g C
+                            </motion.span>
+                            <motion.button
+                              onClick={() => handleDeleteItem(c.id, item.itemId)}
+                              className="text-white/40 hover:text-red-400 ml-1 transition-colors"
+                              whileHover={{ scale: 1.2 }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              ✕
+                            </motion.button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
           {tiposDisponibles.length > 0 && (
-            <div className="card border-dashed">
-              <p className="text-sm text-slate-500 mb-3">Añadir comida</p>
-              <div className="flex flex-wrap gap-2">
+            <motion.div
+              className="card border border-dashed border-white/10 bg-white/2"
+              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
+            >
+              <p className="text-sm text-white/40 mb-3 section-title">+ Añadir comida</p>
+              <motion.div className="flex flex-wrap gap-2" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }} initial="hidden" animate="show">
                 {tiposDisponibles.map((t) => (
-                  <button
+                  <motion.button
                     key={t}
                     onClick={() => handleCreateComida(t)}
                     disabled={creatingTipo === t}
-                    className="btn-secondary text-sm flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 hover:text-white hover:border-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                    whileHover={{ scale: 1.04, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+                    whileTap={{ scale: 0.96 }}
+                    variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
                   >
                     {tipoIcon(t)} {t}
-                  </button>
+                  </motion.button>
                 ))}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   )
 }
 

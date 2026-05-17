@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
+import { motion, AnimatePresence as AnimatePresenceMotion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
+
+const AnimatePresence = AnimatePresenceMotion
 import { generarPlan, getPlan, regenerarPlan, type PlanSemanal } from '../api/planSemanal'
+
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } }
+const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }
 
 export default function PlanSemanal() {
   const { user } = useAuth()
@@ -141,187 +147,238 @@ export default function PlanSemanal() {
   }
 
   return (
-    <div className="flex-1 overflow-auto">
-      <div className="max-w-7xl mx-auto p-6">
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="flex-1 overflow-auto p-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-100 mb-4">Plan Semanal IA</h1>
+          <h1 className="gradient-text text-3xl font-bold mb-2">Plan Semanal IA</h1>
+          <p className="text-white/50 text-sm mb-4">Tu plan nutricional personalizado para esta semana</p>
 
           {/* Navegación de semanas */}
-          <div className="flex items-center justify-between bg-slate-700/50 border border-slate-600 rounded-lg p-4">
-            <button
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex items-center justify-between card"
+          >
+            <motion.button
               onClick={irASemanaAnterior}
-              className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-slate-100 rounded-lg transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg transition-colors"
             >
               ← Anterior
-            </button>
+            </motion.button>
 
             <div className="text-center flex-1 mx-4">
-              <div className="text-slate-400 text-sm mb-1">Semana del</div>
-              <div className="text-lg font-semibold text-slate-100">{obtenerRangoSemana()}</div>
+              <div className="text-white/50 text-sm mb-1">Semana del</div>
+              <div className="text-lg font-semibold text-white">{obtenerRangoSemana()}</div>
             </div>
 
             <div className="flex gap-2">
-              <button
+              <motion.button
                 onClick={irASemanaActual}
-                className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-slate-100 rounded-lg transition-colors text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg transition-colors text-sm"
               >
                 Hoy
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={irASemanaProxima}
-                className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-slate-100 rounded-lg transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg transition-colors"
               >
                 Próxima →
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Estado sin plan */}
-        {!loading && !plan && !error && (
-          <div className="flex flex-col items-center justify-center py-24 bg-slate-700/30 rounded-lg border border-slate-600">
-            <div className="text-7xl mb-6">📅</div>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-2">No tienes plan para esta semana</h2>
-            <p className="text-slate-400 mb-8">Genera un plan personalizado con IA para esta semana</p>
-            <button
-              onClick={handleGenerar}
-              className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors"
+        <AnimatePresence mode="wait">
+          {!loading && !plan && !error && (
+            <motion.div
+              key="no-plan"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex flex-col items-center justify-center py-24 card"
             >
-              Generar Plan con IA
-            </button>
-          </div>
-        )}
-
-        {/* Cargando */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-24 bg-slate-700/30 rounded-lg border border-slate-600">
-            <div className="animate-spin w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full mb-6" />
-            <p className="text-slate-300 text-lg">
-              {plan ? 'Regenerando tu plan personalizado...' : 'Generando tu plan personalizado...'}
-            </p>
-            <p className="text-slate-400 text-sm mt-2">(puede tardar 30 segundos)</p>
-          </div>
-        )}
-
-        {/* Error */}
-        {error && (
-          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-red-400 font-semibold">Error</h3>
-                <p className="text-red-300 text-sm mt-1">{error}</p>
-              </div>
-              <button
+              <div className="text-7xl mb-6">📅</div>
+              <h2 className="text-2xl font-semibold text-white mb-2">No tienes plan para esta semana</h2>
+              <p className="text-white/50 mb-8">Genera un plan personalizado con IA para esta semana</p>
+              <motion.button
                 onClick={handleGenerar}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="btn-primary"
               >
-                Reintentar
-              </button>
-            </div>
-          </div>
-        )}
+                Generar Plan con IA
+              </motion.button>
+            </motion.div>
+          )}
+
+          {/* Cargando */}
+          {loading && (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex flex-col items-center justify-center py-24 card"
+            >
+              <div className="animate-spin w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full mb-6" />
+              <p className="text-white text-lg">
+                {plan ? 'Regenerando tu plan personalizado...' : 'Generando tu plan personalizado...'}
+              </p>
+              <p className="text-white/50 text-sm mt-2">(puede tardar 30 segundos)</p>
+            </motion.div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-red-400 font-semibold">Error</h3>
+                  <p className="text-red-300 text-sm mt-1">{error}</p>
+                </div>
+                <motion.button
+                  onClick={handleGenerar}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm"
+                >
+                  Reintentar
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Plan con 7 días */}
         {!loading && plan && !error && (
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
             <div className="flex justify-end mb-4">
-              <button
+              <motion.button
                 onClick={handleRegenerar}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className="px-6 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/50 rounded-lg transition-colors"
               >
                 🔄 Regenerar plan
-              </button>
+              </motion.button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <motion.div
+              variants={container}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            >
               {plan.dias.map((dia, idx) => (
-                <div
+                <motion.div
                   key={idx}
-                  className="bg-slate-700/50 border border-slate-600 rounded-lg overflow-hidden hover:border-green-500/50 transition-colors"
+                  variants={item}
+                  whileHover={{ scale: 1.02, y: -4 }}
+                  transition={{ type: 'spring', stiffness: 300 }}
+                  className="card overflow-hidden border-t-4 border-t-emerald-500"
                 >
                   {/* Header del día */}
-                  <div className="bg-green-500/20 border-b border-green-500/30 px-4 py-3">
+                  <div className="bg-emerald-500/10 border-b border-emerald-500/30 px-4 py-3 mb-3">
                     <div className="flex items-baseline justify-between">
                       <div>
-                        <div className="font-semibold text-slate-100">{dia.dia}</div>
-                        <div className="text-xs text-slate-400">{formatearFecha(dia.fecha)}</div>
+                        <div className="font-semibold text-white">{dia.dia}</div>
+                        <div className="text-xs text-white/50">{formatearFecha(dia.fecha)}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-green-400">{dia.totalKcal}</div>
-                        <div className="text-xs text-slate-400">kcal</div>
+                        <div className="text-lg font-bold text-emerald-400">{dia.totalKcal}</div>
+                        <div className="text-xs text-white/50">kcal</div>
                       </div>
                     </div>
                   </div>
 
                   {/* Comidas */}
-                  <div className="p-4 space-y-3">
+                  <div className="space-y-2 mb-3">
                     {Object.entries(dia.comidas).map(([tipo, comida]) => (
-                      <div
+                      <motion.div
                         key={tipo}
-                        className={`border rounded p-3 ${colorComida(tipo)}`}
+                        whileHover={{ scale: 1.02 }}
+                        className={`border rounded-lg p-2.5 ${colorComida(tipo)}`}
                       >
-                        <div className="flex items-start gap-2 mb-2">
+                        <div className="flex items-start gap-2 mb-1.5">
                           <span className={`text-lg ${colorIconoComida(tipo)}`}>{emojiComida(tipo)}</span>
                           <div className="flex-1">
-                            <div className="font-semibold text-sm capitalize text-slate-200">{tipo}</div>
-                            <div className="text-xs text-slate-400 mt-0.5 line-clamp-2">
+                            <div className="font-semibold text-xs capitalize text-white">{tipo}</div>
+                            <div className="text-xs text-white/60 mt-0.5 line-clamp-1">
                               {comida.descripcion}
                             </div>
                           </div>
                         </div>
 
-                        <div className="text-xs space-y-1 text-slate-300">
+                        <div className="text-xs space-y-0.5 text-white/70">
                           <div className="flex justify-between">
-                            <span>Proteínas:</span>
+                            <span>P:</span>
                             <span className="font-semibold">{comida.proteinas}g</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Carbos:</span>
+                            <span>C:</span>
                             <span className="font-semibold">{comida.carbos}g</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Grasas:</span>
+                            <span>G:</span>
                             <span className="font-semibold">{comida.grasas}g</span>
                           </div>
                         </div>
 
                         {/* Barra de progreso kcal */}
-                        <div className="mt-2 bg-slate-800/50 rounded h-1.5 overflow-hidden">
-                          <div
+                        <div className="mt-1.5 bg-white/10 rounded h-1.5 overflow-hidden">
+                          <motion.div
                             className="bg-current h-full"
-                            style={{
-                              width: `${Math.min((comida.kcal / dia.totalKcal) * 100, 100)}%`,
-                            }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.min((comida.kcal / dia.totalKcal) * 100, 100)}%` }}
+                            transition={{ duration: 0.8, delay: idx * 0.05 }}
                           />
                         </div>
-                        <div className="text-xs text-slate-400 mt-1">{comida.kcal} kcal</div>
-                      </div>
+                        <div className="text-xs text-white/50 mt-0.5">{comida.kcal} kcal</div>
+                      </motion.div>
                     ))}
                   </div>
 
                   {/* Totales */}
-                  <div className="bg-slate-600/50 border-t border-slate-600 px-4 py-3 text-xs text-slate-300 space-y-1">
+                  <div className="bg-white/5 border-t border-white/10 px-3 py-2 text-xs text-white/70 space-y-0.5">
                     <div className="flex justify-between">
-                      <span>Proteínas:</span>
+                      <span>P:</span>
                       <span className="font-semibold">{dia.totalProteinas}g</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Carbos:</span>
+                      <span>C:</span>
                       <span className="font-semibold">{dia.totalCarbos}g</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Grasas:</span>
+                      <span>G:</span>
                       <span className="font-semibold">{dia.totalGrasas}g</span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 

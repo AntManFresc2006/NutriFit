@@ -29,21 +29,21 @@ export default function MacrosChart({ data }: Props) {
       <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">🥗 Macros Promedio Semanal</h2>
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={chartData} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
           <XAxis
             dataKey="semana"
-            stroke="#64748B"
-            tick={{ fontSize: 11 }}
+            stroke="#ffffff30"
+            tick={{ fontSize: 11, fill: '#ffffff40' }}
             interval={Math.max(0, Math.floor(data.length / 4))}
           />
-          <YAxis stroke="#64748B" tick={{ fontSize: 12 }} label={{ value: 'g/día', angle: -90, position: 'insideLeft' }} />
+          <YAxis stroke="#ffffff30" tick={{ fontSize: 12, fill: '#ffffff40' }} label={{ value: 'g/día', angle: -90, position: 'insideLeft', fill: '#ffffff40' }} />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#1e293b',
-              border: '1px solid #475569',
-              borderRadius: '8px',
+              backgroundColor: 'rgba(8,12,21,0.95)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '12px',
             }}
-            labelStyle={{ color: '#e2e8f0' }}
+            labelStyle={{ color: '#ffffff' }}
             formatter={(value: number) => `${value}g`}
           />
           <Legend wrapperStyle={{ paddingTop: '20px' }} />

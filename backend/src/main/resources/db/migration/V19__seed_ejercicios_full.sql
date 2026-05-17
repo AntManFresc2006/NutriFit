@@ -1,5 +1,4 @@
-TRUNCATE TABLE ejercicios_registro;
-TRUNCATE TABLE ejercicios RESTART IDENTITY;
+TRUNCATE TABLE ejercicios_registro, ejercicios RESTART IDENTITY;
 
 INSERT INTO ejercicios (nombre, met, categoria, tipo) VALUES
 -- AEROBIC EXERCISES (100 total)

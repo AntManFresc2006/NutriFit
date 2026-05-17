@@ -98,7 +98,7 @@ class RegistroEjercicioServiceImplTest {
         @DisplayName("correr (MET=8.0), 75 kg, 45 min → 450.00 kcal")
         void correr_75kg_45min_devuelve450() {
             Ejercicio e = new Ejercicio(null, "Correr", 8.0, "CARDIO", "AEROBICO");
-            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 75.0, 45);
+            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 75.0, 45, null, null);
             assertThat(resultado).isEqualTo(450.00);
         }
 
@@ -106,7 +106,7 @@ class RegistroEjercicioServiceImplTest {
         @DisplayName("caminar (MET=3.5), 80 kg, 30 min → 140.00 kcal")
         void caminar_80kg_30min_devuelve140() {
             Ejercicio e = new Ejercicio(null, "Caminar", 3.5, "CARDIO", "AEROBICO");
-            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 80.0, 30);
+            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 80.0, 30, null, null);
             assertThat(resultado).isEqualTo(140.00);
         }
 
@@ -114,7 +114,7 @@ class RegistroEjercicioServiceImplTest {
         @DisplayName("yoga (MET=2.5), 60 kg, 60 min → 150.00 kcal")
         void yoga_60kg_60min_devuelve150() {
             Ejercicio e = new Ejercicio(null, "Yoga", 2.5, "YOGA", "AEROBICO");
-            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 60.0, 60);
+            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 60.0, 60, null, null);
             assertThat(resultado).isEqualTo(150.00);
         }
 
@@ -123,7 +123,7 @@ class RegistroEjercicioServiceImplTest {
         void resultadoConDecimales_seRedondeaADosCifras() {
             // MET=5.0, 70 kg, 20 min → 5.0 * 70 * (20/60.0) = 116.6666... → 116.67
             Ejercicio e = new Ejercicio(null, "Test", 5.0, "CARDIO", "AEROBICO");
-            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 70.0, 20);
+            double resultado = RegistroEjercicioServiceImpl.calcularKcal(e, 70.0, 20, null, null);
             assertThat(resultado).isEqualTo(116.67);
         }
     }
@@ -221,8 +221,14 @@ class RegistroEjercicioServiceImplTest {
         @Test
         @DisplayName("delega en el repositorio y devuelve su resultado directamente")
         void delegaEnRepositorioYDevuelveResultado() {
-            RegistroEjercicioResponse respuesta = new RegistroEjercicioResponse(
-                    REGISTRO_ID, USUARIO_ID, EJERCICIO_ID, "Correr", FECHA, 45, 450.00);
+            RegistroEjercicioResponse respuesta = new RegistroEjercicioResponse();
+            respuesta.setId(REGISTRO_ID);
+            respuesta.setUsuarioId(USUARIO_ID);
+            respuesta.setEjercicioId(EJERCICIO_ID);
+            respuesta.setNombreEjercicio("Correr");
+            respuesta.setFecha(FECHA);
+            respuesta.setDuracionMin(45);
+            respuesta.setKcalQuemadas(450.00);
             when(registroRepository.findByUsuarioAndFecha(USUARIO_ID, FECHA))
                     .thenReturn(List.of(respuesta));
 

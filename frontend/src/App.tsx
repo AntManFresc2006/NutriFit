@@ -16,6 +16,7 @@ import PlanSemanal from './pages/PlanSemanal'
 import ListaCompra from './pages/ListaCompra'
 import Retos from './pages/Retos'
 import Tendencias from './pages/Tendencias'
+import OpcionesIA from './pages/OpcionesIA'
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/retos" element={<Retos />} />
             <Route path="/plan-semanal" element={<PlanSemanal />} />
             <Route path="/perfil" element={<Perfil />} />
+            <Route path="/opciones-ia" element={<OpcionesIA />} />
             <Route path="/tendencias" element={<Tendencias />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

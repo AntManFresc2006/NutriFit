@@ -2,6 +2,8 @@ package com.nutrifit.backend.resumen.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nutrifit.backend.ia.model.UsuarioIaConfig;
+import com.nutrifit.backend.ia.repository.UsuarioIaConfigRepository;
 import com.nutrifit.backend.perfil.dto.PerfilResponse;
 import com.nutrifit.backend.perfil.service.PerfilService;
 import com.nutrifit.backend.resumen.dto.EvaluacionIaRequest;
@@ -30,30 +32,61 @@ public class EvaluacionIaService {
     private String deepseekApiKey;
 
     private final PerfilService perfilService;
+    private final UsuarioIaConfigRepository usuarioIaConfigRepository;
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(java.time.Duration.ofSeconds(10))
             .build();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public EvaluacionIaService(PerfilService perfilService) {
+    public EvaluacionIaService(PerfilService perfilService, UsuarioIaConfigRepository usuarioIaConfigRepository) {
         this.perfilService = perfilService;
+        this.usuarioIaConfigRepository = usuarioIaConfigRepository;
     }
 
     public String evaluar(EvaluacionIaRequest req) throws IOException, InterruptedException {
+        return evaluarConUsuarioId(req, req.getUsuarioId());
+    }
+
+    public String evaluarConUsuarioId(EvaluacionIaRequest req, Long usuarioId) throws IOException, InterruptedException {
         PerfilResponse perfil = null;
         try {
-            perfil = perfilService.getPerfil(req.getUsuarioId());
+            perfil = perfilService.getPerfil(usuarioId);
         } catch (Exception e) {
             // usuario sin perfil: se omiten datos biométricos del prompt
         }
         String prompt = buildPrompt(req, perfil);
-        try {
-            return callOpenRouter(prompt, MODEL_PRIMARY, gemmaApiKey);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            throw ie;
-        } catch (IOException primary) {
-            return callOpenRouter(prompt, MODEL_FALLBACK, deepseekApiKey);
+
+        // Verificar si el usuario tiene configuración de IA personalizada
+        java.util.Optional<UsuarioIaConfig> configCustom = usuarioIaConfigRepository.findByUsuarioId(usuarioId);
+
+        if (configCustom.isPresent()) {
+            UsuarioIaConfig config = configCustom.get();
+            try {
+                return callOpenRouterCustom(prompt, config.getModel(), config.getApiKey(), config.getProxyUrl());
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw ie;
+            } catch (IOException custom) {
+                // Si falla config personalizada, usar config por defecto
+                try {
+                    return callOpenRouter(prompt, MODEL_PRIMARY, gemmaApiKey);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw ie;
+                } catch (IOException primary) {
+                    return callOpenRouter(prompt, MODEL_FALLBACK, deepseekApiKey);
+                }
+            }
+        } else {
+            // Comportamiento por defecto (sin config personalizada)
+            try {
+                return callOpenRouter(prompt, MODEL_PRIMARY, gemmaApiKey);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                throw ie;
+            } catch (IOException primary) {
+                return callOpenRouter(prompt, MODEL_FALLBACK, deepseekApiKey);
+            }
         }
     }
 
@@ -128,6 +161,37 @@ public class EvaluacionIaService {
 
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
             throw new IOException("OpenRouter error " + response.statusCode() + ": " + response.body());
+        }
+
+        JsonNode json = objectMapper.readTree(response.body());
+        String content = json.path("choices").path(0).path("message").path("content").asText("");
+        if (content.isBlank() || content.equals("null")) {
+            throw new IOException("Respuesta vacía del modelo: " + response.body().substring(0, Math.min(200, response.body().length())));
+        }
+        return content;
+    }
+
+    private String callOpenRouterCustom(String userPrompt, String model, String key, String proxyUrl) throws IOException, InterruptedException {
+        String requestBody = objectMapper.writeValueAsString(Map.of(
+                "model", model,
+                "messages", List.of(Map.of("role", "user", "content", userPrompt)),
+                "max_tokens", 600
+        ));
+
+        String customUrl = proxyUrl.endsWith("/") ? proxyUrl + "chat/completions" : proxyUrl + "/chat/completions";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(customUrl))
+                .header("Authorization", "Bearer " + key)
+                .header("Content-Type", "application/json")
+                .timeout(java.time.Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("Custom API error " + response.statusCode() + ": " + response.body());
         }
 
         JsonNode json = objectMapper.readTree(response.body());

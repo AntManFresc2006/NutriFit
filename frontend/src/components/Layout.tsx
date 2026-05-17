@@ -17,6 +17,7 @@ const navItems = [
   { to: '/plan-semanal', icon: '🗓️', label: 'Plan' },
   { to: '/tendencias', icon: '📈', label: 'Tendencias' },
   { to: '/perfil', icon: '👤', label: 'Perfil' },
+  { to: '/opciones-ia', icon: '⚙️', label: 'Opciones IA' },
 ]
 
 export default function Layout() {

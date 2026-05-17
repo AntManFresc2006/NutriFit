@@ -13,8 +13,8 @@ const navItems = [
   { to: '/ejercicios', icon: '🏃', label: 'Ejercicios' },
   { to: '/retos', icon: '🏆', label: 'Retos' },
   { to: '/hidratacion', icon: '💧', label: 'Hidratación' },
-  { to: '/lista-compra', icon: '🛒', label: 'Lista Compra' },
-  { to: '/plan-semanal', icon: '🗓️', label: 'Plan Semanal' },
+  { to: '/lista-compra', icon: '🛒', label: 'Lista' },
+  { to: '/plan-semanal', icon: '🗓️', label: 'Plan' },
   { to: '/tendencias', icon: '📈', label: 'Tendencias' },
   { to: '/perfil', icon: '👤', label: 'Perfil' },
 ]
@@ -51,8 +51,8 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-16 lg:w-60 bg-[#080c15] border-r border-white/8 flex flex-col shrink-0 backdrop-blur-xl">
+      {/* Sidebar — solo en md+ */}
+      <aside className="hidden md:flex w-16 lg:w-60 bg-[#080c15] border-r border-white/8 flex-col shrink-0 backdrop-blur-xl">
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -126,7 +126,7 @@ export default function Layout() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto flex flex-col">
+      <main className="flex-1 overflow-auto flex flex-col min-w-0 pb-16 md:pb-0">
         {warming && (
           <motion.div
             initial={{ opacity: 0, y: -4 }}
@@ -152,6 +152,33 @@ export default function Layout() {
           </AnimatePresence>
         </div>
       </main>
+
+      {/* Bottom nav — solo en móvil (< md) */}
+      <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-[#080c15]/95 backdrop-blur-xl border-t border-white/10 z-50 flex overflow-x-auto">
+        {navItems.map(({ to, icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center gap-0.5 px-3 py-2 shrink-0 min-w-[64px] transition-all duration-200 ${
+                isActive
+                  ? 'text-emerald-400'
+                  : 'text-white/40 active:text-white/80'
+              }`
+            }
+          >
+            <span className="text-xl leading-none">{icon}</span>
+            <span className="text-[10px] font-medium leading-none truncate max-w-[56px]">{label}</span>
+          </NavLink>
+        ))}
+        <button
+          onClick={handleLogout}
+          className="flex flex-col items-center justify-center gap-0.5 px-3 py-2 shrink-0 min-w-[64px] text-white/40 active:text-red-400 transition-all duration-200"
+        >
+          <span className="text-xl leading-none">🚪</span>
+          <span className="text-[10px] font-medium leading-none">Salir</span>
+        </button>
+      </nav>
     </div>
   )
 }

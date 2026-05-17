@@ -176,16 +176,15 @@ export default function Dashboard() {
                   transition={{ staggerChildren: 0.05, delayChildren: 0.15 }}
                   className="grid grid-cols-2 gap-4"
                 >
-                  <StatCard icon="🔥" label="Kcal consumidas" value={`${Math.round(resumen.kcalTotales)} kcal`} color="text-amber-400" index={0} />
-                  <StatCard icon="💪" label="Kcal quemadas" value={`${Math.round(resumen.kcalQuemadasTotales)} kcal`} color="text-blue-400" index={1} />
-                  <StatCard icon="⚖️" label="TDEE" value={`${Math.round(resumen.tdee)} kcal`} color="text-slate-300" index={2} />
+                  <StatCard icon="🔥" label="Kcal consumidas" value={`${Math.round(resumen.kcalTotales)} kcal`} color="text-amber-400" />
+                  <StatCard icon="💪" label="Kcal quemadas" value={`${Math.round(resumen.kcalQuemadasTotales)} kcal`} color="text-blue-400" />
+                  <StatCard icon="⚖️" label="TDEE" value={`${Math.round(resumen.tdee)} kcal`} color="text-slate-300" />
                   <StatCard
                     icon="📉"
                     label="Balance real"
                     value={`${resumen.balanceReal > 0 ? '+' : ''}${Math.round(resumen.balanceReal)} kcal`}
                     color={resumen.balanceReal > 0 ? 'text-amber-400' : 'text-blue-400'}
                     extra={<span className={balanceBadge(resumen.estadoBalance)}>{resumen.estadoBalance}</span>}
-                    index={3}
                   />
                   {resumen.fechaObjetivo && (
                     <StatCard
@@ -194,7 +193,6 @@ export default function Dashboard() {
                       value={resumen.fechaObjetivo}
                       color="text-emerald-400"
                       extra={<span className="text-xs text-white/40">{resumen.diasParaObjetivo} días desde hoy</span>}
-                      index={4}
                     />
                   )}
                 </motion.div>

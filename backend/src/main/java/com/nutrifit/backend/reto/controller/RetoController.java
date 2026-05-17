@@ -4,6 +4,9 @@ import com.nutrifit.backend.reto.dto.AceptarRetoRequest;
 import com.nutrifit.backend.reto.dto.RetoResponse;
 import com.nutrifit.backend.reto.service.RetoService;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@Tag(name = "Retos", description = "Desafíos de fitness y seguimiento de progreso")
 @RestController
 @RequestMapping("/api/retos")
 public class RetoController {
@@ -22,6 +26,9 @@ public class RetoController {
         this.retoService = retoService;
     }
 
+    @Operation(summary = "Listar retos del usuario")
+    @ApiResponse(responseCode = "200", description = "Lista de retos devuelta")
+    @ApiResponse(responseCode = "401", description = "No autenticado")
     @GetMapping
     public List<RetoResponse> getRetos(
             @RequestParam Long usuarioId,
@@ -33,6 +40,9 @@ public class RetoController {
         return retoService.getRetos(usuarioId);
     }
 
+    @Operation(summary = "Aceptar un reto")
+    @ApiResponse(responseCode = "200", description = "Reto aceptado")
+    @ApiResponse(responseCode = "401", description = "No autenticado")
     @PostMapping("/aceptar")
     public RetoResponse aceptarReto(
             @RequestParam Long usuarioId,
@@ -45,6 +55,9 @@ public class RetoController {
         return retoService.aceptarReto(usuarioId, req);
     }
 
+    @Operation(summary = "Sincronizar progreso de retos con actividad del día")
+    @ApiResponse(responseCode = "200", description = "Progreso actualizado")
+    @ApiResponse(responseCode = "401", description = "No autenticado")
     @PostMapping("/sincronizar")
     public List<RetoResponse> sincronizarProgreso(
             @RequestParam Long usuarioId,
@@ -57,6 +70,9 @@ public class RetoController {
         return retoService.sincronizarProgreso(usuarioId, fecha);
     }
 
+    @Operation(summary = "Abandonar un reto aceptado")
+    @ApiResponse(responseCode = "200", description = "Reto abandonado")
+    @ApiResponse(responseCode = "401", description = "No autenticado")
     @DeleteMapping("/{usuarioRetoId}")
     public void abandonarReto(
             @RequestParam Long usuarioId,

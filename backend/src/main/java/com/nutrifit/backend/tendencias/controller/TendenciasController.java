@@ -3,9 +3,13 @@ package com.nutrifit.backend.tendencias.controller;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
 import com.nutrifit.backend.tendencias.dto.TendenciasResponse;
 import com.nutrifit.backend.tendencias.service.TendenciasService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Tendencias", description = "Evolución nutricional histórica del usuario (hasta 90 días)")
 @RestController
 @RequestMapping("/api/tendencias")
 public class TendenciasController {
@@ -16,6 +20,9 @@ public class TendenciasController {
         this.service = service;
     }
 
+    @Operation(summary = "Obtener tendencias nutricionales del usuario")
+    @ApiResponse(responseCode = "200", description = "Tendencias calculadas")
+    @ApiResponse(responseCode = "401", description = "No autenticado")
     @GetMapping
     public TendenciasResponse getTendencias(
             @RequestParam Long usuarioId,

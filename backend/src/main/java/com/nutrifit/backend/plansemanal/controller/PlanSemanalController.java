@@ -4,6 +4,10 @@ import com.nutrifit.backend.common.exception.UnauthorizedException;
 import com.nutrifit.backend.plansemanal.dto.PlanSemanalRequest;
 import com.nutrifit.backend.plansemanal.dto.PlanSemanalResponse;
 import com.nutrifit.backend.plansemanal.service.PlanSemanalService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+@Tag(name = "Plan Semanal", description = "Generación y gestión de planes alimentarios semanales")
 @RestController
 @RequestMapping("/api/plan-semanal")
 public class PlanSemanalController {
@@ -21,6 +26,13 @@ public class PlanSemanalController {
         this.planSemanalService = planSemanalService;
     }
 
+    @Operation(summary = "Generar o recuperar plan semanal")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Plan generado o recuperado"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+        @ApiResponse(responseCode = "401", description = "No autenticado"),
+        @ApiResponse(responseCode = "500", description = "Error al generar el plan")
+    })
     @PostMapping
     public ResponseEntity<PlanSemanalResponse> generarPlan(
             @RequestParam Long usuarioId,
@@ -43,6 +55,12 @@ public class PlanSemanalController {
         }
     }
 
+    @Operation(summary = "Obtener plan semanal existente")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Plan obtenido"),
+        @ApiResponse(responseCode = "401", description = "No autenticado"),
+        @ApiResponse(responseCode = "404", description = "Plan no encontrado")
+    })
     @GetMapping
     public ResponseEntity<PlanSemanalResponse> obtenerPlan(
             @RequestParam Long usuarioId,
@@ -61,6 +79,12 @@ public class PlanSemanalController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Eliminar plan semanal")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Plan eliminado"),
+        @ApiResponse(responseCode = "401", description = "No autenticado"),
+        @ApiResponse(responseCode = "404", description = "Plan no encontrado")
+    })
     @DeleteMapping
     public ResponseEntity<Void> eliminarPlan(
             @RequestParam Long usuarioId,

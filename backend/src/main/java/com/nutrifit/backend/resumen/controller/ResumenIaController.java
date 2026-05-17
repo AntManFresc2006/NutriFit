@@ -2,6 +2,9 @@ package com.nutrifit.backend.resumen.controller;
 
 import com.nutrifit.backend.resumen.dto.EvaluacionIaRequest;
 import com.nutrifit.backend.resumen.service.EvaluacionIaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.Map;
 
+@Tag(name = "Evaluación IA", description = "Evaluación nutricional personalizada mediante inteligencia artificial")
 @RestController
 @RequestMapping("/api/resumen")
 public class ResumenIaController {
@@ -25,6 +29,11 @@ public class ResumenIaController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Operation(summary = "Generar evaluación nutricional con IA", description = "Analiza los últimos 7 días de ingesta y ejercicio y devuelve una evaluación personalizada")
+    @ApiResponse(responseCode = "200", description = "Evaluación generada correctamente")
+    @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+    @ApiResponse(responseCode = "401", description = "No autenticado")
+    @ApiResponse(responseCode = "500", description = "Error al contactar el modelo IA")
     @PostMapping("/evaluacion-ia")
     public ResponseEntity<Map<String, String>> evaluar(@Valid @RequestBody EvaluacionIaRequest request) {
         try {

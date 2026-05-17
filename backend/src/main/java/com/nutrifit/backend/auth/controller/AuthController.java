@@ -6,12 +6,18 @@ import com.nutrifit.backend.auth.dto.RegisterRequest;
 import com.nutrifit.backend.auth.security.LoginRateLimiter;
 import com.nutrifit.backend.auth.service.AuthService;
 import com.nutrifit.backend.common.exception.TooManyRequestsException;
+import com.nutrifit.backend.common.exception.UnauthorizedException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Autenticación", description = "Endpoints de registro, login y logout")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -24,6 +30,12 @@ public class AuthController {
         this.rateLimiter = rateLimiter;
     }
 
+    @Operation(summary = "Registrar nuevo usuario")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+        @ApiResponse(responseCode = "429", description = "Demasiados intentos")
+    })
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
@@ -33,6 +45,12 @@ public class AuthController {
         return authResponse;
     }
 
+    @Operation(summary = "Iniciar sesión")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Sesión iniciada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Credenciales inválidas"),
+        @ApiResponse(responseCode = "429", description = "Demasiados intentos")
+    })
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
         checkRateLimit(httpRequest);
@@ -41,10 +59,39 @@ public class AuthController {
         return authResponse;
     }
 
+    @Operation(summary = "Cerrar sesión")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Sesión cerrada exitosamente"),
+        @ApiResponse(responseCode = "401", description = "Token inválido o expirado")
+    })
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(@RequestHeader("Authorization") String authorizationHeader, HttpServletResponse response) {
-        String token = authorizationHeader.replace("Bearer ", "").trim();
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        String token = null;
+
+        // 1. Try to read nf_session cookie
+        jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (jakarta.servlet.http.Cookie c : cookies) {
+                if ("nf_session".equals(c.getName())) {
+                    token = c.getValue();
+                    break;
+                }
+            }
+        }
+
+        // 2. Fallback: Authorization header
+        if (token == null) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7).trim();
+            }
+        }
+
+        if (token == null) {
+            throw new UnauthorizedException("Token de autenticación requerido");
+        }
+
         authService.logout(token);
         clearAuthCookie(response);
     }

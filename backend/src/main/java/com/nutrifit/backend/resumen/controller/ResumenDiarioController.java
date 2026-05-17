@@ -3,6 +3,10 @@ package com.nutrifit.backend.resumen.controller;
 import com.nutrifit.backend.resumen.dto.ResumenDiarioResponse;
 import com.nutrifit.backend.resumen.service.ResumenDiarioService;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +21,7 @@ import java.time.LocalDate;
  * <p>Devuelve el balance neto (kcal comidas − kcal ejercicios) que el cliente
  * muestra junto al TDEE del perfil para contextualizar el resultado.</p>
  */
+@Tag(name = "Resumen Diario", description = "Resumen nutricional y calórico diario del usuario")
 @RestController
 @RequestMapping("/api/resumen-diario")
 public class ResumenDiarioController {
@@ -37,6 +42,11 @@ public class ResumenDiarioController {
      * @param fecha     día a resumir en formato ISO-8601 (yyyy-MM-dd)
      * @return totales de kcal, macros, kcal quemadas y balance neto
      */
+    @Operation(summary = "Obtener resumen nutricional diario")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Resumen calculado"),
+        @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
     @GetMapping
     public ResumenDiarioResponse getResumenDiario(
             @RequestParam Long usuarioId,

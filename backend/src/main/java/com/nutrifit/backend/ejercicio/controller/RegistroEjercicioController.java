@@ -6,6 +6,11 @@ import com.nutrifit.backend.ejercicio.dto.RecuperacionResponse;
 import com.nutrifit.backend.ejercicio.service.RegistroEjercicioService;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
 import com.nutrifit.backend.perfil.service.PerfilService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +26,7 @@ import java.util.List;
  * <p>Cada registro vincula un ejercicio del catálogo con una duración; el servicio
  * calcula automáticamente las kcal quemadas usando la fórmula MET × peso × horas.</p>
  */
+@Tag(name = "Ejercicios - Registros", description = "Gestión de registros de ejercicios diarios")
 @RestController
 @RequestMapping("/api/ejercicios-registro")
 public class RegistroEjercicioController {

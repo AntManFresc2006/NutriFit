@@ -4,6 +4,11 @@ import com.nutrifit.backend.comida.dto.ComidaRequest;
 import com.nutrifit.backend.comida.dto.ComidaResponse;
 import com.nutrifit.backend.comida.service.ComidaService;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,6 +26,7 @@ import java.util.List;
  * alimentos con sus gramos consumidos. Los macros se calculan en el momento
  * de la consulta, no se almacenan precalculados.</p>
  */
+@Tag(name = "Comidas", description = "Gestión de comidas y sus alimentos asociados")
 @RestController
 @RequestMapping("/api/comidas")
 public class ComidaController {
@@ -41,9 +47,17 @@ public class ComidaController {
      * @param fecha     día del que se quieren las comidas (ISO-8601)
      * @return lista de comidas del día, vacía si no hay ninguna
      */
+    @Operation(summary = "Obtener comidas del día")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Comidas recuperadas exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos")
+    })
     @GetMapping
     public List<ComidaResponse> getByUsuarioAndFecha(
+            @Parameter(description = "ID del usuario autenticado")
             @RequestParam Long usuarioId,
+            @Parameter(description = "Fecha en formato ISO-8601 (yyyy-MM-dd)")
             @RequestParam LocalDate fecha,
             HttpServletRequest request
     ) {
@@ -64,9 +78,16 @@ public class ComidaController {
      * @param request   fecha y tipo de comida
      * @return la comida creada con su id asignado
      */
+    @Operation(summary = "Crear nueva comida")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Comida creada exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida")
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ComidaResponse create(
+            @Parameter(description = "ID del usuario autenticado")
             @RequestParam Long usuarioId,
             @Valid @RequestBody ComidaRequest request,
             HttpServletRequest httpRequest
@@ -87,9 +108,16 @@ public class ComidaController {
      * @param comidaId id de la comida receptora
      * @param request  id del alimento y gramos a registrar
      */
+    @Operation(summary = "Añadir alimento a comida")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Alimento añadido exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Comida o alimento no encontrado"),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida")
+    })
     @PostMapping("/{comidaId}/items")
     @ResponseStatus(HttpStatus.CREATED)
     public void addAlimento(
+            @Parameter(description = "ID de la comida")
             @PathVariable Long comidaId,
             @Valid @RequestBody ComidaAlimentoRequest request
     ) {
@@ -104,9 +132,16 @@ public class ComidaController {
      *
      * @param id id de la comida a eliminar
      */
+    @Operation(summary = "Eliminar comida")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Comida eliminada exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Comida no encontrada")
+    })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(
+            @Parameter(description = "ID de la comida a eliminar")
+            @PathVariable Long id) {
         comidaService.deleteById(id);
     }
 
@@ -119,8 +154,15 @@ public class ComidaController {
      * @param comidaId id de la comida cuyos items se quieren consultar
      * @return lista de items con nombre del alimento, gramos y macros estimados
      */
+    @Operation(summary = "Obtener alimentos de comida con macros")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Alimentos recuperados exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Comida no encontrada")
+    })
     @GetMapping("/{comidaId}/items")
-    public List<ComidaItemDetalleResponse> getItems(@PathVariable Long comidaId) {
+    public List<ComidaItemDetalleResponse> getItems(
+            @Parameter(description = "ID de la comida")
+            @PathVariable Long comidaId) {
         return comidaService.findDetalleItemsByComidaId(comidaId);
     }
 
@@ -133,9 +175,18 @@ public class ComidaController {
      * @param comidaId id de la comida contenedora
      * @param itemId   id del item de {@code comida_alimentos} a eliminar
      */
+    @Operation(summary = "Eliminar alimento de comida")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Alimento eliminado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Comida o alimento no encontrado")
+    })
     @DeleteMapping("/{comidaId}/items/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteItem(@PathVariable Long comidaId, @PathVariable Long itemId) {
+    public void deleteItem(
+            @Parameter(description = "ID de la comida")
+            @PathVariable Long comidaId,
+            @Parameter(description = "ID del item a eliminar")
+            @PathVariable Long itemId) {
         comidaService.deleteItem(comidaId, itemId);
     }
 }

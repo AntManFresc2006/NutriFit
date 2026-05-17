@@ -22,7 +22,8 @@ public class EscanerServiceImpl implements EscanerService {
 
     private static final Logger log = LoggerFactory.getLogger(EscanerServiceImpl.class);
 
-    private static final String OFF_BARCODE_URL = "https://world.openfoodfacts.org/api/v0/product/%s.json";
+    private static final String OFF_BARCODE_URL =
+            "https://world.openfoodfacts.org/api/v2/product/%s?fields=product_name,product_name_es,nutriments,brands,image_url&lc=es";
 
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
@@ -70,37 +71,59 @@ public class EscanerServiceImpl implements EscanerService {
         }
     }
 
-    private Optional<EscanerResponse> parse(String body, String barcode) throws Exception {
+    private Optional<EscanerResponse> parse(String body, String barcode) throws java.io.IOException {
         JsonNode root = mapper.readTree(body);
-        JsonNode product = root.path("product");
 
-        if (product.isMissingNode()) {
+        // v2 API devuelve "product" directamente; v0 también
+        JsonNode product = root.path("product");
+        if (product.isMissingNode() || product.isNull()) {
             return Optional.empty();
         }
 
-        String nombre = product.path("product_name").asText("").trim();
+        // Preferir nombre en español
+        String nombre = product.path("product_name_es").asText("").trim();
+        if (nombre.isEmpty()) {
+            nombre = product.path("product_name").asText("").trim();
+        }
         if (nombre.isEmpty()) {
             return Optional.empty();
         }
 
-        JsonNode nutriments = product.path("nutriments");
-        double kcal = nutriments.path("energy-kcal_100g").asDouble(-1);
+        JsonNode n = product.path("nutriments");
+
+        double kcal = resolverKcal(n);
         if (kcal < 0) {
             return Optional.empty();
         }
 
         String marca = product.path("brands").asText("").trim();
         String imagenUrl = product.path("image_url").asText(null);
+        if (imagenUrl != null && imagenUrl.isBlank()) imagenUrl = null;
 
         return Optional.of(new EscanerResponse(
                 nombre,
                 marca.isEmpty() ? "No especificada" : marca,
                 round(kcal),
-                round(nutriments.path("proteins_100g").asDouble(0)),
-                round(nutriments.path("fat_100g").asDouble(0)),
-                round(nutriments.path("carbohydrates_100g").asDouble(0)),
+                round(n.path("proteins_100g").asDouble(0)),
+                round(n.path("fat_100g").asDouble(0)),
+                round(n.path("carbohydrates_100g").asDouble(0)),
                 imagenUrl
         ));
+    }
+
+    private double resolverKcal(JsonNode n) {
+        double kcal = n.path("energy-kcal_100g").asDouble(-1);
+        if (kcal >= 0) return kcal;
+
+        double kj = n.path("energy_100g").asDouble(-1);
+        if (kj >= 0) return kj / 4.184;
+
+        double prot = n.path("proteins_100g").asDouble(0);
+        double fat  = n.path("fat_100g").asDouble(0);
+        double carb = n.path("carbohydrates_100g").asDouble(0);
+        if (prot > 0 || fat > 0 || carb > 0) return 4 * prot + 9 * fat + 4 * carb;
+
+        return -1;
     }
 
     private double round(double v) {

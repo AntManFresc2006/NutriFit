@@ -1,7 +1,5 @@
 package com.nutrifit.backend.ejercicio.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -14,9 +12,11 @@ public class RegistroEjercicioRequest {
     @NotNull(message = "La fecha es obligatoria")
     private LocalDate fecha;
 
-    @Min(value = 1, message = "La duración mínima es 1 minuto")
-    @Max(value = 999, message = "La duración máxima es 999 minutos")
-    private int duracionMin;
+    private int duracionMin;   // minutos para AEROBICO; 0 para ANAEROBICO
+
+    private String intensidad; // BAJA | MEDIA | ALTA  (solo ANAEROBICO)
+
+    private Integer numSeries; // número de series      (solo ANAEROBICO)
 
     public Long getEjercicioId() { return ejercicioId; }
     public void setEjercicioId(Long ejercicioId) { this.ejercicioId = ejercicioId; }
@@ -26,4 +26,10 @@ public class RegistroEjercicioRequest {
 
     public int getDuracionMin() { return duracionMin; }
     public void setDuracionMin(int duracionMin) { this.duracionMin = duracionMin; }
+
+    public String getIntensidad() { return intensidad; }
+    public void setIntensidad(String intensidad) { this.intensidad = intensidad; }
+
+    public Integer getNumSeries() { return numSeries; }
+    public void setNumSeries(Integer numSeries) { this.numSeries = numSeries; }
 }

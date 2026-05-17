@@ -1,15 +1,35 @@
 import client from './client'
 import type { Ejercicio, EjercicioExterno, RegistroEjercicio } from '../types'
 
-export const getEjercicios = (q?: string) =>
-  client.get<Ejercicio[]>('/api/ejercicios', { params: q ? { q } : {} }).then((r) => r.data)
+export const getEjercicios = (params?: { q?: string; tipo?: string }) =>
+  client.get<Ejercicio[]>('/api/ejercicios', { params }).then((r) => r.data)
 
 export const getRegistros = (usuarioId: number, fecha: string) =>
   client.get<RegistroEjercicio[]>('/api/ejercicios-registro', { params: { usuarioId, fecha } }).then((r) => r.data)
 
-export const registrarEjercicio = (usuarioId: number, ejercicioId: number, fecha: string, duracionMin: number) =>
+export const registrarEjercicioAerobico = (
+  usuarioId: number,
+  ejercicioId: number,
+  fecha: string,
+  duracionMin: number,
+) =>
   client
     .post<RegistroEjercicio>('/api/ejercicios-registro', { ejercicioId, fecha, duracionMin }, { params: { usuarioId } })
+    .then((r) => r.data)
+
+export const registrarEjercicioAnaerobico = (
+  usuarioId: number,
+  ejercicioId: number,
+  fecha: string,
+  intensidad: string,
+  numSeries: number,
+) =>
+  client
+    .post<RegistroEjercicio>(
+      '/api/ejercicios-registro',
+      { ejercicioId, fecha, duracionMin: 0, intensidad, numSeries },
+      { params: { usuarioId } },
+    )
     .then((r) => r.data)
 
 export const deleteRegistro = (id: number, usuarioId: number) =>

@@ -65,9 +65,12 @@ export interface RegistroEjercicio {
   usuarioId: number
   ejercicioId: number
   nombreEjercicio: string
+  tipoEjercicio: string
   fecha: string
   duracionMin: number
   kcalQuemadas: number
+  intensidad: string | null
+  numSeries: number | null
 }
 
 export interface Ejercicio {
@@ -75,7 +78,7 @@ export interface Ejercicio {
   nombre: string
   categoria: string
   met: number
-  tipo?: string
+  tipo: string
 }
 
 export interface ResumenDiario {

@@ -44,31 +44,41 @@ public class JdbcRegistroEjercicioRepository implements RegistroEjercicioReposit
                     er.id,
                     er.usuario_id,
                     er.ejercicio_id,
-                    e.nombre AS nombre_ejercicio,
+                    e.nombre  AS nombre_ejercicio,
+                    e.tipo    AS tipo_ejercicio,
                     er.fecha,
                     er.duracion_min,
-                    er.kcal_quemadas
+                    er.kcal_quemadas,
+                    er.intensidad,
+                    er.num_series
                 FROM ejercicios_registro er
                 INNER JOIN ejercicios e ON e.id = er.ejercicio_id
                 WHERE er.usuario_id = ? AND er.fecha = ?
                 ORDER BY er.id ASC
                 """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new RegistroEjercicioResponse(
-                rs.getLong("id"),
-                rs.getLong("usuario_id"),
-                rs.getLong("ejercicio_id"),
-                rs.getString("nombre_ejercicio"),
-                rs.getDate("fecha").toLocalDate(),
-                rs.getInt("duracion_min"),
-                rs.getDouble("kcal_quemadas")
-        ), usuarioId, fecha);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            RegistroEjercicioResponse r = new RegistroEjercicioResponse();
+            r.setId(rs.getLong("id"));
+            r.setUsuarioId(rs.getLong("usuario_id"));
+            r.setEjercicioId(rs.getLong("ejercicio_id"));
+            r.setNombreEjercicio(rs.getString("nombre_ejercicio"));
+            r.setTipoEjercicio(rs.getString("tipo_ejercicio"));
+            r.setFecha(rs.getDate("fecha").toLocalDate());
+            r.setDuracionMin(rs.getInt("duracion_min"));
+            r.setKcalQuemadas(rs.getDouble("kcal_quemadas"));
+            r.setIntensidad(rs.getString("intensidad"));
+            int ns = rs.getInt("num_series");
+            r.setNumSeries(rs.wasNull() ? null : ns);
+            return r;
+        }, usuarioId, fecha);
     }
 
     @Override
     public Optional<RegistroEjercicio> findById(Long id) {
         String sql = """
-                SELECT id, usuario_id, ejercicio_id, fecha, duracion_min, kcal_quemadas
+                SELECT id, usuario_id, ejercicio_id, fecha, duracion_min, kcal_quemadas,
+                       intensidad, num_series
                 FROM ejercicios_registro
                 WHERE id = ?
                 """;
@@ -81,6 +91,9 @@ public class JdbcRegistroEjercicioRepository implements RegistroEjercicioReposit
             r.setFecha(rs.getDate("fecha").toLocalDate());
             r.setDuracionMin(rs.getInt("duracion_min"));
             r.setKcalQuemadas(rs.getDouble("kcal_quemadas"));
+            r.setIntensidad(rs.getString("intensidad"));
+            int ns = rs.getInt("num_series");
+            r.setNumSeries(rs.wasNull() ? null : ns);
             return r;
         }, id);
 
@@ -91,8 +104,8 @@ public class JdbcRegistroEjercicioRepository implements RegistroEjercicioReposit
     public RegistroEjercicio save(RegistroEjercicio registro) {
         String sql = """
                 INSERT INTO ejercicios_registro
-                    (usuario_id, ejercicio_id, fecha, duracion_min, kcal_quemadas)
-                VALUES (?, ?, ?, ?, ?)
+                    (usuario_id, ejercicio_id, fecha, duracion_min, kcal_quemadas, intensidad, num_series)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -100,9 +113,15 @@ public class JdbcRegistroEjercicioRepository implements RegistroEjercicioReposit
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setLong(1, registro.getUsuarioId());
             ps.setLong(2, registro.getEjercicioId());
-            ps.setObject(3, registro.getFecha());  // LocalDate → DATE sin conversión manual
+            ps.setObject(3, registro.getFecha());
             ps.setInt(4, registro.getDuracionMin());
             ps.setDouble(5, registro.getKcalQuemadas());
+            ps.setString(6, registro.getIntensidad());
+            if (registro.getNumSeries() != null) {
+                ps.setInt(7, registro.getNumSeries());
+            } else {
+                ps.setNull(7, java.sql.Types.SMALLINT);
+            }
             return ps;
         }, keyHolder);
 

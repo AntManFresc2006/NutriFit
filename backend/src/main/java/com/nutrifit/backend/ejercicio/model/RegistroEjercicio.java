@@ -10,18 +10,10 @@ public class RegistroEjercicio {
     private LocalDate fecha;
     private int duracionMin;
     private double kcalQuemadas;
+    private String intensidad;
+    private Integer numSeries;
 
-    public RegistroEjercicio() {}
-
-    public RegistroEjercicio(Long id, Long usuarioId, Long ejercicioId,
-                             LocalDate fecha, int duracionMin, double kcalQuemadas) {
-        this.id = id;
-        this.usuarioId = usuarioId;
-        this.ejercicioId = ejercicioId;
-        this.fecha = fecha;
-        this.duracionMin = duracionMin;
-        this.kcalQuemadas = kcalQuemadas;
-    }
+    public RegistroEjercicio() { /* requerido por JdbcTemplate row mapper */ }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -40,4 +32,10 @@ public class RegistroEjercicio {
 
     public double getKcalQuemadas() { return kcalQuemadas; }
     public void setKcalQuemadas(double kcalQuemadas) { this.kcalQuemadas = kcalQuemadas; }
+
+    public String getIntensidad() { return intensidad; }
+    public void setIntensidad(String intensidad) { this.intensidad = intensidad; }
+
+    public Integer getNumSeries() { return numSeries; }
+    public void setNumSeries(Integer numSeries) { this.numSeries = numSeries; }
 }

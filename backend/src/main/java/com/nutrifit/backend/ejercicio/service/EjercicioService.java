@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface EjercicioService {
 
-    List<EjercicioResponse> findAll(String query);
+    List<EjercicioResponse> findAll(String query, String tipo);
 
     EjercicioResponse findById(Long id);
 

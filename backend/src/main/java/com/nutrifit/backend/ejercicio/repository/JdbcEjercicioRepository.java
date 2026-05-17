@@ -30,6 +30,28 @@ public class JdbcEjercicioRepository implements EjercicioRepository {
     }
 
     @Override
+    public List<Ejercicio> findByTipo(String tipo) {
+        String sql = """
+                SELECT id, nombre, met, categoria, tipo
+                FROM ejercicios
+                WHERE tipo = ?
+                ORDER BY categoria ASC, nombre ASC
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs), tipo);
+    }
+
+    @Override
+    public List<Ejercicio> searchByNombreAndTipo(String query, String tipo) {
+        String sql = """
+                SELECT id, nombre, met, categoria, tipo
+                FROM ejercicios
+                WHERE LOWER(nombre) LIKE LOWER(?) AND tipo = ?
+                ORDER BY nombre ASC
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs), "%" + query + "%", tipo);
+    }
+
+    @Override
     public List<Ejercicio> searchByNombre(String query) {
         String sql = """
                 SELECT id, nombre, met, categoria, tipo

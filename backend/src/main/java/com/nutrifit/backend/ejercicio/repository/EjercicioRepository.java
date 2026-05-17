@@ -9,7 +9,11 @@ public interface EjercicioRepository {
 
     List<Ejercicio> findAll();
 
+    List<Ejercicio> findByTipo(String tipo);
+
     List<Ejercicio> searchByNombre(String query);
+
+    List<Ejercicio> searchByNombreAndTipo(String query, String tipo);
 
     Optional<Ejercicio> findById(Long id);
 

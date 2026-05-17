@@ -60,7 +60,8 @@ public class RegistroEjercicioServiceImpl implements RegistroEjercicioService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No existe un usuario con id " + usuarioId));
 
-        double kcalQuemadas = calcularKcal(ejercicio, perfil.getPesoKgActual(), request.getDuracionMin());
+        double kcalQuemadas = calcularKcal(ejercicio, perfil.getPesoKgActual(),
+                request.getDuracionMin(), request.getIntensidad(), request.getNumSeries());
 
         RegistroEjercicio registro = new RegistroEjercicio();
         registro.setUsuarioId(usuarioId);
@@ -68,20 +69,23 @@ public class RegistroEjercicioServiceImpl implements RegistroEjercicioService {
         registro.setFecha(request.getFecha());
         registro.setDuracionMin(request.getDuracionMin());
         registro.setKcalQuemadas(kcalQuemadas);
+        registro.setIntensidad(request.getIntensidad());
+        registro.setNumSeries(request.getNumSeries());
 
         RegistroEjercicio guardado = registroRepository.save(registro);
 
-        // El nombre del ejercicio se incluye en la respuesta para que el cliente no tenga que
-        // hacer una segunda petición al catálogo solo para mostrarlo
-        return new RegistroEjercicioResponse(
-                guardado.getId(),
-                guardado.getUsuarioId(),
-                guardado.getEjercicioId(),
-                ejercicio.getNombre(),
-                guardado.getFecha(),
-                guardado.getDuracionMin(),
-                guardado.getKcalQuemadas()
-        );
+        RegistroEjercicioResponse resp = new RegistroEjercicioResponse();
+        resp.setId(guardado.getId());
+        resp.setUsuarioId(guardado.getUsuarioId());
+        resp.setEjercicioId(guardado.getEjercicioId());
+        resp.setNombreEjercicio(ejercicio.getNombre());
+        resp.setTipoEjercicio(ejercicio.getTipo());
+        resp.setFecha(guardado.getFecha());
+        resp.setDuracionMin(guardado.getDuracionMin());
+        resp.setKcalQuemadas(guardado.getKcalQuemadas());
+        resp.setIntensidad(guardado.getIntensidad());
+        resp.setNumSeries(guardado.getNumSeries());
+        return resp;
     }
 
     @Override
@@ -121,10 +125,16 @@ public class RegistroEjercicioServiceImpl implements RegistroEjercicioService {
      * @param duracionMin duración (minutos para aeróbicos, series para anaeróbicos)
      * @return kcal quemadas redondeadas a 2 decimales
      */
-    static double calcularKcal(Ejercicio ejercicio, double pesoKg, int duracionMin) {
+    static double calcularKcal(Ejercicio ejercicio, double pesoKg, int duracionMin,
+                               String intensidad, Integer numSeries) {
         double resultado;
         if ("ANAEROBICO".equals(ejercicio.getTipo())) {
-            resultado = ejercicio.getMet() * duracionMin;
+            double factor = switch (intensidad != null ? intensidad : "MEDIA") {
+                case "BAJA" -> 2.0;
+                case "ALTA" -> 5.5;
+                default     -> 3.5;
+            };
+            resultado = ejercicio.getMet() * factor * (numSeries != null ? numSeries : 1);
         } else {
             resultado = ejercicio.getMet() * pesoKg * (duracionMin / 60.0);
         }

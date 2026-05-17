@@ -37,8 +37,10 @@ public class EjercicioController {
      * @return lista de ejercicios con su MET y categoría
      */
     @GetMapping
-    public List<EjercicioResponse> getAll(@RequestParam(required = false) String q) {
-        return ejercicioService.findAll(q);
+    public List<EjercicioResponse> getAll(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String tipo) {
+        return ejercicioService.findAll(q, tipo);
     }
 
     /**

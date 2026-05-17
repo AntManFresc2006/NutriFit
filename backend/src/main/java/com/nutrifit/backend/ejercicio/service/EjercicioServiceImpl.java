@@ -21,12 +21,19 @@ public class EjercicioServiceImpl implements EjercicioService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EjercicioResponse> findAll(String query) {
+    public List<EjercicioResponse> findAll(String query, String tipo) {
         List<Ejercicio> ejercicios;
-        if (query == null || query.isBlank()) {
-            ejercicios = ejercicioRepository.findAll();
-        } else {
+        boolean hasQuery = query != null && !query.isBlank();
+        boolean hasTipo  = tipo  != null && !tipo.isBlank();
+
+        if (hasQuery && hasTipo) {
+            ejercicios = ejercicioRepository.searchByNombreAndTipo(query.trim(), tipo);
+        } else if (hasQuery) {
             ejercicios = ejercicioRepository.searchByNombre(query.trim());
+        } else if (hasTipo) {
+            ejercicios = ejercicioRepository.findByTipo(tipo);
+        } else {
+            ejercicios = ejercicioRepository.findAll();
         }
         return ejercicios.stream().map(this::toResponse).toList();
     }
@@ -50,6 +57,6 @@ public class EjercicioServiceImpl implements EjercicioService {
     }
 
     private EjercicioResponse toResponse(Ejercicio e) {
-        return new EjercicioResponse(e.getId(), e.getNombre(), e.getMet(), e.getCategoria());
+        return new EjercicioResponse(e.getId(), e.getNombre(), e.getMet(), e.getCategoria(), e.getTipo());
     }
 }

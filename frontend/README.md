@@ -1,19 +1,18 @@
-# React + TypeScript + Vite
+# Frontend de NutriFit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend React + TypeScript con Vite, Tailwind y Framer Motion.
 
-Currently, two official plugins are available:
+## Desarrollo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Plugins disponibles:
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react) con Oxc
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) con SWC
 
-## React Compiler
+El React Compiler está deshabilitado por defecto (impacto en build). Para activarlo, ver la [documentación oficial](https://react.dev/learn/react-compiler/installation).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ESLint
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Para reglas type-aware en producción:
 
 ```js
 export default defineConfig([

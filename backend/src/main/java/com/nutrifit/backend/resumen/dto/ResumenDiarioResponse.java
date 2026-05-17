@@ -2,9 +2,6 @@ package com.nutrifit.backend.resumen.dto;
 
 import java.time.LocalDate;
 
-/**
- * DTO de salida para el resumen nutricional diario de un usuario.
- */
 public class ResumenDiarioResponse {
 
     private Long usuarioId;

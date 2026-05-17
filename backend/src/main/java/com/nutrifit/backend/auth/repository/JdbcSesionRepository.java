@@ -11,9 +11,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementación JDBC del repositorio de sesiones.
- */
 @Repository
 public class JdbcSesionRepository implements SesionRepository {
 

@@ -10,18 +10,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.LocalDateTime;
 
-/**
- * Interceptor Spring MVC que protege todos los endpoints bajo {@code /api/**}.
- *
- * <p>Comprueba que la cabecera {@code Authorization: Bearer <token>} está presente,
- * que la sesión existe en base de datos y que no ha expirado. Lanza
- * {@link UnauthorizedException} en cualquier caso de fallo; el
- * {@link com.nutrifit.backend.common.exception.GlobalExceptionHandler}
- * se encarga de convertirla en una respuesta 401 con cuerpo JSON uniforme.</p>
- *
- * <p>Los endpoints de login y registro están excluidos de este interceptor
- * en {@code WebMvcConfig#addInterceptors}.</p>
- */
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
 
@@ -31,15 +19,6 @@ public class AuthInterceptor implements HandlerInterceptor {
         this.sesionRepository = sesionRepository;
     }
 
-    /**
-     * Valida el token Bearer antes de que la petición llegue al controlador.
-     *
-     * <p>Se lanza {@link UnauthorizedException} (no se devuelve false) para que el
-     * {@code GlobalExceptionHandler} construya la respuesta JSON de error en lugar
-     * de que Spring devuelva una respuesta vacía con código 200.</p>
-     *
-     * @return {@code true} siempre que el token sea válido y la sesión esté vigente
-     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String authHeader = request.getHeader("Authorization");

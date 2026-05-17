@@ -11,15 +11,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
-/**
- * Configuración MVC: registra el interceptor de autenticación para todos los
- * endpoints de la API excepto el login y el registro.
- *
- * CORS se gestiona con CorsFilter (nivel servlet), que actúa antes del
- * DispatcherServlet y de cualquier interceptor, evitando que el AuthInterceptor
- * bloquee los preflights OPTIONS con un 500 antes de que Spring pueda añadir
- * las cabeceras CORS a la respuesta.
- */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 

@@ -10,9 +10,6 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementación JDBC del repositorio de usuarios para autenticación.
- */
 @Repository
 public class JdbcUsuarioRepository implements UsuarioRepository {
 

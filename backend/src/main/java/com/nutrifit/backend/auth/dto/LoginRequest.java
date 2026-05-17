@@ -3,9 +3,6 @@ package com.nutrifit.backend.auth.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-/**
- * DTO de entrada para iniciar sesión.
- */
 public class LoginRequest {
 
     @NotBlank(message = "El email es obligatorio")

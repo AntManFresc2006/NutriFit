@@ -1,8 +1,5 @@
 package com.nutrifit.backend.auth.model;
 
-/**
- * Modelo de dominio simplificado para operaciones de autenticación.
- */
 public class Usuario {
 
     private Long id;

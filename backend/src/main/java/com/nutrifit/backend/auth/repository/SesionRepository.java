@@ -4,9 +4,6 @@ import com.nutrifit.backend.auth.model.Sesion;
 
 import java.util.Optional;
 
-/**
- * Contrato de acceso a datos para sesiones.
- */
 public interface SesionRepository {
 
     Sesion save(Sesion sesion);

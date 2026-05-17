@@ -2,9 +2,6 @@ package com.nutrifit.backend.auth.model;
 
 import java.time.LocalDateTime;
 
-/**
- * Modelo de dominio para sesiones de usuario.
- */
 public class Sesion {
 
     private Long id;

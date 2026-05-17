@@ -11,10 +11,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Registra cada petición HTTP: método, ruta, IP, status y tiempo de respuesta.
- * Permite reconstruir qué ocurrió y cuándo sin exponer datos sensibles al cliente.
- */
 @Component
 public class RequestLoggingFilter extends OncePerRequestFilter {
 

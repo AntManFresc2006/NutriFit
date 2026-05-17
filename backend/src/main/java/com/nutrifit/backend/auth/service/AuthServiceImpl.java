@@ -18,13 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-/**
- * Lógica de autenticación: crea cuentas, abre y cierra sesiones.
- *
- * <p>Las contraseñas nunca se almacenan en texto plano: {@code PasswordService}
- * delega en BCrypt. Los tokens son UUIDs aleatorios, sin estado en el servidor
- * más allá de su presencia en la tabla {@code sesiones}.</p>
- */
 @Service
 public class AuthServiceImpl implements AuthService {
 

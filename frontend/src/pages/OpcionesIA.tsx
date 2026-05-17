@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import { getIaConfig, saveIaConfig, deleteIaConfig, type IaConfigData } from '../api/iaConfig'
 
-const CANVA_GUIDE_URL = 'https://openrouter.ai'
+const CANVA_GUIDE_URL = 'https://canva.link/v000yy54v9tn2oq'
 const MODELOS_RECOMENDADOS = [
   'google/gemma-3-27b-it:free',
   'deepseek/deepseek-chat:free'

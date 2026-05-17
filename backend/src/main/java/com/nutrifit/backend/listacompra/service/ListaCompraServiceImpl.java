@@ -6,6 +6,7 @@ import com.nutrifit.backend.listacompra.dto.SugerenciasResponse;
 import com.nutrifit.backend.listacompra.model.ListaCompraItem;
 import com.nutrifit.backend.listacompra.repository.ListaCompraRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.List;
@@ -22,6 +23,7 @@ public class ListaCompraServiceImpl implements ListaCompraService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, List<ListaCompraItemResponse>> getItems(Long usuarioId) {
         List<ListaCompraItem> items = repository.findByUsuario(usuarioId);
 
@@ -36,6 +38,7 @@ public class ListaCompraServiceImpl implements ListaCompraService {
     }
 
     @Override
+    @Transactional
     public ListaCompraItemResponse addItem(Long usuarioId, ListaCompraItemRequest req) {
         if (req.getCategoria() == null) {
             req.setCategoria("OTROS");
@@ -44,21 +47,25 @@ public class ListaCompraServiceImpl implements ListaCompraService {
     }
 
     @Override
+    @Transactional
     public ListaCompraItemResponse toggle(Long usuarioId, Long itemId) {
         return repository.toggleCompletado(itemId, usuarioId);
     }
 
     @Override
+    @Transactional
     public boolean delete(Long usuarioId, Long itemId) {
         return repository.deleteById(itemId, usuarioId);
     }
 
     @Override
+    @Transactional
     public void clearCompletados(Long usuarioId) {
         repository.deleteCompletados(usuarioId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SugerenciasResponse getSugerencias(Long usuarioId) {
         List<String> sugerencias = repository.findAlimentosMasUsados(usuarioId, 10);
         return new SugerenciasResponse(sugerencias);

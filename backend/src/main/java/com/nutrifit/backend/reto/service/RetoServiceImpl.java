@@ -8,6 +8,7 @@ import com.nutrifit.backend.reto.repository.RetoRepository;
 import com.nutrifit.backend.common.exception.ResourceNotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,11 +28,13 @@ public class RetoServiceImpl implements RetoService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RetoResponse> getRetos(Long usuarioId) {
         return retoRepository.findAllWithUserStatus(usuarioId);
     }
 
     @Override
+    @Transactional
     public RetoResponse aceptarReto(Long usuarioId, AceptarRetoRequest req) {
         Reto reto = retoRepository.findById(req.getRetoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Reto no encontrado"));
@@ -61,6 +64,7 @@ public class RetoServiceImpl implements RetoService {
     }
 
     @Override
+    @Transactional
     public List<RetoResponse> sincronizarProgreso(Long usuarioId, LocalDate fecha) {
         List<UsuarioReto> activos = retoRepository.findActiveByUsuario(usuarioId);
         List<RetoResponse> completados = new ArrayList<>();
@@ -100,6 +104,7 @@ public class RetoServiceImpl implements RetoService {
     }
 
     @Override
+    @Transactional
     public void abandonarReto(Long usuarioId, Long usuarioRetoId) {
         UsuarioReto ur = retoRepository.findUsuarioRetoById(usuarioRetoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reto no encontrado"));

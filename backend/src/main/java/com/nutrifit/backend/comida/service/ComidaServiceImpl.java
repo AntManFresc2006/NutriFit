@@ -49,6 +49,7 @@ public class ComidaServiceImpl implements ComidaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
         comidaRepository.findById(comidaId)
                 .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + comidaId));
@@ -57,6 +58,7 @@ public class ComidaServiceImpl implements ComidaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ComidaResponse> findByUsuarioAndFecha(Long usuarioId, LocalDate fecha) {
         return comidaRepository.findByUsuarioAndFecha(usuarioId, fecha)
                 .stream()
@@ -65,6 +67,7 @@ public class ComidaServiceImpl implements ComidaService {
     }
 
     @Override
+    @Transactional
     public ComidaResponse save(Long usuarioId, ComidaRequest request) {
         Comida comida = new Comida();
         comida.setUsuarioId(usuarioId);
@@ -77,6 +80,7 @@ public class ComidaServiceImpl implements ComidaService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         comidaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + id));

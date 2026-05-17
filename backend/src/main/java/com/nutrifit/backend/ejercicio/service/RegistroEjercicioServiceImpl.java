@@ -11,6 +11,7 @@ import com.nutrifit.backend.ejercicio.repository.RegistroEjercicioRepository;
 import com.nutrifit.backend.perfil.model.Perfil;
 import com.nutrifit.backend.perfil.repository.PerfilRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,11 +42,13 @@ public class RegistroEjercicioServiceImpl implements RegistroEjercicioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RegistroEjercicioResponse> findByUsuarioAndFecha(Long usuarioId, LocalDate fecha) {
         return registroRepository.findByUsuarioAndFecha(usuarioId, fecha);
     }
 
     @Override
+    @Transactional
     public RegistroEjercicioResponse registrar(Long usuarioId, RegistroEjercicioRequest request) {
         Ejercicio ejercicio = ejercicioRepository.findById(request.getEjercicioId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -82,6 +85,7 @@ public class RegistroEjercicioServiceImpl implements RegistroEjercicioService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long usuarioId, Long registroId) {
         RegistroEjercicio registro = registroRepository.findById(registroId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -97,6 +101,7 @@ public class RegistroEjercicioServiceImpl implements RegistroEjercicioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<RecuperacionResponse> findUltimoIntensivoHoy(Long usuarioId, LocalDate fecha) {
         return registroRepository.findUltimoIntensivoHoy(usuarioId, fecha);
     }

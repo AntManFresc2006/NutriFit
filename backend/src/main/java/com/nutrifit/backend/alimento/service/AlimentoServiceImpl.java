@@ -6,6 +6,7 @@ import com.nutrifit.backend.alimento.model.Alimento;
 import com.nutrifit.backend.alimento.repository.AlimentoRepository;
 import com.nutrifit.backend.common.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class AlimentoServiceImpl implements AlimentoService {
      * @return lista de alimentos en formato DTO de respuesta
      */
     @Override
+    @Transactional(readOnly = true)
     public List<AlimentoResponse> findAll(String query) {
         List<Alimento> alimentos;
 
@@ -57,6 +59,7 @@ public class AlimentoServiceImpl implements AlimentoService {
      * @return alimento encontrado en formato DTO de respuesta
      */
     @Override
+    @Transactional(readOnly = true)
     public AlimentoResponse findById(Long id) {
         Alimento alimento = alimentoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + id));
@@ -71,6 +74,7 @@ public class AlimentoServiceImpl implements AlimentoService {
      * @return alimento creado en formato DTO de respuesta
      */
     @Override
+    @Transactional
     public AlimentoResponse save(AlimentoRequest request) {
         Alimento alimento = toModel(request);
         Alimento guardado = alimentoRepository.save(alimento);
@@ -86,6 +90,7 @@ public class AlimentoServiceImpl implements AlimentoService {
      * @return alimento actualizado en formato DTO de respuesta
      */
     @Override
+    @Transactional
     public AlimentoResponse update(Long id, AlimentoRequest request) {
         alimentoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + id));
@@ -103,6 +108,7 @@ public class AlimentoServiceImpl implements AlimentoService {
      * @return true si la eliminación se realizó correctamente
      */
     @Override
+    @Transactional
     public boolean deleteById(Long id) {
         alimentoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + id));

@@ -5,6 +5,7 @@ import com.nutrifit.backend.resumen.dto.ResumenDiarioResponse;
 import com.nutrifit.backend.resumen.repository.ResumenDiarioRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +26,7 @@ public class ResumenDiarioServiceImpl implements ResumenDiarioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ResumenDiarioResponse obtenerResumenDiario(Long usuarioId, LocalDate fecha) {
         ResumenDiarioResponse resumen = resumenDiarioRepository.obtenerResumenDiario(usuarioId, fecha);
         enriquecerConTdee(resumen, usuarioId);

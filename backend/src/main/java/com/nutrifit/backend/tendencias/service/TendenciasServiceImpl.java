@@ -6,6 +6,7 @@ import com.nutrifit.backend.perfil.service.PerfilService;
 import com.nutrifit.backend.tendencias.dto.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +27,7 @@ public class TendenciasServiceImpl implements TendenciasService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TendenciasResponse getTendencias(Long usuarioId, int dias) {
         LocalDate hoy = LocalDate.now();
         LocalDate desdeHace = hoy.minusDays(Math.max(1, dias - 1));

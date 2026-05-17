@@ -6,6 +6,7 @@ import com.nutrifit.backend.ejercicio.dto.EjercicioResponse;
 import com.nutrifit.backend.ejercicio.model.Ejercicio;
 import com.nutrifit.backend.ejercicio.repository.EjercicioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class EjercicioServiceImpl implements EjercicioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EjercicioResponse> findAll(String query) {
         List<Ejercicio> ejercicios;
         if (query == null || query.isBlank()) {
@@ -30,6 +32,7 @@ public class EjercicioServiceImpl implements EjercicioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EjercicioResponse findById(Long id) {
         Ejercicio ejercicio = ejercicioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un ejercicio con id " + id));
@@ -37,6 +40,7 @@ public class EjercicioServiceImpl implements EjercicioService {
     }
 
     @Override
+    @Transactional
     public EjercicioResponse save(EjercicioRequest request) {
         Ejercicio ejercicio = new Ejercicio();
         ejercicio.setNombre(request.getNombre().trim());

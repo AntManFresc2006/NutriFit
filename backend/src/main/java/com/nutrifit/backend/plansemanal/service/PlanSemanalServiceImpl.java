@@ -8,6 +8,7 @@ import com.nutrifit.backend.plansemanal.dto.PlanSemanalResponse;
 import com.nutrifit.backend.plansemanal.repository.PlanSemanalRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URI;
@@ -44,6 +45,7 @@ public class PlanSemanalServiceImpl implements PlanSemanalService {
     }
 
     @Override
+    @Transactional
     public PlanSemanalResponse generarORecuperarPlan(Long usuarioId, LocalDate semanaInicio) throws RuntimeException {
         var existente = repository.findByUsuarioAndSemana(usuarioId, semanaInicio);
         if (existente.isPresent()) {
@@ -64,12 +66,14 @@ public class PlanSemanalServiceImpl implements PlanSemanalService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PlanSemanalResponse getPlan(Long usuarioId, LocalDate semanaInicio) {
         return repository.findByUsuarioAndSemana(usuarioId, semanaInicio)
                 .orElse(null);
     }
 
     @Override
+    @Transactional
     public void eliminarPlan(Long usuarioId, LocalDate semanaInicio) {
         repository.deleteByUsuarioAndSemana(usuarioId, semanaInicio);
     }

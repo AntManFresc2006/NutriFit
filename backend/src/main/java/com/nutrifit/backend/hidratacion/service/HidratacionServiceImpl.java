@@ -6,6 +6,7 @@ import com.nutrifit.backend.hidratacion.dto.HidratacionDiariaResponse;
 import com.nutrifit.backend.hidratacion.repository.JdbcAguaRepository;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,11 +23,13 @@ public class HidratacionServiceImpl implements HidratacionService {
     }
 
     @Override
+    @Transactional
     public AguaResponse registrar(Long usuarioId, AguaRequest request) {
         return repository.save(usuarioId, request);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public HidratacionDiariaResponse getDiario(Long usuarioId, LocalDate fecha) {
         List<AguaResponse> registros = repository.findByUsuarioAndFecha(usuarioId, fecha);
 
@@ -37,6 +40,7 @@ public class HidratacionServiceImpl implements HidratacionService {
     }
 
     @Override
+    @Transactional
     public void eliminar(Long usuarioId, Long registroId) {
         Long duenioId = repository.findUsuarioIdByRegistroId(registroId);
         if (duenioId == null || !duenioId.equals(usuarioId)) {

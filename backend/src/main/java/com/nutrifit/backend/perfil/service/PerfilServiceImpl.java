@@ -6,6 +6,7 @@ import com.nutrifit.backend.perfil.dto.PerfilUpdateRequest;
 import com.nutrifit.backend.perfil.model.Perfil;
 import com.nutrifit.backend.perfil.model.Sexo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -27,6 +28,7 @@ public class PerfilServiceImpl implements PerfilService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PerfilResponse getPerfil(Long id) {
         Perfil perfil = perfilRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un perfil con id " + id));
@@ -34,6 +36,7 @@ public class PerfilServiceImpl implements PerfilService {
     }
 
     @Override
+    @Transactional
     public PerfilResponse updatePerfil(Long id, PerfilUpdateRequest request) {
         Perfil existente = perfilRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un perfil con id " + id));

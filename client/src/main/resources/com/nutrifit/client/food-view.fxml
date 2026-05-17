@@ -190,6 +190,16 @@
                                 text="Perfil"
                                 onAction="#onAbrirPerfil"
                                 style="-fx-background-color: #7c3aed; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+                        <Button fx:id="listaCompraButton"
+                                text="Lista Compra"
+                                onAction="#onAbrirListaCompra"
+                                style="-fx-background-color: #0d9488; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+                        <Button fx:id="hidratacionButton"
+                                text="Hidratación"
+                                onAction="#onAbrirHidratacion"
+                                style="-fx-background-color: #0369a1; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
                     </HBox>
                 </VBox>
 

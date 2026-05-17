@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.nutrifit.client.controller.HidratacionController"
+            style="-fx-background-color: linear-gradient(to right, #0f172a, #111827);">
+
+    <top>
+        <VBox spacing="4" style="-fx-padding: 20 20 10 20;">
+            <Label text="NutriFit"
+                   style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
+            <Label text="Control de Hidratación"
+                   style="-fx-text-fill: #cbd5e1; -fx-font-size: 14px;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="20" style="-fx-padding: 0 40 20 40;">
+
+            <!-- Selector de fecha -->
+            <HBox spacing="12" style="-fx-alignment: center-left;">
+                <Label text="Fecha:"
+                       style="-fx-text-fill: #94a3b8; -fx-font-size: 14px;"/>
+                <DatePicker fx:id="fechaPicker"/>
+                <Button text="Volver"
+                        onAction="#onVolver"
+                        style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 14;"/>
+            </HBox>
+
+            <!-- Panel resumen -->
+            <VBox spacing="10" style="-fx-background-color: #1e293b; -fx-background-radius: 16; -fx-padding: 24; -fx-alignment: center;">
+                <HBox spacing="8" style="-fx-alignment: center;">
+                    <Label fx:id="totalLabel"
+                           text="0 ml"
+                           style="-fx-text-fill: #67e8f9; -fx-font-size: 36px; -fx-font-weight: bold;"/>
+                    <Label fx:id="objetivoLabel"
+                           text="/ 2000 ml"
+                           style="-fx-text-fill: #475569; -fx-font-size: 20px;"/>
+                </HBox>
+                <Label fx:id="porcentajeLabel"
+                       text="0%"
+                       style="-fx-text-fill: #93c5fd; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+                <ProgressBar fx:id="progresoBar"
+                             progress="0"
+                             maxWidth="Infinity"
+                             prefHeight="16"
+                             style="-fx-accent: #0891b2; -fx-background-radius: 8; -fx-background-color: #0f172a;"/>
+            </VBox>
+
+            <!-- Botones rápidos -->
+            <VBox spacing="10"
+                  style="-fx-background-color: #1e293b; -fx-background-radius: 12; -fx-padding: 16;">
+                <Label text="Registro rápido"
+                       style="-fx-text-fill: #94a3b8; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                <HBox spacing="12">
+                    <Button text="+250 ml"
+                            onAction="#onRegistrar250"
+                            maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            style="-fx-background-color: #0891b2; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 12; -fx-font-size: 14px;"/>
+                    <Button text="+500 ml"
+                            onAction="#onRegistrar500"
+                            maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            style="-fx-background-color: #0891b2; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 12; -fx-font-size: 14px;"/>
+                    <Button text="+750 ml"
+                            onAction="#onRegistrar750"
+                            maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            style="-fx-background-color: #0891b2; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 12; -fx-font-size: 14px;"/>
+                </HBox>
+
+                <!-- Registro personalizado -->
+                <HBox spacing="10">
+                    <TextField fx:id="cantidadField"
+                               promptText="Cantidad personalizada (ml)"
+                               HBox.hgrow="ALWAYS"
+                               style="-fx-background-radius: 8; -fx-padding: 9; -fx-font-size: 13px;"/>
+                    <ComboBox fx:id="fuenteCombo"
+                              prefWidth="130"
+                              style="-fx-background-radius: 8; -fx-font-size: 13px;"/>
+                    <Button text="Registrar"
+                            onAction="#onRegistrarPersonalizado"
+                            style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 9 18; -fx-font-size: 13px;"/>
+                </HBox>
+            </VBox>
+
+        </VBox>
+    </center>
+
+    <bottom>
+        <Label fx:id="statusLabel"
+               text="Cargando hidratación..."
+               maxWidth="Infinity"
+               style="-fx-background-color: #020617; -fx-text-fill: #93c5fd; -fx-padding: 12; -fx-font-size: 13px;"/>
+    </bottom>
+</BorderPane>

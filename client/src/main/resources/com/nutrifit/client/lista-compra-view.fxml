@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.nutrifit.client.controller.ListaCompraController"
+            style="-fx-background-color: linear-gradient(to right, #0f172a, #111827);">
+
+    <top>
+        <VBox spacing="4" style="-fx-padding: 20 20 10 20;">
+            <Label text="NutriFit"
+                   style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
+            <Label text="Lista de la Compra"
+                   style="-fx-text-fill: #cbd5e1; -fx-font-size: 14px;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="16" style="-fx-padding: 0 20 20 20;">
+
+            <!-- Formulario añadir -->
+            <VBox spacing="10"
+                  style="-fx-background-color: #1e293b; -fx-background-radius: 12; -fx-padding: 16;">
+                <Label text="Añadir producto"
+                       style="-fx-text-fill: #94a3b8; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                <HBox spacing="10">
+                    <TextField fx:id="nombreField"
+                               promptText="Nombre del producto"
+                               HBox.hgrow="ALWAYS"
+                               style="-fx-background-radius: 8; -fx-padding: 9; -fx-font-size: 13px;"/>
+                    <TextField fx:id="cantidadField"
+                               promptText="Cantidad (ej. 500g)"
+                               prefWidth="150"
+                               style="-fx-background-radius: 8; -fx-padding: 9; -fx-font-size: 13px;"/>
+                    <ComboBox fx:id="categoriaCombo"
+                              prefWidth="140"
+                              style="-fx-background-radius: 8; -fx-font-size: 13px;"/>
+                    <Button text="Añadir +"
+                            onAction="#onAnadir"
+                            style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 9 16; -fx-font-size: 13px;"/>
+                </HBox>
+            </VBox>
+
+            <!-- Progreso + acciones -->
+            <HBox spacing="12" style="-fx-alignment: center-left;">
+                <Label fx:id="progresoLabel"
+                       text="0/0 completados"
+                       style="-fx-text-fill: #64748b; -fx-font-size: 13px;"/>
+                <Button text="Marcar/Desmarcar"
+                        onAction="#onToggle"
+                        style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 14; -fx-font-size: 12px;"/>
+                <Button text="Eliminar"
+                        onAction="#onEliminar"
+                        style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 14; -fx-font-size: 12px;"/>
+                <Button text="Limpiar completados"
+                        onAction="#onLimpiarCompletados"
+                        style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 14; -fx-font-size: 12px;"/>
+                <Button text="Volver"
+                        onAction="#onVolver"
+                        style="-fx-background-color: #334155; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 14; -fx-font-size: 12px;"/>
+            </HBox>
+
+            <!-- Lista de items -->
+            <ListView fx:id="listaView"
+                      VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: #0f172a; -fx-background-radius: 12; -fx-font-size: 14px; -fx-text-fill: #e2e8f0; -fx-border-color: #1e293b; -fx-border-radius: 12;"/>
+
+        </VBox>
+    </center>
+
+    <bottom>
+        <Label fx:id="statusLabel"
+               text="Cargando lista..."
+               maxWidth="Infinity"
+               style="-fx-background-color: #020617; -fx-text-fill: #93c5fd; -fx-padding: 12; -fx-font-size: 13px;"/>
+    </bottom>
+</BorderPane>

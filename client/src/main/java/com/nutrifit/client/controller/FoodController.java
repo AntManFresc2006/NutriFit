@@ -418,21 +418,52 @@ public class FoodController {
     }
 
     @FXML
-private void onAbrirDiario() {
-    try {
-        FXMLLoader loader = new FXMLLoader(
-                NutriFitClientApplication.class.getResource("/com/nutrifit/client/diario-view.fxml")
-        );
-        Scene scene = new Scene(loader.load(), 1000, 620);
-
-        Stage stage = (Stage) foodTable.getScene().getWindow();
-        stage.setTitle("NutriFit - Resumen diario");
-        stage.setScene(scene);
-        stage.show();
-    } catch (Exception e) {
-        mostrarEstado("No se pudo abrir la pantalla de diario: " + e.getMessage(), TipoEstado.ERROR);
+    private void onAbrirDiario() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    NutriFitClientApplication.class.getResource("/com/nutrifit/client/diario-view.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 1000, 620);
+            Stage stage = (Stage) foodTable.getScene().getWindow();
+            stage.setTitle("NutriFit - Resumen diario");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            mostrarEstado("No se pudo abrir la pantalla de diario: " + e.getMessage(), TipoEstado.ERROR);
+        }
     }
-}
+
+    @FXML
+    private void onAbrirListaCompra() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    NutriFitClientApplication.class.getResource("/com/nutrifit/client/lista-compra-view.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 900, 620);
+            Stage stage = (Stage) foodTable.getScene().getWindow();
+            stage.setTitle("NutriFit - Lista de la Compra");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            mostrarEstado("No se pudo abrir la lista de compra: " + e.getMessage(), TipoEstado.ERROR);
+        }
+    }
+
+    @FXML
+    private void onAbrirHidratacion() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    NutriFitClientApplication.class.getResource("/com/nutrifit/client/hidratacion-view.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 700, 580);
+            Stage stage = (Stage) foodTable.getScene().getWindow();
+            stage.setTitle("NutriFit - Hidratación");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            mostrarEstado("No se pudo abrir hidratación: " + e.getMessage(), TipoEstado.ERROR);
+        }
+    }
 
 
     @FXML

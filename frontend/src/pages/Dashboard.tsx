@@ -297,7 +297,7 @@ export default function Dashboard() {
   )
 }
 
-function StatCard({ icon, label, value, color, extra, index }: { readonly icon: string; readonly label: string; readonly value: string; readonly color: string; readonly extra?: React.ReactNode; readonly index?: number }) {
+function StatCard({ icon, label, value, color, extra }: { readonly icon: string; readonly label: string; readonly value: string; readonly color: string; readonly extra?: React.ReactNode }) {
   return (
     <motion.div
       variants={{

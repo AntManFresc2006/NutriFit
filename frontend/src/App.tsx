@@ -9,7 +9,13 @@ import Dashboard from './pages/Dashboard'
 import Alimentos from './pages/Alimentos'
 import Comidas from './pages/Comidas'
 import Ejercicios from './pages/Ejercicios'
+import Hidratacion from './pages/Hidratacion'
 import Perfil from './pages/Perfil'
+import Escaner from './pages/Escaner'
+import PlanSemanal from './pages/PlanSemanal'
+import ListaCompra from './pages/ListaCompra'
+import Retos from './pages/Retos'
+import Tendencias from './pages/Tendencias'
 
 export default function App() {
   return (
@@ -28,10 +34,16 @@ export default function App() {
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/alimentos" element={<Alimentos />} />
             <Route path="/comidas" element={<Comidas />} />
+            <Route path="/alimentos" element={<Alimentos />} />
+            <Route path="/escaner" element={<Escaner />} />
             <Route path="/ejercicios" element={<Ejercicios />} />
+            <Route path="/hidratacion" element={<Hidratacion />} />
+            <Route path="/lista-compra" element={<ListaCompra />} />
+            <Route path="/retos" element={<Retos />} />
+            <Route path="/plan-semanal" element={<PlanSemanal />} />
             <Route path="/perfil" element={<Perfil />} />
+            <Route path="/tendencias" element={<Tendencias />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

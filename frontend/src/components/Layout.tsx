@@ -8,7 +8,13 @@ const navItems = [
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
   { to: '/comidas', icon: '🍽️', label: 'Comidas' },
   { to: '/alimentos', icon: '🥗', label: 'Alimentos' },
+  { to: '/escaner', icon: '📷', label: 'Escáner' },
   { to: '/ejercicios', icon: '🏃', label: 'Ejercicios' },
+  { to: '/retos', icon: '🏆', label: 'Retos' },
+  { to: '/hidratacion', icon: '💧', label: 'Hidratación' },
+  { to: '/lista-compra', icon: '🛒', label: 'Lista Compra' },
+  { to: '/plan-semanal', icon: '🗓️', label: 'Plan Semanal' },
+  { to: '/tendencias', icon: '📈', label: 'Tendencias' },
   { to: '/perfil', icon: '👤', label: 'Perfil' },
 ]
 

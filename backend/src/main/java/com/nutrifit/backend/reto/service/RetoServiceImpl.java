@@ -209,8 +209,10 @@ public class RetoServiceImpl implements RetoService {
 
     private int contarDiasConHidratacion(Long usuarioId, LocalDate inicio, LocalDate fin) {
         String sql = """
-                SELECT DISTINCT fecha FROM hidratacion
-                WHERE usuario_id = ? AND fecha >= ? AND fecha <= ? AND ml >= 2000
+                SELECT fecha FROM agua_registro
+                WHERE usuario_id = ? AND fecha >= ? AND fecha <= ?
+                GROUP BY fecha
+                HAVING SUM(cantidad_ml) >= 2000
                 """;
 
         List<LocalDate> fechas = jdbcTemplate.query(sql, (rs, i) ->

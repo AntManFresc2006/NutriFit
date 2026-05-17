@@ -297,9 +297,33 @@ public class RetoServiceImpl implements RetoService {
     }
 
     private double getTdee(Long usuarioId) {
-        String sql = "SELECT tdee FROM usuarios WHERE id = ?";
+        String sql = """
+                SELECT peso_kg_actual, altura_cm, sexo, fecha_nacimiento, nivel_actividad
+                FROM usuarios WHERE id = ?
+                """;
         try {
-            Double tdee = jdbcTemplate.queryForObject(sql, Double.class, usuarioId);
+            Double tdee = jdbcTemplate.queryForObject(sql, (rs, i) -> {
+                double peso  = rs.getDouble("peso_kg_actual");
+                int altura   = rs.getInt("altura_cm");
+                String sexo  = rs.getString("sexo");
+                int edad     = java.time.Period.between(
+                        rs.getDate("fecha_nacimiento").toLocalDate(),
+                        java.time.LocalDate.now()).getYears();
+                String act   = rs.getString("nivel_actividad");
+
+                double bmr = "H".equals(sexo)
+                        ? 88.362 + (13.397 * peso) + (4.799 * altura) - (5.677 * edad)
+                        : 447.593 + (9.247 * peso) + (3.098 * altura) - (4.330 * edad);
+
+                double mult = switch (act) {
+                    case "LIGERO"   -> 1.375;
+                    case "MODERADO" -> 1.55;
+                    case "ALTO"     -> 1.725;
+                    case "MUY_ALTO" -> 1.9;
+                    default         -> 1.2;
+                };
+                return bmr * mult;
+            }, usuarioId);
             return tdee != null ? tdee : 2000.0;
         } catch (Exception e) {
             return 2000.0;

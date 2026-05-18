@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriFit — Memoria TFG</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Source+Code+Pro:wght@400&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 11pt;
+    line-height: 1.65;
+    color: #1a1a1a;
+    background: white;
+    max-width: 170mm;
+    margin: 0 auto;
+    padding: 0 10mm;
+  }
+
+  @media print {
+    body { max-width: none; margin: 0; padding: 0 15mm; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+  }
+
+  /* Portada */
+  .portada {
+    text-align: center;
+    padding: 60mm 20mm 40mm;
+    min-height: 260mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .portada .centro { font-size: 10pt; color: #555; letter-spacing: 0.05em; }
+  .portada .ciclo { font-size: 10pt; color: #555; margin-top: 4pt; }
+  .portada .proyecto-label {
+    font-size: 11pt;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 30mm;
+  }
+  .portada h1 {
+    font-size: 32pt;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: 6pt;
+  }
+  .portada .subtitulo {
+    font-size: 13pt;
+    font-style: italic;
+    color: #444;
+    margin-top: 8pt;
+  }
+  .portada .autor-block {
+    margin-top: 20mm;
+    font-size: 11pt;
+  }
+  .portada .autor-block strong { display: block; font-weight: 600; }
+  .portada .fecha { margin-top: 4mm; color: #555; }
+  .portada .repo { font-size: 9pt; color: #666; margin-top: 3pt; }
+
+  /* Índice */
+  .toc h2 { font-size: 14pt; margin-bottom: 12pt; }
+  .toc ol { padding-left: 16pt; }
+  .toc li { margin-bottom: 3pt; font-size: 10.5pt; }
+  .toc li.subsection { padding-left: 12pt; font-size: 10pt; color: #333; }
+
+  /* Headings */
+  h1 { font-size: 18pt; font-weight: 700; margin: 20pt 0 12pt; border-bottom: 1.5pt solid #1a1a1a; padding-bottom: 4pt; }
+  h2 { font-size: 13.5pt; font-weight: 700; margin: 16pt 0 8pt; }
+  h3 { font-size: 11.5pt; font-weight: 600; margin: 12pt 0 6pt; }
+  h4 { font-size: 11pt; font-weight: 600; font-style: italic; margin: 10pt 0 4pt; }
+
+  /* Párrafos */
+  p { margin-bottom: 8pt; text-align: justify; }
+
+  /* Listas */
+  ul, ol { padding-left: 18pt; margin-bottom: 8pt; }
+  li { margin-bottom: 3pt; }
+
+  /* Tablas */
+  table { width: 100%; border-collapse: collapse; margin: 10pt 0; font-size: 9.5pt; }
+  th { background: #f0f0f0; font-weight: 600; padding: 5pt 7pt; border: 0.5pt solid #ccc; text-align: left; }
+  td { padding: 4pt 7pt; border: 0.5pt solid #ddd; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Código */
+  code { font-family: 'Source Code Pro', 'Courier New', monospace; font-size: 9pt; background: #f5f5f5; padding: 1pt 3pt; border-radius: 2pt; }
+  pre { font-family: 'Source Code Pro', 'Courier New', monospace; font-size: 9pt; background: #f5f5f5; padding: 10pt; border-left: 3pt solid #ccc; margin: 8pt 0; overflow-x: auto; line-height: 1.4; white-space: pre-wrap; }
+  pre code { background: none; padding: 0; }
+
+  /* Figuras */
+  .figura { margin: 12pt 0; text-align: center; }
+  .figura p { font-size: 9pt; color: #555; font-style: italic; text-align: center; margin-top: 4pt; }
+
+  /* Notas */
+  .nota { background: #f8f8f8; border-left: 3pt solid #999; padding: 8pt 10pt; margin: 8pt 0; font-size: 10pt; }
+
+  /* Separador de sección */
+  hr.seccion { border: none; border-top: 0.5pt solid #ccc; margin: 16pt 0; }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div class="portada page-break">
+  <div>
+    <div class="centro"><strong>CESUR CARTUJA — SEVILLA</strong></div>
+    <div class="ciclo">Ciclo Formativo de Grado Superior, Desarrollo de Aplicaciones Multiplataforma (DAM)</div>
+  </div>
+  <div>
+    <div class="proyecto-label">Proyecto Fin de Módulo Intermodular</div>
+    <h1>NutriFit</h1>
+    <div class="subtitulo">Sistema de seguimiento nutricional y deportivo</div>
+  </div>
+  <div class="autor-block">
+    <strong>Autor:</strong>
+    Antonio Manuel Fresco Gómez
+    <div>Curso: 2.º DAM &nbsp;·&nbsp; Año académico 2025/2026</div>
+    <div class="repo">https://github.com/AntManFresc2006/NutriFit</div>
+    <div class="fecha">Mayo de 2026</div>
+  </div>
+</div>
+
+<!-- ÍNDICE -->
+<div class="page-break toc">
+<h2>Índice</h2>
+<ol>
+  <li>Introducción y contexto
+    <ol>
+      <li class="subsection">Problema que aborda el proyecto</li>
+      <li class="subsection">Objetivo del proyecto</li>
+      <li class="subsection">Alcance del sistema</li>
+      <li class="subsection">Arquitectura y tecnologías</li>
+      <li class="subsection">Organización de la memoria</li>
+    </ol>
+  </li>
+  <li>Estado del arte y marco teórico</li>
+  <li>Tecnologías y herramientas</li>
+  <li>Análisis de requisitos</li>
+  <li>Diseño del sistema</li>
+  <li>Implementación</li>
+  <li>Pruebas</li>
+  <li>Seguridad</li>
+  <li>Conclusiones y líneas futuras</li>
+  <li>Bibliografía</li>
+</ol>
+<p style="margin-top:12pt">Anexo A — Guía de puesta en marcha</p>
+<p>Anexo B — Referencia de endpoints de la API</p>
+</div>
+
+<!-- 1. INTRODUCCIÓN -->
+<div class="page-break">
+<h1>1. Introducción y contexto</h1>
+
+<p>El seguimiento de la alimentación es una práctica habitual en contextos de salud, deporte y gestión del peso. Registrar qué se come, cuánto y cuándo da a una persona información objetiva sobre su ingesta calórica y su distribución de macronutrientes a lo largo del día. Sin ese registro, cualquier ajuste dietético se basa en estimaciones.</p>
+
+<p>Existen herramientas comerciales que cubren esta necesidad, pero su complejidad interna queda opaca al desarrollador que quiera aprender de ellas. NutriFit parte de la misma necesidad funcional y la aborda como ejercicio de ingeniería: construir desde cero un sistema multicapa que gestione alimentos, registre comidas, calcule resúmenes nutricionales diarios, integre inteligencia artificial para evaluar la dieta, registre ejercicios y estime el gasto energético del usuario, con decisiones técnicas razonadas y documentadas en cada paso.</p>
+
+<h2>1.1 Problema que aborda el proyecto</h2>
+
+<p>El sistema responde a una necesidad concreta: que un usuario pueda registrar los alimentos que consume durante el día, organizarlos por comidas, obtener un resumen del total calórico y de macronutrientes, y recibir una evaluación personalizada de su dieta basada en inteligencia artificial.</p>
+
+<p>El problema no es complejo en su enunciado, pero su implementación involucra decisiones no triviales: cómo modelar la relación entre comidas e ítems, cómo calcular los valores nutricionales sin mover datos innecesariamente entre capas, cómo gestionar sesiones con logout real, cómo integrar modelos de lenguaje sin acoplar la lógica de negocio a un proveedor concreto, o cómo garantizar que el esquema de base de datos es reproducible en cualquier entorno. Esas decisiones son el centro del trabajo.</p>
+
+<h2>1.2 Objetivo del proyecto</h2>
+
+<p>El objetivo principal es diseñar, implementar y documentar un sistema completo de seguimiento nutricional con tres interfaces de usuario: una aplicación web (React SPA), un cliente de escritorio (JavaFX) y una API REST como capa central. La versión web está desplegada en producción y es accesible públicamente.</p>
+
+<p>El objetivo no es construir una aplicación comercial lista para escalar a millones de usuarios, sino demostrar la capacidad de tomar decisiones técnicas justificadas, implementarlas de forma coherente dentro de un alcance definido y documentar el resultado con precisión. Esto incluye reconocer las limitaciones del sistema y distinguir con claridad qué está hecho, qué queda fuera del alcance y por qué.</p>
+
+<h2>1.3 Alcance del sistema</h2>
+
+<p>NutriFit cubre catorce áreas funcionales en su versión actual:</p>
+
+<ul>
+  <li><strong>Autenticación:</strong> registro, login y logout con invalidación inmediata del token en el servidor.</li>
+  <li><strong>Catálogo de alimentos:</strong> creación, consulta, búsqueda por nombre, actualización y eliminación, con valores nutricionales por 100 gramos.</li>
+  <li><strong>Escáner de códigos de barras:</strong> búsqueda de alimentos por código EAN en Open Food Facts.</li>
+  <li><strong>Registro de comidas:</strong> comidas asociadas a una fecha y tipo de toma, con adición y eliminación de ítems con gramos.</li>
+  <li><strong>Resumen diario:</strong> total de kilocalorías, proteínas, grasas e hidratos de carbono consumidos en una fecha.</li>
+  <li><strong>Evaluación nutricional con IA:</strong> análisis del resumen diario mediante un modelo de lenguaje (OpenRouter).</li>
+  <li><strong>Perfil biométrico:</strong> sexo, fecha de nacimiento, altura, peso y nivel de actividad; cálculo automático de TMB y TDEE.</li>
+  <li><strong>Registro de ejercicios:</strong> sesiones de actividad física con cálculo de calorías quemadas mediante factor MET.</li>
+  <li><strong>Hidratación:</strong> registro diario de vasos de agua consumidos.</li>
+  <li><strong>Historial de peso:</strong> seguimiento del peso corporal a lo largo del tiempo.</li>
+  <li><strong>Plan semanal:</strong> generación de un plan de comidas personalizado mediante IA.</li>
+  <li><strong>Retos:</strong> desafíos de fitness con seguimiento de progreso.</li>
+  <li><strong>Lista de la compra:</strong> generación y gestión de listas de compra con sugerencias de IA.</li>
+  <li><strong>Gamificación:</strong> racha de días activos y puntuación acumulada.</li>
+</ul>
+
+<h2>1.4 Arquitectura y tecnologías</h2>
+
+<p>El sistema se organiza en tres capas independientes. La capa de presentación tiene dos implementaciones: una aplicación web React desplegada en Vercel y un cliente de escritorio JavaFX. Ambas consumen el mismo backend mediante peticiones HTTP. El backend, implementado con Spring Boot 3.5, expone una API REST con dieciocho prefijos de endpoint y concentra toda la lógica de negocio y el acceso a datos. PostgreSQL almacena el estado del sistema bajo un esquema gestionado íntegramente por Flyway (veintidós migraciones).</p>
+
+<p>El acceso a datos se realiza con JdbcTemplate y RowMapper manuales, sin ORM. La autenticación usa tokens opacos UUID v4 almacenados en base de datos. Los errores están centralizados en un <code>@RestControllerAdvice</code> que garantiza una estructura de respuesta uniforme para cualquier excepción.</p>
+
+<h2>1.5 Organización de la memoria</h2>
+
+<p>La memoria sigue el desarrollo del proyecto de forma progresiva:</p>
+
+<ul>
+  <li>§2 — Estado del arte: revisión de soluciones existentes y marco teórico nutricional.</li>
+  <li>§3 — Tecnologías y herramientas: stack completo con justificación de cada elección.</li>
+  <li>§4 — Análisis de requisitos: requisitos funcionales y no funcionales.</li>
+  <li>§5 — Diseño: arquitectura, esquema de base de datos y decisiones de diseño.</li>
+  <li>§6 — Implementación: descripción módulo a módulo.</li>
+  <li>§7 — Pruebas: estrategia y suite de 118 tests.</li>
+  <li>§8 — Seguridad: medidas implementadas y limitaciones conocidas.</li>
+  <li>§9 — Conclusiones y líneas futuras.</li>
+</ul>
+</div>
+
+<!-- 2. ESTADO DEL ARTE -->
+<div class="page-break">
+<h1>2. Estado del arte y marco teórico</h1>
+
+<h2>2.1 El problema del seguimiento nutricional</h2>
+
+<p>El control de la ingesta calórica y la distribución de macronutrientes tiene interés en el ámbito clínico, deportivo y de la salud general. El registro sistemático de la alimentación es uno de los predictores más consistentes de éxito en programas de control de peso, según estudios publicados en revistas de nutrición y medicina preventiva.</p>
+
+<p>El problema técnico es siempre el mismo: un sistema que relacione alimentos con sus valores nutricionales, que permita al usuario registrar qué cantidades ha consumido en qué momento del día, y que agregue esa información para ofrecer una visión del conjunto. Sobre ese núcleo básico se construyen los sistemas más complejos.</p>
+
+<h2>2.2 Soluciones comerciales existentes</h2>
+
+<h3>2.2.1 MyFitnessPal</h3>
+<p>MyFitnessPal es la aplicación de seguimiento nutricional más utilizada a nivel mundial. Tiene una base de datos de más de 14 millones de alimentos, seguimiento de macros y micros, integración con dispositivos wearables y comunidad activa. Su limitación desde el punto de vista técnico es que opera como una caja negra: el usuario no puede conocer cómo se modelan las comidas internamente ni qué decisiones de diseño subyacen a su API.</p>
+
+<h3>2.2.2 Cronometer</h3>
+<p>Cronometer se diferencia de MyFitnessPal por su énfasis en la precisión nutricional, incluyendo vitaminas, minerales y aminoácidos. Usa bases de datos validadas científicamente. Su interfaz es más densa que la de MyFitnessPal, orientada a usuarios con conocimientos nutricionales previos.</p>
+
+<h3>2.2.3 Yazio</h3>
+<p>Yazio es una aplicación de origen alemán con buena acogida en Europa. Ofrece seguimiento de macros, planes de dieta personalizados y registro de ejercicio. Integra cálculo de TMB y TDEE de forma automática. Su limitación es la dependencia de su propia base de datos de alimentos, que en algunos mercados es menos completa.</p>
+
+<h2>2.3 Limitaciones formativas de las soluciones existentes</h2>
+
+<p>Estas aplicaciones resuelven el problema del usuario final pero no son útiles como referencia de aprendizaje técnico porque su código fuente no es accesible, no documentan sus decisiones de modelado y operan a una escala no reproducible en un entorno formativo.</p>
+
+<p>NutriFit aborda el mismo problema funcional con un objetivo diferente: un sistema comprensible, documentado y reproducible, donde cada decisión técnica está justificada y es trazable hasta el código concreto que la implementa.</p>
+
+<h2>2.4 Marco teórico: fórmulas y conceptos nutricionales</h2>
+
+<h3>2.4.1 Fórmula de Mifflin-St Jeor</h3>
+<p>El cálculo del gasto energético en NutriFit se basa en la fórmula de Mifflin-St Jeor, publicada en 1990 y considerada una de las más precisas para estimar la Tasa Metabólica Basal (TMB) en adultos sanos:</p>
+
+<pre>Hombres: TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) + 5
+Mujeres:  TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) − 161</pre>
+
+<p>El Gasto Energético Total Diario (TDEE) se obtiene multiplicando la TMB por el factor de actividad correspondiente: 1,2 para sedentario, 1,375 para actividad ligera, 1,55 para moderada, 1,725 para alta y 1,9 para muy alta.</p>
+
+<h3>2.4.2 Factor MET para calorías quemadas</h3>
+<p>El Equivalente Metabólico (MET) expresa el coste energético de una actividad en relación al metabolismo basal en reposo; un MET equivale a aproximadamente 1 kcal/(kg·h). La fórmula aplicada en NutriFit es:</p>
+
+<pre>kcal = MET × peso_kg × (duración_min / 60)</pre>
+
+<p>Los valores MET de referencia están tabulados en el Compendium of Physical Activities de Ainsworth et al. NutriFit incluye en su catálogo los valores MET de las actividades aeróbicas y de fuerza más habituales.</p>
+
+<h2>2.5 Integración de inteligencia artificial</h2>
+
+<p>La versión actual incorpora capacidades de IA a través de OpenRouter, un proxy de API que permite seleccionar entre distintos modelos de lenguaje sin acoplarse a un proveedor. Las funciones de IA en NutriFit son tres: evaluación del resumen nutricional diario, generación de un plan de comidas semanal personalizado y sugerencias para la lista de la compra. El modelo concreto y la clave de API son configurables por el usuario.</p>
+</div>
+
+<!-- 3. TECNOLOGÍAS -->
+<div class="page-break">
+<h1>3. Tecnologías y herramientas</h1>
+
+<h2>3.1 Visión de conjunto</h2>
+
+<p>NutriFit está compuesto por tres módulos independientes: <strong>backend</strong> (Spring Boot, Maven), <strong>client</strong> (JavaFX, Maven) y <strong>frontend</strong> (React, Vite). Cada módulo selecciona sus dependencias en función de su responsabilidad; los tres comparten únicamente el protocolo HTTP y el formato JSON.</p>
+
+<table>
+  <tr><th>Tecnología</th><th>Versión</th><th>Módulo</th><th>Papel en el proyecto</th></tr>
+  <tr><td>Java</td><td>21 (LTS)</td><td>Backend + cliente</td><td>Lenguaje base</td></tr>
+  <tr><td>Spring Boot</td><td>3.5.0</td><td>Backend</td><td>Marco de aplicación: IoC, servidor web embebido, validación</td></tr>
+  <tr><td>Spring JDBC (JdbcTemplate)</td><td>gestionada por BOM</td><td>Backend</td><td>Acceso a datos con SQL directo y RowMapper manuales</td></tr>
+  <tr><td>Spring Security Crypto</td><td>gestionada por BOM</td><td>Backend</td><td>Codificación de contraseñas con BCrypt</td></tr>
+  <tr><td>PostgreSQL</td><td>16+</td><td>Base de datos</td><td>Motor relacional</td></tr>
+  <tr><td>postgresql (driver)</td><td>gestionada por BOM</td><td>Backend</td><td>Driver JDBC para PostgreSQL</td></tr>
+  <tr><td>Flyway</td><td>gestionada por BOM</td><td>Backend</td><td>Migraciones de esquema versionadas (V1–V22)</td></tr>
+  <tr><td>springdoc-openapi</td><td>2.8.5</td><td>Backend</td><td>Swagger UI y especificación OpenAPI 3</td></tr>
+  <tr><td>Apache Maven</td><td>3.8+</td><td>Backend + cliente</td><td>Construcción y gestión de dependencias</td></tr>
+  <tr><td>JavaFX</td><td>21</td><td>Cliente</td><td>Interfaz gráfica de escritorio</td></tr>
+  <tr><td>java.net.http.HttpClient</td><td>nativo Java 21</td><td>Cliente</td><td>Comunicación HTTP con el backend</td></tr>
+  <tr><td>Jackson Databind</td><td>2.17+</td><td>Cliente</td><td>Serialización y deserialización JSON</td></tr>
+  <tr><td>React</td><td>18</td><td>Frontend</td><td>Framework de interfaz web basado en componentes</td></tr>
+  <tr><td>TypeScript</td><td>5</td><td>Frontend</td><td>Tipado estático sobre JavaScript</td></tr>
+  <tr><td>Vite</td><td>6</td><td>Frontend</td><td>Bundler y servidor de desarrollo</td></tr>
+  <tr><td>Tailwind CSS</td><td>3</td><td>Frontend</td><td>Framework CSS utilitario</td></tr>
+  <tr><td>Framer Motion</td><td>11</td><td>Frontend</td><td>Animaciones declarativas en React</td></tr>
+  <tr><td>Vitest</td><td>3</td><td>Frontend</td><td>Marco de tests unitarios para Vite</td></tr>
+  <tr><td>JUnit 5</td><td>gestionada por BOM</td><td>Backend</td><td>Marco de tests unitarios</td></tr>
+  <tr><td>Mockito</td><td>gestionada por BOM</td><td>Backend</td><td>Mocks en tests unitarios</td></tr>
+  <tr><td>AssertJ</td><td>gestionada por BOM</td><td>Backend</td><td>Aserciones fluidas</td></tr>
+  <tr><td>OpenRouter API</td><td>—</td><td>Backend</td><td>Proxy de LLM para funciones de IA</td></tr>
+  <tr><td>Open Food Facts API</td><td>—</td><td>Backend</td><td>Base de datos de alimentos por código de barras</td></tr>
+  <tr><td>Git + GitHub</td><td>—</td><td>Repositorio</td><td>Control de versiones</td></tr>
+  <tr><td>GitHub Actions</td><td>—</td><td>CI/CD</td><td>Compilación automática en cada push</td></tr>
+  <tr><td>Docker + docker-compose</td><td>—</td><td>Infraestructura</td><td>Backend + PostgreSQL contenerizados (desarrollo local)</td></tr>
+  <tr><td>Render</td><td>—</td><td>Despliegue</td><td>Hosting del backend (plan gratuito)</td></tr>
+  <tr><td>Vercel</td><td>—</td><td>Despliegue</td><td>Hosting del frontend (plan gratuito)</td></tr>
+</table>
+
+<h2>3.2 Backend</h2>
+
+<h3>3.2.1 Java 21</h3>
+<p>El proyecto compila con Java 21, la versión LTS más reciente. Java 21 aporta bloques de texto para las consultas SQL multilínea en los repositorios, la API <code>java.time</code> para el manejo de fechas en el dominio y mejoras en la gestión de hilos que, aunque no se utilizan directamente aquí, hacen que Java 21 sea la base más sólida disponible.</p>
+
+<h3>3.2.2 Spring Boot 3.5.0</h3>
+<p>Spring Boot gestiona el ciclo de vida del servidor, la inyección de dependencias, la validación de peticiones con Bean Validation y las conexiones JDBC. Se usan tres starters: <code>spring-boot-starter-web</code> para el servidor REST, <code>spring-boot-starter-validation</code> para validación declarativa y <code>spring-boot-starter-jdbc</code> para JdbcTemplate con pool HikariCP.</p>
+
+<h3>3.2.3 Spring JDBC y JdbcTemplate</h3>
+<p>El acceso a datos se implementa íntegramente con JdbcTemplate y RowMapper manuales. No se usa JPA, Spring Data ni Hibernate. Cada módulo declara una interfaz <code>XxxRepository</code> y una implementación <code>JdbcXxxRepository</code> con SQL explícito. La justificación de esta elección frente a JPA se desarrolla en §5.3.1.</p>
+
+<h3>3.2.4 PostgreSQL y Flyway</h3>
+<p>PostgreSQL 16 almacena el estado del sistema. El esquema no se define manualmente: Flyway aplica automáticamente las veintidós migraciones al arrancar el backend. Si el esquema ya está al día, Flyway lo valida y no ejecuta nada, garantizando que cualquier entorno arranca con el mismo esquema exacto.</p>
+
+<h3>3.2.5 Integración con APIs externas</h3>
+<p>OpenRouter actúa como proxy entre el backend y los modelos de lenguaje. El backend envía el contexto nutricional del usuario (resumen diario, perfil, historial) a OpenRouter y recibe la respuesta del modelo. La clave de API y el modelo concreto se almacenan por usuario en la tabla <code>usuario_ia_config</code>. Open Food Facts proporciona datos nutricionales por código de barras EAN; el backend realiza una llamada HTTP a su API pública y devuelve el alimento al cliente.</p>
+
+<h2>3.3 Frontend React</h2>
+
+<h3>3.3.1 React 18 + TypeScript</h3>
+<p>La interfaz web es una SPA (Single Page Application) construida con React 18 y TypeScript. React gestiona el estado de la UI mediante hooks; TypeScript añade tipado estático que elimina una categoría entera de errores en tiempo de compilación. La interfaz tiene catorce páginas: Dashboard, Alimentos, Comidas, Ejercicios, Escáner, Hidratación, Lista de compra, Opciones IA, Perfil, Plan semanal, Retos, Tendencias, Login y Registro.</p>
+
+<h3>3.3.2 Vite y Tailwind CSS</h3>
+<p>Vite actúa como bundler y servidor de desarrollo. El tiempo de arranque en caliente es inferior a un segundo en la máquina de desarrollo. Tailwind CSS gestiona los estilos mediante clases utilitarias aplicadas directamente en JSX, sin archivos CSS separados por componente. Framer Motion añade transiciones declarativas entre páginas y en la aparición de elementos.</p>
+
+<h2>3.4 Cliente JavaFX</h2>
+
+<p>El cliente JavaFX mantiene las funciones del MVP original: acceso (login/registro), gestión de alimentos, diario nutricional y perfil de usuario. Consume el mismo backend mediante <code>java.net.http.HttpClient</code> y Jackson Databind. Las operaciones de red se ejecutan en hilos de fondo con <code>javafx.concurrent.Task</code>.</p>
+
+<h2>3.5 Despliegue</h2>
+
+<p>El backend se despliega en Render con build automático desde la rama <code>main</code>. El frontend se despliega en Vercel con el mismo trigger. Ambos servicios proporcionan HTTPS sin configuración adicional. El backend en el plan gratuito de Render se suspende tras 15 minutos de inactividad; la primera petición tras ese período tiene una latencia de arranque de 30-60 segundos.</p>
+</div>
+
+<!-- 4. REQUISITOS -->
+<div class="page-break">
+<h1>4. Análisis de requisitos</h1>
+
+<h2>4.1 Introducción</h2>
+
+<p>Los requisitos emergieron de forma iterativa a medida que los módulos se definían e implementaban. El objetivo de documentarlos aquí es hacer explícito qué hace el sistema, qué restricciones de calidad cumple y qué queda fuera del alcance actual.</p>
+
+<h2>4.2 Requisitos funcionales</h2>
+
+<h3>Módulo de autenticación</h3>
+<table>
+  <tr><th>Código</th><th>Requisito</th></tr>
+  <tr><td>RF-01</td><td>El sistema permite registrar un nuevo usuario con nombre, email y contraseña. El registro abre sesión de forma automática.</td></tr>
+  <tr><td>RF-02</td><td>Un usuario registrado puede autenticarse con su email y contraseña. Si las credenciales son correctas, el sistema genera un token de sesión.</td></tr>
+  <tr><td>RF-03</td><td>Un usuario puede cerrar su sesión. La invalidación del token es inmediata y del lado del servidor.</td></tr>
+  <tr><td>RF-04</td><td>El sistema normaliza el email antes de cualquier búsqueda: aplica <code>trim()</code> y <code>toLowerCase()</code>.</td></tr>
+  <tr><td>RF-05</td><td>No pueden existir dos usuarios con el mismo email. El intento de registro con email duplicado se rechaza antes de persistir ningún dato.</td></tr>
+</table>
+
+<h3>Módulo de alimentos</h3>
+<table>
+  <tr><th>Código</th><th>Requisito</th></tr>
+  <tr><td>RF-06</td><td>El sistema mantiene un catálogo de alimentos compartido. Cualquier usuario puede consultar el catálogo completo o filtrar por nombre.</td></tr>
+  <tr><td>RF-07</td><td>La búsqueda por nombre es parcial e insensible a mayúsculas.</td></tr>
+  <tr><td>RF-08</td><td>Se puede crear un alimento especificando nombre, porción de referencia, kcal/100g, proteínas/100g, grasas/100g e hidratos/100g.</td></tr>
+  <tr><td>RF-09</td><td>Un alimento existente puede actualizarse o eliminarse. No se puede eliminar un alimento referenciado en algún ítem de comida.</td></tr>
+  <tr><td>RF-10</td><td>El escáner busca un alimento en Open Food Facts por código de barras EAN y devuelve sus datos nutricionales para añadirlo al catálogo.</td></tr>
+</table>
+
+<h3>Módulo de comidas</h3>
+<table>
+  <tr><th>Código</th><th>Requisito</th></tr>
+  <tr><td>RF-11</td><td>Un usuario puede registrar una comida para una fecha concreta con un tipo de toma (DESAYUNO, ALMUERZO, CENA, etc.).</td></tr>
+  <tr><td>RF-12</td><td>A una comida se le pueden añadir ítems. Cada ítem asocia un alimento del catálogo con una cantidad en gramos.</td></tr>
+  <tr><td>RF-13</td><td>Al consultar los ítems de una comida, el sistema calcula y devuelve los valores nutricionales ponderados por gramos. El cálculo se realiza en base de datos.</td></tr>
+  <tr><td>RF-14</td><td>Una comida puede eliminarse. Al hacerlo, todos sus ítems se eliminan en cascada.</td></tr>
+</table>
+
+<h3>Módulo de resumen diario y evaluación IA</h3>
+<table>
+  <tr><th>Código</th><th>Requisito</th></tr>
+  <tr><td>RF-15</td><td>El sistema calcula y devuelve el total de kcal, proteínas, grasas e hidratos consumidos por un usuario en una fecha.</td></tr>
+  <tr><td>RF-16</td><td>Si el usuario no tiene comidas en la fecha consultada, el resumen devuelve ceros. No se produce error.</td></tr>
+  <tr><td>RF-17</td><td>El sistema genera una evaluación nutricional del resumen diario mediante un modelo de lenguaje. El resultado incluye análisis de macros, comparativa con el TDEE y recomendaciones.</td></tr>
+</table>
+
+<h3>Módulo de perfil</h3>
+<table>
+  <tr><th>Código</th><th>Requisito</th></tr>
+  <tr><td>RF-18</td><td>Un usuario puede configurar su perfil biométrico: sexo, fecha de nacimiento, altura, peso actual, nivel de actividad y, opcionalmente, peso objetivo.</td></tr>
+  <tr><td>RF-19</td><td>El sistema calcula la TMB y el TDEE a partir del perfil, usando la fórmula de Mifflin-St Jeor. El cálculo se realiza en el backend.</td></tr>
+  <tr><td>RF-20</td><td>Un usuario puede actualizar su perfil en cualquier momento. El sistema recalcula TMB y TDEE de forma automática.</td></tr>
+</table>
+
+<h3>Módulo de ejercicios</h3>
+<table>
+  <tr><th>Código</th><th>Requisito</th></tr>
+  <tr><td>RF-21</td><td>El sistema mantiene un catálogo de ejercicios con su valor MET. Cualquier usuario autenticado puede consultarlo.</td></tr>
+  <tr><td>RF-22</td><td>Un usuario puede registrar una sesión de ejercicio indicando el tipo, la fecha y la duración en minutos.</td></tr>
+  <tr><td>RF-23</td><td>El sistema calcula las calorías quemadas: <code>MET × peso_kg × (duración_min / 60)</code>, redondeando a dos decimales.</td></tr>
+  <tr><td>RF-24</td><td>El peso utilizado en el cálculo se toma del perfil en el momento del registro y se persiste junto al resultado.</td></tr>
+</table>
+
+<h3>Módulos adicionales</h3>
+<table>
+  <tr><th>Código</th><th>Módulo</th><th>Requisito</th></tr>
+  <tr><td>RF-25</td><td>Hidratación</td><td>El usuario puede registrar vasos de agua consumidos por día. El sistema devuelve el total del día.</td></tr>
+  <tr><td>RF-26</td><td>Peso historial</td><td>El usuario puede registrar su peso en distintas fechas. El sistema devuelve el historial ordenado cronológicamente.</td></tr>
+  <tr><td>RF-27</td><td>Tendencias</td><td>El sistema calcula tendencias nutricionales de los últimos 90 días: medias de kcal, macros e hidratación.</td></tr>
+  <tr><td>RF-28</td><td>Plan semanal</td><td>El sistema genera un plan de comidas para la semana mediante IA, adaptado al perfil y objetivos del usuario.</td></tr>
+  <tr><td>RF-29</td><td>Lista de compra</td><td>El usuario puede gestionar una lista de la compra. El sistema puede generar sugerencias mediante IA basadas en el historial de comidas.</td></tr>
+  <tr><td>RF-30</td><td>Retos</td><td>El sistema mantiene un catálogo de retos de fitness. El usuario puede inscribirse y registrar progreso.</td></tr>
+  <tr><td>RF-31</td><td>Gamificación</td><td>El sistema calcula una racha de días activos y una puntuación acumulada basada en el uso de las funciones del sistema.</td></tr>
+  <tr><td>RF-32</td><td>Config. IA</td><td>El usuario puede configurar el modelo de IA y la clave de API de OpenRouter que se usará en sus evaluaciones.</td></tr>
+</table>
+
+<h2>4.3 Requisitos no funcionales</h2>
+
+<table>
+  <tr><th>Código</th><th>Requisito</th></tr>
+  <tr><td>RNF-01</td><td>Todos los campos obligatorios se validan con Bean Validation antes de que la petición llegue al servicio. Restricciones incumplidas devuelven HTTP 400.</td></tr>
+  <tr><td>RNF-02</td><td>Los valores numéricos de alimentos no pueden ser negativos. La altura del perfil debe estar entre 100 y 250 cm; el peso, por encima de 20 kg.</td></tr>
+  <tr><td>RNF-03</td><td>Todos los errores del backend tienen la misma estructura JSON: <code>timestamp</code>, <code>status</code>, <code>error</code>, <code>message</code> y <code>path</code>.</td></tr>
+  <tr><td>RNF-04</td><td>Los mensajes de error de login son idénticos para email no encontrado y contraseña incorrecta, para impedir enumeración de usuarios.</td></tr>
+  <tr><td>RNF-05</td><td>El esquema de la base de datos está gestionado exclusivamente por Flyway. El código Java nunca crea ni modifica tablas.</td></tr>
+  <tr><td>RNF-06</td><td>Las contraseñas se almacenan exclusivamente como hash BCrypt. El texto en claro nunca se persiste ni se registra.</td></tr>
+  <tr><td>RNF-07</td><td>Los tokens de sesión son UUIDs v4 generados con <code>SecureRandom</code>, almacenados con expiración de siete días. Al hacer logout, la fila se elimina.</td></tr>
+  <tr><td>RNF-08</td><td>Todas las operaciones de red del cliente JavaFX se ejecutan en hilos de fondo con <code>javafx.concurrent.Task</code>.</td></tr>
+  <tr><td>RNF-09</td><td>Los tests unitarios del backend se ejecutan sin base de datos activa ni contexto de Spring. Los repositorios son mocks de Mockito.</td></tr>
+  <tr><td>RNF-10</td><td>El frontend y el backend están desplegados en HTTPS. La comunicación entre cliente web y servidor nunca se produce en texto plano.</td></tr>
+  <tr><td>RNF-11</td><td>El backend acepta peticiones únicamente desde los orígenes configurados en CORS (<code>https://nutri-fit-snowy.vercel.app</code> y <code>http://localhost:5173</code>).</td></tr>
+</table>
+
+<h2>4.4 Exclusiones conocidas</h2>
+
+<p>El sistema actual no implementa diferenciación de roles entre usuarios, no tiene rate limiting en las llamadas a OpenRouter, y el catálogo de alimentos es compartido sin control de acceso por usuario. Estas limitaciones son consecuencia del alcance del MVP, no de errores de diseño.</p>
+</div>
+
+<!-- 5. DISEÑO -->
+<div class="page-break">
+<h1>5. Diseño del sistema</h1>
+
+<h2>5.1 Arquitectura</h2>
+
+<p>NutriFit tiene tres capas con separación física:</p>
+
+<table>
+  <tr><th>Capa</th><th>Tecnología</th><th>Responsabilidad principal</th></tr>
+  <tr><td>Presentación web</td><td>React 18 + TypeScript (Vercel)</td><td>SPA, enrutado client-side, llamadas a la API</td></tr>
+  <tr><td>Presentación escritorio</td><td>JavaFX 21</td><td>Interfaz gráfica de escritorio, llamadas HTTP</td></tr>
+  <tr><td>Lógica de aplicación</td><td>Spring Boot 3.5 (Render, puerto 8080/443)</td><td>API REST, reglas de negocio, acceso a datos</td></tr>
+  <tr><td>Persistencia</td><td>PostgreSQL 16 (base de datos <code>nutrifit</code>)</td><td>Almacenamiento relacional</td></tr>
+</table>
+
+<p>El backend no sabe nada del cliente; cualquier consumidor que respete el contrato HTTP obtiene el mismo comportamiento. Ambos clientes son módulos independientes que pueden construirse y probarse por separado.</p>
+
+<h3>5.1.1 Capa de presentación: frontend React</h3>
+<p>El frontend es una SPA servida desde Vercel. La navegación es client-side mediante React Router; las páginas no se recargan desde el servidor. El enrutado protegido se implementa con un componente <code>ProtectedRoute</code> que verifica el token de sesión en el contexto de autenticación antes de renderizar la página. Las peticiones a la API se centralizan en funciones del directorio <code>src/api/</code>, una por módulo.</p>
+
+<h3>5.1.2 Capa de presentación: cliente JavaFX</h3>
+<p>El cliente JavaFX cubre las funciones del MVP original. Dentro del cliente, los componentes se organizan en tres grupos: pantallas FXML con sus controladores, clases ApiClient por módulo (que encapsulan las llamadas HTTP), y <code>SessionManager</code> (clase estática que mantiene en memoria el token y los datos de sesión). El token no se persiste en disco; desaparece al cerrar la aplicación.</p>
+
+<h3>5.1.3 Capa de lógica de aplicación: el backend Spring Boot</h3>
+<p>El backend sigue la misma estructura en capas verticales para todos sus módulos:</p>
+<pre>Controller → Service → Repository → JdbcTemplate → PostgreSQL</pre>
+<p>Los controladores reciben la petición HTTP, validan con <code>@Valid</code> y delegan en el servicio. Los servicios contienen las reglas de negocio. Los repositorios encapsulan el acceso JDBC. Un <code>GlobalExceptionHandler</code> centralizado convierte cualquier excepción en una respuesta JSON con estructura uniforme.</p>
+
+<h3>5.1.4 Capa de persistencia: PostgreSQL y Flyway</h3>
+<p>PostgreSQL almacena el estado del sistema. El esquema se construye exclusivamente mediante las veintidós migraciones de Flyway, almacenadas en <code>backend/src/main/resources/db/migration/</code>. Si el esquema ya está al día cuando el backend arranca, Flyway lo valida y no ejecuta nada.</p>
+
+<h2>5.2 Diseño de la base de datos</h2>
+
+<h3>5.2.1 Migraciones Flyway</h3>
+<table>
+  <tr><th>Migración</th><th>Contenido</th></tr>
+  <tr><td>V1, V2</td><td>Tablas <code>usuarios</code> y <code>alimentos</code></td></tr>
+  <tr><td>V3</td><td>Tabla <code>sesiones</code></td></tr>
+  <tr><td>V4</td><td>Seed inicial del catálogo de alimentos</td></tr>
+  <tr><td>V5</td><td>Tablas <code>comidas</code> y <code>comida_alimentos</code></td></tr>
+  <tr><td>V6, V7</td><td>Tabla <code>ejercicios</code> y seed de tipos de ejercicio</td></tr>
+  <tr><td>V8, V9</td><td>Stored procedure del resumen diario y actualización</td></tr>
+  <tr><td>V10</td><td>Índices de rendimiento</td></tr>
+  <tr><td>V11</td><td>Seed expandido de alimentos</td></tr>
+  <tr><td>V12</td><td>Tabla <code>peso_historial</code></td></tr>
+  <tr><td>V13</td><td>Índices adicionales y restricciones</td></tr>
+  <tr><td>V14</td><td>Tabla <code>hidratacion</code></td></tr>
+  <tr><td>V15</td><td>Tabla <code>plan_semanal</code></td></tr>
+  <tr><td>V16</td><td>Tabla <code>retos</code> y <code>usuario_retos</code></td></tr>
+  <tr><td>V17</td><td>Tabla <code>lista_compra</code></td></tr>
+  <tr><td>V18</td><td>Tabla <code>ejercicios_tipo</code></td></tr>
+  <tr><td>V19</td><td>Seed completo del catálogo de ejercicios</td></tr>
+  <tr><td>V20</td><td>Campos de intensidad y modo anaeróbico en ejercicios</td></tr>
+  <tr><td>V21</td><td>Relajación de restricción de duración mínima</td></tr>
+  <tr><td>V22</td><td>Tabla <code>usuario_ia_config</code></td></tr>
+</table>
+
+<h3>5.2.2 Principales relaciones</h3>
+<table>
+  <tr><th>Entidad origen</th><th>Cardinalidad</th><th>Entidad destino</th><th>Al borrar origen</th></tr>
+  <tr><td>usuarios</td><td>1 — 0..*</td><td>sesiones</td><td>ON DELETE CASCADE</td></tr>
+  <tr><td>usuarios</td><td>1 — 0..*</td><td>comidas, peso_historial, hidratacion, plan_semanal, usuario_retos, lista_compra, usuario_ia_config</td><td>ON DELETE CASCADE</td></tr>
+  <tr><td>comidas</td><td>1 — 0..*</td><td>comida_alimentos</td><td>ON DELETE CASCADE</td></tr>
+  <tr><td>alimentos</td><td>1 — 0..*</td><td>comida_alimentos</td><td>ON DELETE RESTRICT</td></tr>
+  <tr><td>ejercicios</td><td>1 — 0..*</td><td>ejercicios_registro</td><td>ON DELETE RESTRICT</td></tr>
+</table>
+
+<p>La regla <code>ON DELETE RESTRICT</code> en alimentos y ejercicios impide eliminar un elemento del catálogo si existe algún ítem que lo referencia, protegiendo la integridad del historial.</p>
+
+<h2>5.3 Decisiones de diseño</h2>
+
+<h3>5.3.1 Acceso a datos con Spring JDBC en lugar de JPA/Hibernate</h3>
+<p>El acceso a la base de datos se implementa con JdbcTemplate y RowMapper manuales. No se usa JPA ni Hibernate. El argumento principal es de trazabilidad: con JdbcTemplate, cada consulta es SQL visible en una línea concreta del código. En una defensa, responder "¿qué SQL genera esta línea?" es inmediato con JDBC y requiere depuración con JPA. Como ventaja adicional, Flyway gestiona el esquema sin ninguna interferencia; no hay que coordinar <code>ddl-auto</code>.</p>
+
+<h3>5.3.2 Autenticación con token opaco en lugar de JWT</h3>
+<p>La autenticación usa un UUID aleatorio almacenado en la tabla <code>sesiones</code>, con fecha de expiración y borrado explícito al hacer logout. JWT no resuelve bien el logout: un token JWT firmado sigue siendo válido hasta que expira, aunque el usuario lo haya invalidado. Forzar la invalidación inmediata con JWT requeriría una lista negra en base de datos, que es exactamente la misma infraestructura que ya se tiene, pero con mayor complejidad.</p>
+
+<h3>5.3.3 Cálculo del resumen diario con SQL</h3>
+<p>El resumen diario se calcula mediante una única consulta SQL con LEFT JOIN, SUM, ROUND y COALESCE. La alternativa descartada era traer todas las comidas e ítems al servicio Java y calcular los totales en memoria. Eso habría requerido múltiples consultas y lógica de agregación en la capa de aplicación, desaprovechando las capacidades del motor de base de datos.</p>
+
+<h3>5.3.4 Cálculo de TMB/TDEE en el backend</h3>
+<p>La fórmula de Mifflin-St Jeor reside en el servicio de backend. Los valores calculados se devuelven en la respuesta. Esto tiene dos consecuencias prácticas: la lógica está en un único lugar y puede verificarse con tests unitarios independientes del cliente; y si el cliente cambia de tecnología, la fórmula no se duplica.</p>
+
+<h3>5.3.5 Separación de la configuración de IA por usuario</h3>
+<p>La clave de API de OpenRouter y el modelo concreto se almacenan por usuario en <code>usuario_ia_config</code>, no en variables de entorno globales. Esto permite que cada usuario configure su propia integración sin que el administrador del sistema tenga que gestionar una clave compartida. El inconveniente es que el usuario necesita tener una cuenta en OpenRouter, lo que añade fricción en el onboarding.</p>
+
+<h3>5.3.6 PostgreSQL en lugar de MariaDB</h3>
+<p>El proyecto evolucionó de MariaDB (borrador anterior) a PostgreSQL. Los motivos son prácticos: Render, el proveedor de hosting elegido, ofrece PostgreSQL gestionado en su plan gratuito pero no MariaDB. Además, PostgreSQL tiene un soporte más completo para tipos de datos JSON, que se usa en las respuestas de la API de IA.</p>
+</div>
+
+<!-- 6. IMPLEMENTACIÓN -->
+<div class="page-break">
+<h1>6. Implementación</h1>
+
+<h2>6.1 Módulo de autenticación</h2>
+
+<p>El módulo expone tres endpoints bajo <code>/api/auth</code>: <code>POST /register</code> (201), <code>POST /login</code> (200) y <code>POST /logout</code> (204). El flujo de registro aplica <code>trim()</code> y <code>toLowerCase()</code> al email, comprueba unicidad, hashea la contraseña con BCrypt, persiste el usuario, genera un UUID v4 como token de sesión y devuelve el <code>AuthResponse</code> con los datos del usuario y el token. El registro abre sesión automáticamente.</p>
+
+<p>En el login, si el email no existe o la contraseña no coincide, el servicio lanza la misma excepción con el mismo mensaje: <em>"Credenciales inválidas"</em>. Esto impide que un atacante deduzca si un email está registrado.</p>
+
+<h2>6.2 Módulo de alimentos y escáner</h2>
+
+<p>El módulo mantiene un catálogo compartido con CRUD completo. Los valores nutricionales se modelan como <code>BigDecimal</code> para preservar la precisión decimal. La búsqueda por nombre usa LIKE con comodines, insensible a mayúsculas gracias a la collation de la base de datos.</p>
+
+<p>El escáner se implementa en <code>GET /api/escaner/{barcode}</code>. El backend realiza una llamada a la API pública de Open Food Facts, extrae los campos nutricionales del producto y los devuelve en el mismo formato que un alimento del catálogo. Si el código no existe en Open Food Facts, el endpoint devuelve 404.</p>
+
+<h2>6.3 Módulo de comidas</h2>
+
+<p>El módulo distingue dos entidades: <code>Comida</code> (una toma del día, identificada por usuario, fecha y tipo) y <code>ComidaAlimento</code> (la relación entre una comida y un alimento del catálogo, con los gramos consumidos). Al añadir un ítem, el servicio verifica primero que tanto la comida como el alimento existen, aplicando el patrón fail-fast.</p>
+
+<h2>6.4 Módulo de resumen diario y evaluación IA</h2>
+
+<p>El resumen diario se calcula mediante una única consulta SQL que cruza tres tablas (<code>comidas</code>, <code>comida_alimentos</code>, <code>alimentos</code>) con dos LEFT JOIN. La fórmula por ítem es <code>(valor_por_100g × gramos) / 100</code>. COALESCE convierte los nulos que produce SUM sobre un conjunto vacío en ceros.</p>
+
+<p>La evaluación IA toma el resumen del día, el perfil biométrico del usuario y su historial reciente, construye un prompt estructurado y lo envía a OpenRouter. La respuesta del modelo, en texto libre, se devuelve al cliente tal cual. Si el usuario no tiene configurada una clave de API, el endpoint devuelve 400 con un mensaje que explica el requisito.</p>
+
+<h2>6.5 Módulo de perfil y cálculo TMB/TDEE</h2>
+
+<p>Los datos biométricos se almacenan directamente en la tabla <code>usuarios</code>. El módulo expone dos endpoints: <code>GET /api/perfil/{id}</code> y <code>PUT /api/perfil/{id}</code>. La fórmula de Mifflin-St Jeor se implementa en <code>PerfilServiceImpl</code>:</p>
+
+<pre>private double calcularTmb(Perfil perfil) {
+    int edad = Period.between(perfil.getFechaNacimiento(), LocalDate.now()).getYears();
+    double base = 10 * perfil.getPesoKgActual()
+                + 6.25 * perfil.getAlturaCm()
+                - 5 * edad;
+    return perfil.getSexo() == Sexo.H ? base + 5 : base - 161;
+}</pre>
+
+<p>La edad se calcula con <code>Period.between</code> para garantizar el resultado correcto independientemente del día de ejecución.</p>
+
+<h2>6.6 Módulo de ejercicios</h2>
+
+<p>El módulo gestiona el catálogo de tipos de ejercicio y los registros de sesiones. Las calorías quemadas se calculan con <code>MET × peso_kg × (duración_min / 60.0)</code>, redondeando a dos decimales con HALF_UP. El peso se toma del perfil en el momento del registro y se persiste junto al resultado para que el historial no cambie si el usuario actualiza su peso posteriormente.</p>
+
+<h2>6.7 Módulos adicionales</h2>
+
+<p>Los módulos de hidratación, peso historial, retos, plan semanal y lista de compra siguen la misma estructura Controller → Service → Repository. Los módulos con IA (plan semanal, lista de compra, evaluación) delegan en <code>OpenRouterService</code>, que construye el prompt, gestiona la llamada HTTP a OpenRouter y propaga los errores de cuota o autenticación como excepciones controladas. El módulo de gamificación calcula la racha de días activos consultando los registros de comidas, ejercicios e hidratación, y la puntuación acumulada sumando actividades del último mes.</p>
+
+<h2>6.8 Frontend React</h2>
+
+<p>El frontend organiza las llamadas a la API en funciones del directorio <code>src/api/</code>. Cada función construye la petición con <code>fetch</code>, añade el token de sesión en la cabecera <code>Authorization</code>, verifica el código de estado y lanza un error si no es 2xx. El estado de autenticación se gestiona mediante un contexto React (<code>AuthContext</code>) que expone el usuario actual, el token y las funciones de login y logout.</p>
+
+<p>Los componentes de visualización incluyen gráficos de tendencias de peso (<code>WeightChart</code>), distribución de macronutrientes (<code>MacrosChart</code>, <code>MacroRing</code>), heatmap de ejercicios (<code>EjercicioHeatmap</code>) y puntuación nutricional (<code>NutriScoreChart</code>).</p>
+
+<h2>6.9 Cliente JavaFX</h2>
+
+<p>El cliente organiza la comunicación con el backend en clases ApiClient por módulo. Cada ApiClient construye la petición con <code>HttpRequest.newBuilder()</code>, serializa el cuerpo con Jackson si aplica, envía la petición y verifica el código de estado. Si no es 2xx, lanza una excepción con el mensaje del cuerpo de error. Todas las operaciones de red se envuelven en <code>javafx.concurrent.Task</code>.</p>
+
+<h2>6.10 Integración continua y despliegue</h2>
+
+<p>GitHub Actions compila el backend y el cliente JavaFX con Java 21 en cada push, garantizando que ningún commit deja el proyecto en estado no compilable. El frontend se despliega automáticamente en Vercel en cada push a <code>main</code>; el backend en Render con el mismo trigger. Las migraciones de Flyway se aplican automáticamente en el primer arranque del contenedor o al desplegar en Render.</p>
+</div>
+
+<!-- 7. PRUEBAS -->
+<div class="page-break">
+<h1>7. Pruebas</h1>
+
+<h2>7.1 Estrategia de pruebas</h2>
+
+<p>La estrategia combina tres enfoques: pruebas unitarias automatizadas sobre la capa de servicio del backend, pruebas unitarias sobre el cliente JavaFX y pruebas del frontend con Vitest. Los repositorios y controladores se verifican mediante pruebas manuales con peticiones HTTP reales contra el servidor en ejecución.</p>
+
+<p>La cobertura automatizada se centra en la capa de servicio porque es ahí donde reside la lógica de negocio: validación de reglas de dominio, manejo de casos de error, transformación de datos y cálculos nutricionales. Los repositorios son envolturas directas sobre SQL y su comportamiento queda cubierto por las pruebas manuales de la API.</p>
+
+<h2>7.2 Suite de tests del backend</h2>
+
+<p>Las pruebas del backend usan JUnit 5 como marco de ejecución, Mockito para sustituir los colaboradores por objetos simulados, y AssertJ para las aserciones. Ningún test levanta el contexto de Spring: todos usan <code>@ExtendWith(MockitoExtension.class)</code>, lo que permite ejecutar la suite completa en menos de tres segundos sin ningún servicio externo activo.</p>
+
+<table>
+  <tr><th>Clase de test</th><th>Tests</th><th>Operaciones cubiertas</th></tr>
+  <tr><td>AlimentoServiceImplTest</td><td>12</td><td>findAll, findById, save, update, deleteById</td></tr>
+  <tr><td>AuthServiceImplTest</td><td>9</td><td>register, login, logout</td></tr>
+  <tr><td>ComidaServiceImplTest</td><td>17</td><td>save, findByUsuarioAndFecha, deleteById, addAlimentoToComida, findDetalleItemsByComidaId, deleteItem</td></tr>
+  <tr><td>ResumenDiarioServiceImplTest</td><td>3</td><td>obtenerResumenDiario</td></tr>
+  <tr><td>PerfilServiceImplTest</td><td>5</td><td>getPerfil, updatePerfil</td></tr>
+  <tr><td>RegistroEjercicioServiceImplTest</td><td>14</td><td>registrar, findByUsuarioAndFecha, deleteById, calcularKcal</td></tr>
+  <tr><td>HidratacionServiceImplTest</td><td>8</td><td>registrar, obtenerDia, borrar</td></tr>
+  <tr><td>PesoHistorialServiceImplTest</td><td>7</td><td>registrar, obtenerHistorial, borrar</td></tr>
+  <tr><td>GamificacionServiceTest</td><td>10</td><td>calcularRacha, obtenerPuntuacion</td></tr>
+  <tr><td>BaseIntegrationTest</td><td>6</td><td>Infraestructura de tests de integración</td></tr>
+  <tr><td><strong>Total backend</strong></td><td><strong>91</strong></td><td></td></tr>
+</table>
+
+<h2>7.3 Suite de tests del cliente JavaFX</h2>
+
+<table>
+  <tr><th>Clase de test</th><th>Tests</th><th>Operaciones cubiertas</th></tr>
+  <tr><td>AlimentoFxTest</td><td>8</td><td>Serialización y deserialización de DTOs de alimentos</td></tr>
+  <tr><td>BaseApiClientTest</td><td>5</td><td>Comportamiento base del cliente HTTP</td></tr>
+  <tr><td>PerfilDtoTest</td><td>4</td><td>Deserialización del DTO de perfil con TMB y TDEE</td></tr>
+  <tr><td>ResumenDiarioDtoTest</td><td>4</td><td>Deserialización del resumen diario con ceros y valores reales</td></tr>
+  <tr><td>SessionManagerTest</td><td>3</td><td>Gestión de sesión en memoria: set, get, clear</td></tr>
+  <tr><td><strong>Total JavaFX</strong></td><td><strong>24</strong></td><td></td></tr>
+</table>
+
+<h2>7.4 Tests del frontend</h2>
+
+<p>El frontend tiene tres tests con Vitest que cubren los componentes más críticos de la UI. Por el alcance del proyecto, la mayor parte de la verificación del frontend se hace mediante pruebas manuales en el navegador y en el entorno de producción desplegado en Vercel.</p>
+
+<table>
+  <tr><th>Módulo</th><th>Tests</th><th>Framework</th></tr>
+  <tr><td>Backend</td><td>91</td><td>JUnit 5 + Mockito + AssertJ</td></tr>
+  <tr><td>Cliente JavaFX</td><td>24</td><td>JUnit 5 + Mockito + AssertJ</td></tr>
+  <tr><td>Frontend React</td><td>3</td><td>Vitest</td></tr>
+  <tr><td><strong>Total</strong></td><td><strong>118</strong></td><td></td></tr>
+</table>
+
+<h2>7.5 Aspectos destacados de la suite</h2>
+
+<p>Los tests de <code>AuthServiceImplTest</code> verifican que el registro con email duplicado lanza <code>BadRequestException</code> antes de invocar <code>save</code> en ningún repositorio; que la sesión creada tiene el token correcto y expiración futura, comprobado con <code>ArgumentCaptor&lt;Sesion&gt;</code>; y que los mensajes de error son idénticos para email no encontrado y contraseña incorrecta.</p>
+
+<p>Los tests de <code>PerfilServiceImplTest</code> verifican la fórmula de Mifflin-St Jeor con valores calculados analíticamente para cada sexo. Para evitar dependencia de la fecha de ejecución, la fecha de nacimiento se construye como <code>LocalDate.now().minusYears(30)</code>.</p>
+
+<p>Los tests de <code>RegistroEjercicioServiceImplTest</code> verifican la fórmula MET con cuatro casos, incluyendo el redondeo: MET=5.0, 70 kg, 20 min produce 116,67 kcal (no 116,66). El resultado de la suite completa del backend es: <strong>Tests run: 91, Failures: 0, Errors: 0, Skipped: 0</strong>.</p>
+
+<h2>7.6 Pruebas manuales de la API</h2>
+
+<p>Todos los endpoints se han verificado con peticiones HTTP reales. El directorio <code>docs/api/</code> contiene archivos <code>.http</code> compatibles con IntelliJ IDEA y con la extensión REST Client de VS Code, organizados por módulo. Swagger UI, accesible en <code>http://localhost:8080/swagger-ui.html</code>, complementa las pruebas permitiendo explorar y ejecutar peticiones directamente desde el navegador.</p>
+</div>
+
+<!-- 8. SEGURIDAD -->
+<div class="page-break">
+<h1>8. Seguridad</h1>
+
+<h2>8.1 Gestión de contraseñas</h2>
+
+<p>Las contraseñas nunca se almacenan en texto plano. Al registrarse, <code>AuthServiceImpl</code> delega el hash en <code>PasswordService</code>, que usa <code>BCryptPasswordEncoder</code> de Spring Security. BCrypt aplica una función de derivación de clave con sal aleatoria incorporada, de modo que dos hashes del mismo texto producen valores distintos, protegiéndose frente a ataques de diccionario precomputados.</p>
+
+<p>Durante el login, <code>matches()</code> compara la contraseña recibida contra el hash almacenado. Si la verificación falla, el servicio lanza la misma excepción con el mismo mensaje que cuando el email no existe. Esta propiedad está verificada por dos tests unitarios en <code>AuthServiceImplTest</code>.</p>
+
+<h2>8.2 Autenticación basada en token opaco</h2>
+
+<p>NutriFit usa un token opaco, un UUID aleatorio, almacenado en la tabla <code>sesiones</code> de PostgreSQL. El token se genera con <code>UUID.randomUUID()</code>, que internamente usa <code>SecureRandom</code>. La columna <code>token</code> tiene restricción UNIQUE, impidiendo colisiones en base de datos.</p>
+
+<p>En cada petición autenticada, <code>AuthInterceptor</code> extrae el token de la cabecera <code>Authorization</code>, consulta <code>SesionRepository.findByToken()</code> y verifica que la sesión existe y que <code>expires_at</code> es posterior al momento actual. Si alguna comprobación falla, lanza <code>UnauthorizedException</code>, que <code>GlobalExceptionHandler</code> convierte en HTTP 401.</p>
+
+<p>Al hacer logout, el servicio elimina la fila correspondiente de <code>sesiones</code>. Tras esa llamada, el token no existe y cualquier petición posterior recibe HTTP 401. El cliente JavaFX almacena el token exclusivamente en memoria; el frontend lo guarda en <code>localStorage</code> del navegador para persistir la sesión entre recargas.</p>
+
+<h2>8.3 Transporte seguro y CORS</h2>
+
+<p>El backend está desplegado en Render con HTTPS obligatorio; el frontend en Vercel, también con HTTPS. La comunicación entre el frontend web y la API nunca se produce en texto plano.</p>
+
+<p>El backend acepta peticiones únicamente desde los orígenes configurados en <code>WebMvcConfig</code>: <code>https://nutri-fit-snowy.vercel.app</code> y <code>http://localhost:5173</code>. Cualquier otra procedencia recibe un error de CORS. El cliente JavaFX se comunica directamente con el backend sin pasar por el navegador, por lo que no está sujeto a la política de CORS.</p>
+
+<h2>8.4 Privacidad y datos de salud</h2>
+
+<p>NutriFit almacena datos de salud del usuario: perfil biométrico, historial de peso, registro de comidas y ejercicios, e hidratación. Las medidas implementadas son: hash BCrypt para contraseñas, eliminación en cascada de todos los datos del usuario al borrar la cuenta, y expiración de sesiones a los siete días. No se comparten datos con terceros salvo las llamadas a OpenRouter, que el usuario configura con su propia clave de API.</p>
+
+<h2>8.5 Limitaciones conocidas</h2>
+
+<p>El umbral mínimo de contraseña es de seis caracteres, que es bajo respecto a los estándares habituales de producción. Esta limitación se mantiene para simplificar las pruebas. No hay diferenciación de roles entre usuarios: todos los autenticados tienen el mismo nivel de acceso. El catálogo de alimentos y ejercicios es compartido sin control de acceso por usuario.</p>
+</div>
+
+<!-- 9. CONCLUSIONES -->
+<div class="page-break">
+<h1>9. Conclusiones y líneas futuras</h1>
+
+<h2>9.1 Valoración del proyecto</h2>
+
+<p>NutriFit es un sistema funcional y desplegado que permite registrar alimentos, comidas y ejercicios, calcular el gasto energético estimado, evaluar la dieta con inteligencia artificial y visualizar tendencias a lo largo del tiempo. Se sostiene sobre una arquitectura de cuatro capas (frontend React, cliente JavaFX, backend Spring Boot y PostgreSQL) en la que cada componente tiene responsabilidades delimitadas y se comunica con el siguiente a través de interfaces bien definidas.</p>
+
+<p>El sistema no es un prototipo: los dieciocho prefijos de endpoint están implementados, probados y desplegados en producción accesible públicamente. El esquema está gestionado por Flyway con veintidós migraciones. Los 118 tests cubren la lógica de negocio relevante y pasan sin base de datos ni contexto de Spring activo.</p>
+
+<h2>9.2 Aportación del sistema</h2>
+
+<p>NutriFit demuestra que es posible construir un sistema multicapa completo dentro del alcance de un TFG, partiendo de decisiones técnicas justificadas. Las más relevantes son: acceso a datos con JdbcTemplate sin ORM, que mantiene las consultas SQL visibles y trazables; autenticación con token opaco en base de datos, que hace el logout inmediato y real; cálculo del resumen diario con una única consulta SQL de agregación; integración de modelos de lenguaje sin acoplarse a un proveedor concreto; y manejo de errores centralizado con estructura de respuesta uniforme.</p>
+
+<p>La separación entre clientes y backend tiene también una consecuencia verificable: el backend puede arrancarse, probarse y depurarse de forma completamente independiente de cualquier interfaz. El cliente web y el cliente de escritorio consumen exactamente la misma API.</p>
+
+<h2>9.3 Aprendizajes técnicos</h2>
+
+<p><strong>Gestión del esquema con migraciones versionadas.</strong> El uso de Flyway obliga a tratar el esquema como algo explícito y versionado, no como un efecto secundario del modelo de datos. Cada cambio requiere un script numerado; el estado de la base de datos en cualquier entorno es predecible y reproducible.</p>
+
+<p><strong>Tests unitarios sin infraestructura.</strong> Diseñar los servicios con interfaces de repositorio permite sustituirlos por mocks de Mockito en los tests. Los tests son el resultado de esa decisión de diseño, no su punto de partida.</p>
+
+<p><strong>Integración de LLMs en aplicaciones Java.</strong> Conectar un modelo de lenguaje no es complejo técnicamente, pero requiere gestionar casos de fallo que no existen en APIs más predecibles: timeouts, respuestas malformadas, claves expiradas y variabilidad en el formato de la respuesta.</p>
+
+<p><strong>Despliegue real frente a despliegue local.</strong> Los problemas que aparecen al desplegar (cold start de Render, CORS al cambiar la URL de Vercel, diferencias de collation entre PostgreSQL local y en producción) no son visibles en local. El despliegue continuo desde el primer mes del proyecto los expuso antes de que acumularan.</p>
+
+<h2>9.4 Limitaciones del sistema actual</h2>
+
+<p>Las limitaciones más relevantes son el catálogo de alimentos compartido sin control de acceso por usuario, la ausencia de rate limiting en las llamadas a OpenRouter, el umbral bajo de contraseña y la falta de diferenciación de roles. Estas limitaciones son consecuencia del alcance definido para el MVP, no de errores de diseño, y están identificadas explícitamente en la documentación.</p>
+
+<h2>9.5 Líneas futuras de trabajo</h2>
+
+<ul>
+  <li>Añadir control de acceso por usuario en el catálogo de alimentos, de modo que cada usuario gestione su propio subconjunto.</li>
+  <li>Implementar rate limiting en los endpoints de IA para evitar un consumo excesivo de la clave de API del usuario.</li>
+  <li>Completar la pantalla de comidas en el cliente JavaFX, que actualmente solo está cubierta a nivel de backend y frontend web.</li>
+  <li>Ampliar los tests del frontend con Vitest hasta cubrir los componentes críticos de visualización.</li>
+  <li>Añadir notificaciones push o recordatorios de hidratación y registro de comidas.</li>
+  <li>Explorar la integración de la API de USDA FoodData Central como fuente de datos nutricionales adicional al catálogo de Open Food Facts.</li>
+</ul>
+
+<h2>9.6 Cierre</h2>
+
+<p>NutriFit es un sistema funcional dentro de su alcance definido. Sus decisiones de diseño están documentadas, sus limitaciones están identificadas y sus pruebas cubren la lógica de negocio del backend. No es un sistema terminado en todos sus aspectos, pero sí es uno del que se puede razonar con precisión: qué hace, qué no hace y por qué.</p>
+</div>
+
+<!-- 10. BIBLIOGRAFÍA -->
+<div class="page-break">
+<h1>10. Bibliografía</h1>
+
+<h2>Documentación oficial</h2>
+
+<h3>Backend</h3>
+<ul>
+  <li>Spring Boot Reference Documentation (3.x). Broadcom / VMware.<br><code>https://docs.spring.io/spring-boot/docs/current/reference/html/</code></li>
+  <li>Spring Framework — JdbcTemplate and JDBC Core Classes.<br><code>https://docs.spring.io/spring-framework/reference/data-access/jdbc/core.html</code></li>
+  <li>Spring Security Crypto — Password Encoding.<br><code>https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html</code></li>
+  <li>Flyway Documentation — Migrations. Redgate.<br><code>https://documentation.redgate.com/flyway</code></li>
+  <li>PostgreSQL 16 Documentation. PostgreSQL Global Development Group.<br><code>https://www.postgresql.org/docs/16/</code></li>
+  <li>springdoc-openapi — OpenAPI 3 Library for Spring Boot.<br><code>https://springdoc.org/</code></li>
+  <li>Apache Maven — Introduction to the POM. Apache Software Foundation.<br><code>https://maven.apache.org/guides/introduction/introduction-to-the-pom.html</code></li>
+</ul>
+
+<h3>Frontend</h3>
+<ul>
+  <li>React Documentation. Meta Open Source. <code>https://react.dev/</code></li>
+  <li>TypeScript Handbook. Microsoft. <code>https://www.typescriptlang.org/docs/</code></li>
+  <li>Vite Documentation. Evan You / VoidZero. <code>https://vitejs.dev/guide/</code></li>
+  <li>Tailwind CSS Documentation. Tailwind Labs. <code>https://tailwindcss.com/docs/</code></li>
+  <li>Framer Motion API Reference. Framer. <code>https://www.framer.com/motion/</code></li>
+  <li>Vitest Documentation. VoidZero. <code>https://vitest.dev/guide/</code></li>
+</ul>
+
+<h3>Cliente JavaFX</h3>
+<ul>
+  <li>OpenJFX Documentation — JavaFX 21. <code>https://openjfx.io/openjfx-docs/</code></li>
+</ul>
+
+<h3>Tests</h3>
+<ul>
+  <li>JUnit 5 User Guide. <code>https://junit.org/junit5/docs/current/user-guide/</code></li>
+  <li>Mockito Documentation. <code>https://site.mockito.org/</code></li>
+  <li>AssertJ — Fluent assertions for Java. <code>https://assertj.github.io/doc/</code></li>
+</ul>
+
+<h3>APIs externas</h3>
+<ul>
+  <li>OpenRouter Documentation. OpenRouter. <code>https://openrouter.ai/docs</code></li>
+  <li>Open Food Facts API Documentation. Open Food Facts.<br><code>https://wiki.openfoodfacts.org/API</code></li>
+</ul>
+
+<hr class="seccion">
+
+<h2>Referencias nutricionales y fisiológicas</h2>
+<ul>
+  <li>Mifflin, M.D., St Jeor, S.T., Hill, L.A., Scott, B.J., Daugherty, S.A., Koh, Y.O. (1990). A new predictive equation for resting energy expenditure in healthy individuals. <em>American Journal of Clinical Nutrition</em>, 51(2), 241–247. <code>https://doi.org/10.1093/ajcn/51.2.241</code></li>
+  <li>Ainsworth, B.E., Haskell, W.L., Herrmann, S.D., et al. (2011). 2011 Compendium of Physical Activities: A second update of codes and MET values. <em>Medicine &amp; Science in Sports &amp; Exercise</em>, 43(8), 1575–1581. <code>https://doi.org/10.1249/MSS.0b013e31821ece12</code></li>
+</ul>
+
+<hr class="seccion">
+
+<h2>Herramientas y estándares</h2>
+<ul>
+  <li>Leach, P., Mealling, M., Salz, R. (2005). RFC 4122 — A Universally Unique IDentifier (UUID) URN Namespace. IETF. <code>https://www.rfc-editor.org/rfc/rfc4122</code></li>
+  <li>Provos, N., Mazières, D. (1999). A Future-Adaptable Password Scheme. <em>USENIX Annual Technical Conference</em>, Freenix Track. <code>https://www.usenix.org/legacy/events/usenix99/provos.html</code></li>
+  <li>GitHub Actions Documentation. GitHub. <code>https://docs.github.com/en/actions</code></li>
+  <li>Docker Documentation. Docker, Inc. <code>https://docs.docker.com/</code></li>
+  <li>Render Documentation. Render Services, Inc. <code>https://render.com/docs</code></li>
+  <li>Vercel Documentation. Vercel, Inc. <code>https://vercel.com/docs</code></li>
+</ul>
+
+<hr class="seccion">
+
+<h2>Aplicaciones de referencia consultadas</h2>
+<ul>
+  <li>MyFitnessPal. Under Armour. <code>https://www.myfitnesspal.com/</code></li>
+  <li>Cronometer. Cronometer Software Inc. <code>https://cronometer.com/</code></li>
+  <li>Yazio. YAZIO GmbH. <code>https://www.yazio.com/</code></li>
+</ul>
+</div>
+
+<!-- ANEXO A -->
+<div class="page-break">
+<h1>Anexo A — Guía de puesta en marcha</h1>
+
+<h2>A.1 Requisitos previos</h2>
+
+<table>
+  <tr><th>Herramienta</th><th>Versión mínima</th><th>Uso</th></tr>
+  <tr><td>Java (JDK)</td><td>21</td><td>Backend y cliente JavaFX</td></tr>
+  <tr><td>Maven</td><td>3.8</td><td>Gestión de dependencias y arranque</td></tr>
+  <tr><td>PostgreSQL</td><td>14+</td><td>Base de datos del backend</td></tr>
+  <tr><td>Node.js</td><td>18+</td><td>Frontend React</td></tr>
+  <tr><td>npm</td><td>9+</td><td>Gestión de dependencias del frontend</td></tr>
+  <tr><td>Git</td><td>cualquiera</td><td>Clonación del repositorio</td></tr>
+</table>
+
+<h2>A.2 Preparación de la base de datos</h2>
+
+<p>Ejecutar en PostgreSQL como administrador:</p>
+
+<pre>CREATE DATABASE nutrifit;
+CREATE USER nutrifit WITH PASSWORD 'nutrifit123';
+GRANT ALL PRIVILEGES ON DATABASE nutrifit TO nutrifit;</pre>
+
+<p>No hace falta crear las tablas manualmente. Flyway las aplica al arrancar el backend.</p>
+
+<h2>A.3 Configuración del backend</h2>
+
+<p>Crear el archivo <code>backend/src/main/resources/application-local.properties</code>:</p>
+
+<pre>spring.datasource.url=jdbc:postgresql://localhost:5432/nutrifit
+spring.datasource.username=nutrifit
+spring.datasource.password=nutrifit123
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+
+server.port=8080</pre>
+
+<h2>A.4 Arranque del backend</h2>
+
+<pre>cd backend
+mvn -DskipTests spring-boot:run "-Dspring-boot.run.profiles=local"</pre>
+
+<p>El backend está listo cuando el log muestra: <code>Tomcat started on port 8080 (http)</code>. Swagger UI disponible en <code>http://localhost:8080/swagger-ui.html</code>.</p>
+
+<h2>A.5 Arranque del frontend</h2>
+
+<p>Crear el archivo <code>frontend/.env.local</code>:</p>
+
+<pre>VITE_API_URL=http://localhost:8080</pre>
+
+<pre>cd frontend
+npm install
+npm run dev</pre>
+
+<p>El frontend arranca en <code>http://localhost:5173</code>.</p>
+
+<h2>A.6 Arranque del cliente JavaFX</h2>
+
+<pre>cd client
+mvn javafx:run</pre>
+
+<p>El cliente debe arrancarse después del backend. La URL del backend por defecto es <code>http://localhost:8080</code>.</p>
+
+<h2>A.7 Orden de arranque</h2>
+
+<p>El orden correcto es: (1) arrancar PostgreSQL, (2) arrancar el backend, (3) arrancar el frontend o el cliente JavaFX. El frontend y el cliente JavaFX son independientes entre sí.</p>
+
+<h2>A.8 Opción Docker (desarrollo local)</h2>
+
+<pre>docker-compose up --build</pre>
+
+<p>Este comando levanta el backend y PostgreSQL contenerizados. El healthcheck de PostgreSQL garantiza que el backend no intenta conectarse hasta que la base de datos está lista.</p>
+
+<h2>A.9 Ejecución de tests</h2>
+
+<pre># Tests del backend
+cd backend && mvn test
+
+# Tests del cliente JavaFX
+cd client && mvn test
+
+# Tests del frontend
+cd frontend && npm test</pre>
+
+<h2>A.10 Problemas frecuentes</h2>
+
+<p><strong>El backend falla con <code>UnsupportedClassVersionError</code>.</strong> El proyecto requiere Java 21. Verificar la versión activa con <code>java -version</code>.</p>
+
+<p><strong>Error de conexión a la base de datos al arrancar.</strong> Verificar que las credenciales en <code>application-local.properties</code> coinciden con el usuario creado en PostgreSQL.</p>
+
+<p><strong>El backend tarda 30-60 segundos en responder en producción.</strong> El plan gratuito de Render suspende la instancia tras 15 minutos de inactividad. La primera petición la reanuda. Las siguientes responden con normalidad.</p>
+
+<p><strong>Error de CORS en el frontend.</strong> El backend solo acepta peticiones desde <code>https://nutri-fit-snowy.vercel.app</code> y <code>http://localhost:5173</code>. Si el frontend está en otra URL, actualizar <code>allowedOrigins</code> en <code>WebMvcConfig.java</code>.</p>
+
+<p><strong><code>Migration checksum mismatch</code> al arrancar.</strong> Ocurre si se modifica un archivo de migración ya aplicado. Solución: añadir <code>spring.flyway.repair=true</code> en <code>application-local.properties</code> y arrancar una vez.</p>
+</div>
+
+<!-- ANEXO B -->
+<div class="page-break">
+<h1>Anexo B — Referencia de endpoints de la API</h1>
+
+<p>El servidor escucha en <code>http://localhost:8080</code> en desarrollo y en <code>https://nutrifit-backend-ndoj.onrender.com</code> en producción. Todos los cuerpos usan <code>application/json</code>. Cualquier error devuelve <code>{ timestamp, status, error, message, path }</code>. Documentación interactiva en <code>/swagger-ui.html</code>.</p>
+
+<h2>B.1 Autenticación — <code>/api/auth</code></h2>
+<table>
+  <tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Éxito</th></tr>
+  <tr><td>POST</td><td>/api/auth/register</td><td>Registra usuario y abre sesión automáticamente</td><td>201</td></tr>
+  <tr><td>POST</td><td>/api/auth/login</td><td>Autentica usuario existente</td><td>200</td></tr>
+  <tr><td>POST</td><td>/api/auth/logout</td><td>Invalida el token de sesión activo</td><td>204</td></tr>
+</table>
+
+<h2>B.2 Alimentos — <code>/api/alimentos</code></h2>
+<table>
+  <tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Éxito</th><th>Errores</th></tr>
+  <tr><td>GET</td><td>/api/alimentos</td><td>Catálogo completo o filtrado por <code>?q=</code></td><td>200</td><td>—</td></tr>
+  <tr><td>GET</td><td>/api/alimentos/{id}</td><td>Alimento por id</td><td>200</td><td>404</td></tr>
+  <tr><td>POST</td><td>/api/alimentos</td><td>Crea alimento</td><td>201</td><td>400</td></tr>
+  <tr><td>PUT</td><td>/api/alimentos/{id}</td><td>Actualiza alimento</td><td>200</td><td>400, 404</td></tr>
+  <tr><td>DELETE</td><td>/api/alimentos/{id}</td><td>Elimina alimento</td><td>204</td><td>404, 409</td></tr>
+</table>
+
+<h2>B.3 Escáner — <code>/api/escaner</code></h2>
+<table>
+  <tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Éxito</th><th>Errores</th></tr>
+  <tr><td>GET</td><td>/api/escaner/{barcode}</td><td>Busca alimento por código EAN en Open Food Facts</td><td>200</td><td>404</td></tr>
+</table>
+
+<h2>B.4 Comidas — <code>/api/comidas</code></h2>
+<table>
+  <tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Éxito</th><th>Errores</th></tr>
+  <tr><td>GET</td><td>/api/comidas</td><td>Comidas de un usuario por fecha</td><td>200</td><td>—</td></tr>
+  <tr><td>POST</td><td>/api/comidas</td><td>Crea comida</td><td>201</td><td>400</td></tr>
+  <tr><td>DELETE</td><td>/api/comidas/{id}</td><td>Elimina comida y sus ítems en cascada</td><td>204</td><td>404</td></tr>
+  <tr><td>GET</td><td>/api/comidas/{id}/items</td><td>Ítems con valores nutricionales calculados</td><td>200</td><td>404</td></tr>
+  <tr><td>POST</td><td>/api/comidas/{id}/items</td><td>Añade ítem a comida</td><td>201</td><td>400, 404</td></tr>
+  <tr><td>DELETE</td><td>/api/comidas/{cId}/items/{iId}</td><td>Elimina ítem de comida</td><td>204</td><td>404</td></tr>
+</table>
+
+<h2>B.5 Resumen diario y evaluación IA</h2>
+<table>
+  <tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Éxito</th><th>Errores</th></tr>
+  <tr><td>GET</td><td>/api/resumen-diario</td><td>Totales nutricionales del día. Devuelve ceros si no hay comidas.</td><td>200</td><td>—</td></tr>
+  <tr><td>GET</td><td>/api/resumen/evaluacion-ia</td><td>Evaluación del resumen diario mediante IA</td><td>200</td><td>400, 503</td></tr>
+</table>
+
+<h2>B.6 Perfil — <code>/api/perfil</code></h2>
+<table>
+  <tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Éxito</th><th>Errores</th></tr>
+  <tr><td>GET</td><td>/api/perfil/{id}</td><td>Perfil con TMB y TDEE calculados</td><td>200</td><td>404</td></tr>
+  <tr><td>PUT</td><td>/api/perfil/{id}</td><td>Actualiza perfil; recalcula TMB y TDEE</td><td>200</td><td>400, 404</td></tr>
+</table>
+
+<h2>B.7 Ejercicios</h2>
+<table>
+  <tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Éxito</th><th>Errores</th></tr>
+  <tr><td>GET</td><td>/api/ejercicios</td><td>Catálogo completo o filtrado por <code>?q=</code></td><td>200</td><td>—</td></tr>
+  <tr><td>GET</td><td>/api/ejercicios/{id}</td><td>Ejercicio por id</td><td>200</td><td>404</td></tr>
+  <tr><td>GET</td><td>/api/ejercicios-registro</td><td>Registros de un usuario por fecha</td><td>200</td><td>—</td></tr>
+  <tr><td>POST</td><td>/api/ejercicios-registro</td><td>Registra una sesión de ejercicio</td><td>201</td><td>400, 404</td></tr>
+  <tr><td>DELETE</td><td>/api/ejercicios-registro/{id}</td><td>Elimina un registro propio</td><td>204</td><td>404</td></tr>
+</table>
+
+<h2>B.8 Módulos adicionales</h2>
+<table>
+  <tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Éxito</th></tr>
+  <tr><td>GET/POST/DELETE</td><td>/api/hidratacion</td><td>Registro diario de hidratación</td><td>200/201/204</td></tr>
+  <tr><td>GET/POST/DELETE</td><td>/api/peso-historial</td><td>Historial de peso corporal</td><td>200/201/204</td></tr>
+  <tr><td>GET</td><td>/api/tendencias</td><td>Tendencias nutricionales de los últimos 90 días</td><td>200</td></tr>
+  <tr><td>GET/POST</td><td>/api/plan-semanal</td><td>Plan de comidas generado por IA</td><td>200/201</td></tr>
+  <tr><td>GET/POST/DELETE</td><td>/api/lista-compra</td><td>Lista de la compra con sugerencias IA</td><td>200/201/204</td></tr>
+  <tr><td>GET</td><td>/api/retos</td><td>Catálogo de retos de fitness y progreso del usuario</td><td>200</td></tr>
+  <tr><td>GET</td><td>/api/gamificacion</td><td>Racha de días activos y puntuación acumulada</td><td>200</td></tr>
+  <tr><td>GET/PUT</td><td>/api/ia-config</td><td>Configuración del modelo de IA del usuario</td><td>200</td></tr>
+  <tr><td>GET</td><td>/api/health</td><td>Health check del backend</td><td>200</td></tr>
+</table>
+</div>
+
+</body>
+</html>

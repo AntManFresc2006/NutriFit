@@ -10,6 +10,23 @@
 
 Aplicación web de seguimiento nutricional y deportivo, inspirada en MyFitnessPal. Registra comidas, ejercicios, peso e hidratación, con evaluaciones de IA personalizadas.
 
+## Capturas de pantalla
+
+| | |
+|---|---|
+| ![Login](docs/screenshots/01-login.png) | ![Dashboard](docs/screenshots/03-diario.png) |
+| *Pantalla de acceso* | *Dashboard diario con macros y TDEE* |
+| ![Alimentos](docs/screenshots/04-alimentos.png) | ![Ejercicios](docs/screenshots/05-ejercicios.png) |
+| *Catálogo de alimentos* | *Registro de ejercicios* |
+| ![Hidratación](docs/screenshots/06-hidratacion.png) | ![Peso](docs/screenshots/07-peso.png) |
+| *Seguimiento de hidratación* | *Historial de peso* |
+| ![Retos](docs/screenshots/11-retos.png) | ![Gamificación](docs/screenshots/14-gamificacion.png) |
+| *Retos de fitness* | *Estadísticas y gamificación* |
+| ![Plan semanal IA](docs/screenshots/10-plan-semanal.png) | ![Lista de la compra IA](docs/screenshots/12-lista-compra.png) |
+| *Plan semanal generado por IA* | *Lista de la compra con sugerencias IA* |
+| ![Tendencias](docs/screenshots/15-tendencias.png) | ![Perfil](docs/screenshots/08-perfil.png) |
+| *Tendencias nutricionales (90 días)* | *Perfil y configuración biométrica* |
+
 ## Arquitectura
 
 - **Backend**: Spring Boot 3 + JDBC (JdbcTemplate) + PostgreSQL

@@ -1,5 +1,13 @@
 # NutriFit
 
+[![CI](https://github.com/AntManFresc2006/NutriFit/actions/workflows/ci.yml/badge.svg)](https://github.com/AntManFresc2006/NutriFit/actions/workflows/ci.yml)
+[![Backend](https://img.shields.io/badge/backend-Render-46E3B7?logo=render&logoColor=white)](https://nutrifit-backend-ndoj.onrender.com/api/health)
+[![Frontend](https://img.shields.io/badge/frontend-Vercel-black?logo=vercel&logoColor=white)](https://nutri-fit-snowy.vercel.app)
+[![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![License](https://img.shields.io/badge/licencia-uso_académico-blue)](./LICENSE)
+
 Aplicación web de seguimiento nutricional y deportivo, inspirada en MyFitnessPal. Registra comidas, ejercicios, peso e hidratación, con evaluaciones de IA personalizadas.
 
 ## Arquitectura

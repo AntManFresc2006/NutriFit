@@ -2,8 +2,9 @@
 
 NutriFit sigue una arquitectura de tres capas con separación física entre presentación, lógica de aplicación y persistencia. Los tres componentes son procesos independientes que se comunican a través de interfaces bien definidas: el frontend React actúa como single-page application servida desde Vercel, se comunica con el backend Spring Boot en Render mediante una API REST sobre HTTPS, y el backend accede a PostgreSQL mediante JDBC. Cada capa interactúa con la siguiente a través de contratos bien definidos y sin depender de sus detalles de implementación.
 
-> **Figura 4.1** — Diagrama de arquitectura del sistema.
-> *(ver `docs/diagrams/arquitectura.puml`)*
+**Figura 4.1** — Diagrama de arquitectura del sistema.
+
+![Arquitectura del sistema](../diagrams/arquitectura.png)
 
 ---
 
@@ -83,6 +84,10 @@ El backend expone dieciocho grupos de endpoints REST organizados por módulo:
 | `/api/ia-config` | Configuración personal de OpenRouter |
 | `/api/usuario` | Información del usuario y preferencias |
 | `/api/gamificacion` | Puntos y logros del usuario |
+
+**Figura 4.2** — Organización de paquetes del backend.
+
+![Paquetes del backend](../diagrams/paquetes-backend.png)
 
 Internamente, todos los módulos siguen la misma estructura en capas verticales:
 

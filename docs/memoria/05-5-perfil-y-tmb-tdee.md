@@ -8,6 +8,12 @@ El módulo de perfil cubre esa necesidad. Almacena los datos biométricos del us
 
 ---
 
+**Figura 5.5** — Diagrama de clases del módulo de perfil.
+
+![Clases del módulo de perfil](../diagrams/clases-perfil.png)
+
+---
+
 ## 5.5.2 Datos biométricos del perfil
 
 Los datos del perfil se almacenan directamente en la tabla `usuarios`, sin una tabla separada. Como se explica en §4.2.4, esta decisión evita una join innecesaria y refleja que los datos biométricos son obligatorios desde el registro.

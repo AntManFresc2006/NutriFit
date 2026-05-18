@@ -49,10 +49,11 @@ El login espera `email` y `password`. `AuthServiceImpl.login()` sigue estos paso
 4. **Generación y persistencia del token.** Igual que en el registro: UUID v4 y sesión con expiración a siete días.
 5. **Respuesta.** Se devuelve `AuthResponse` con los datos del usuario y el nuevo token.
 
-> **Figura 5.1** — Diagrama de secuencia del flujo de login.
-> *(ver `docs/diagrams/secuencia-login.puml`)*
+**Figura 5.1** — Diagrama de secuencia del flujo de login.
 
-El diagrama muestra la secuencia completa desde el cliente hasta MariaDB: búsqueda del usuario, verificación BCrypt, generación del token, inserción en `sesiones` y respuesta.
+![Secuencia de login](../diagrams/secuencia-login.png)
+
+El diagrama muestra la secuencia completa desde el cliente hasta PostgreSQL: búsqueda del usuario, verificación BCrypt, generación del token, inserción en `sesiones` y respuesta.
 
 ---
 

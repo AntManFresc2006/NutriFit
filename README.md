@@ -17,6 +17,8 @@ Aplicación web de seguimiento nutricional y deportivo, inspirada en MyFitnessPa
 - **Base de datos**: PostgreSQL (migraciones Flyway V1–V22)
 - **Despliegue**: Backend en Render, frontend en Vercel
 
+![Arquitectura del sistema](docs/diagrams/arquitectura.png)
+
 ## Tecnologías principales
 
 | Capa | Tecnología |

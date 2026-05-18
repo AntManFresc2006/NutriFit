@@ -40,6 +40,8 @@ El backend es independiente del cliente. Puede arrancarse, probarse y depurarse 
 - **Almacenamiento de claves API en texto plano.** Las claves API de OpenRouter se almacenan sin cifrado. En producción, deberían cifrarse o usar un servicio de gestión de secretos.
 - **Catálogo compartido.** Todos los usuarios comparten alimentos y ejercicios. Cualquiera puede borrar lo que creó otro.
 - **Sin autenticación en endpoints de lectura pública.** El escáner de código de barras no requiere token de autenticación (necesario para búsquedas rápidas).
+- **Accesibilidad parcial.** El frontend usa HTML semántico (`<nav>`, `<main>`, `<aside>`) y `<label htmlFor>` en los formularios principales, pero carece de atributos ARIA, estilos de foco visibles y navegación completa por teclado. No se ha realizado una auditoría WCAG 2.1 ni pruebas con lectores de pantalla. En producción real, estos aspectos deberían cubrirse antes del despliegue público.
+- **Sin endpoint de borrado de cuenta.** El usuario no puede eliminar su cuenta de forma autónoma desde la interfaz (ver §7.6).
 
 Se documentan dónde corresponde. No son sorpresas ocultas; son límites del MVP.
 
@@ -51,10 +53,14 @@ Se documentan dónde corresponde. No son sorpresas ocultas; son límites del MVP
 
 **Análisis predictivo.** Extender las tendencias con previsiones basadas en el comportamiento histórico del usuario.
 
+**Accesibilidad WCAG 2.1 AA.** Añadir atributos ARIA en componentes dinámicos (modales, notificaciones, listas actualizadas), estilos de foco visibles en todos los elementos interactivos, y navegación completa por teclado. Validar con Lighthouse y una prueba manual con NVDA o VoiceOver.
+
+**Endpoint de borrado de cuenta.** Implementar `DELETE /api/usuarios/{id}` con confirmación de contraseña para cumplir el derecho de supresión del RGPD sin intervención del administrador.
+
 Lo que no está en esta lista: aplicación móvil nativa, integración con sensores biométricos, sincronización en tiempo real. Excedería el alcance del MVP.
 
 ## 8.6 Resumen
 
-NutriFit funciona. Implementa 18 módulos con arquitectura clara, despliegue en la nube, integración con IA, y análisis nutritivo completo. Sus decisiones están documentadas, sus límites están claros. Los 60 tests pasan sin base de datos. La interfaz es responsiva y fluida.
+NutriFit funciona. Implementa 18 módulos con arquitectura clara, despliegue en la nube, integración con IA, y análisis nutritivo completo. Sus decisiones están documentadas, sus límites están claros. Los 118 tests pasan sin base de datos ni display. La interfaz es responsiva y fluida.
 
 El punto no era construir una app de producción corporativa, sino demostrar decisiones técnicas coherentes, documentarlas sin adornos, e implementar funcionalidad real. Eso es lo que aquí aparece.

@@ -203,6 +203,12 @@ JAVA_HOME=/usr/lib/jvm/java-21 mvn spring-boot:run "-Dspring-boot.run.profiles=l
 
 ---
 
+## Accesibilidad
+
+El frontend usa HTML semántico (`<nav>`, `<main>`, `<aside>`) y `<label htmlFor>` asociado en los formularios principales (login, registro, escáner, ejercicios). Las imágenes de producto del escáner incluyen texto alternativo.
+
+**Gaps conocidos:** no se han añadido atributos ARIA, estilos de foco visibles ni navegación completa por teclado. No se ha realizado una auditoría WCAG 2.1 formal. Estas carencias están documentadas como trabajo futuro en [§8.4 de las conclusiones](docs/memoria/08-conclusiones.md#84-limitaciones-conocidas).
+
 ## Privacidad
 
 NutriFit almacena datos de salud (peso, calorías, ejercicio, hidratación). La aplicación aplica BCrypt para contraseñas, eliminación en cascada de todos los datos del usuario y caducidad de sesiones a 7 días. Ver [docs/memoria/07-seguridad.md](docs/memoria/07-seguridad.md#76-privacidad-y-rgpd) para el análisis completo de tratamiento de datos conforme al RGPD.

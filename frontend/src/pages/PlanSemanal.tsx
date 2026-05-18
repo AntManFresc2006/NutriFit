@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence as AnimatePresenceMotion } from 'framer-motion'
+import { CalendarDays, Utensils } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 const AnimatePresence = AnimatePresenceMotion
@@ -131,21 +132,6 @@ export default function PlanSemanal() {
     }
   }
 
-  const emojiComida = (tipo: string) => {
-    switch (tipo) {
-      case 'desayuno':
-        return '🥐'
-      case 'almuerzo':
-        return '🍽️'
-      case 'merienda':
-        return '🥤'
-      case 'cena':
-        return '🍲'
-      default:
-        return '🍴'
-    }
-  }
-
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="flex-1 overflow-auto p-6">
       <div className="max-w-7xl mx-auto">
@@ -206,7 +192,7 @@ export default function PlanSemanal() {
               exit={{ opacity: 0, y: -20 }}
               className="flex flex-col items-center justify-center py-24 card"
             >
-              <div className="text-7xl mb-6">📅</div>
+              <CalendarDays className="w-16 h-16 mx-auto mb-6 text-white/20" />
               <h2 className="text-2xl font-semibold text-white mb-2">No tienes plan para esta semana</h2>
               <p className="text-white/50 mb-8">Genera un plan personalizado con IA para esta semana</p>
               <motion.button
@@ -278,7 +264,7 @@ export default function PlanSemanal() {
                 whileTap={{ scale: 0.95 }}
                 className="px-6 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/50 rounded-lg transition-colors"
               >
-                🔄 Regenerar plan
+                Regenerar plan
               </motion.button>
             </div>
 
@@ -319,7 +305,7 @@ export default function PlanSemanal() {
                         className={`border rounded-lg p-2.5 ${colorComida(tipo)}`}
                       >
                         <div className="flex items-start gap-2 mb-1.5">
-                          <span className={`text-lg ${colorIconoComida(tipo)}`}>{emojiComida(tipo)}</span>
+                          <Utensils className={`w-4 h-4 ${colorIconoComida(tipo)}`} />
                           <div className="flex-1">
                             <div className="font-semibold text-xs capitalize text-white">{tipo}</div>
                             <div className="text-xs text-white/60 mt-0.5 line-clamp-1">

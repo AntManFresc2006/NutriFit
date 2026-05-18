@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Trash2, Globe, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getComidas, createComida, deleteComida, getComidaItems, addItemToComida, deleteComidaItem } from '../api/comidas'
 import { getAlimentos, buscarExternoAlimentos, createAlimento } from '../api/alimentos'
@@ -232,7 +233,7 @@ export default function Comidas() {
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                         >
-                          🗑
+                          <Trash2 className="w-4 h-4" />
                         </motion.button>
                       )}
                     </AnimatePresence>
@@ -287,8 +288,8 @@ export default function Comidas() {
                             )}
                             {!loadingExterno && alimentosExterno.length > 0 && (
                               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                <p className="text-xs text-white/40 px-3 pt-2 pb-1 border-t border-white/10 mt-1">
-                                  🌐 Open Food Facts
+                                <p className="text-xs text-white/40 px-3 pt-2 pb-1 border-t border-white/10 mt-1 flex items-center gap-1">
+                                  <Globe className="w-3 h-3" />Open Food Facts
                                 </p>
                                 {alimentosExterno.map((ext, i) => (
                                   <motion.button
@@ -406,7 +407,7 @@ export default function Comidas() {
                               whileHover={{ scale: 1.2 }}
                               whileTap={{ scale: 0.9 }}
                             >
-                              ✕
+                              <X className="w-4 h-4" />
                             </motion.button>
                           </div>
                         </motion.div>
@@ -447,9 +448,6 @@ export default function Comidas() {
   )
 }
 
-function tipoIcon(tipo: string) {
-  const map: Record<string, string> = {
-    DESAYUNO: '☀️', COMIDA: '🍽️', MERIENDA: '🍎', CENA: '🌙', SNACK: '🍿',
-  }
-  return map[tipo] ?? '🍴'
+function tipoIcon(_tipo: string) {
+  return ''
 }

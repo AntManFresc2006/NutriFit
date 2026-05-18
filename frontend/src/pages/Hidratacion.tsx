@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Droplets, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import { getHidratacionDiaria, registrarAgua, eliminarAgua, type HidratacionDiaria } from '../api/hidratacion'
@@ -100,7 +101,7 @@ export default function Hidratacion() {
         className="flex items-center justify-between mb-8 flex-wrap gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold gradient-text">💧 Hidratación</h1>
+          <h1 className="text-3xl font-bold gradient-text">Hidratación</h1>
           <p className="text-slate-400 text-sm mt-0.5">Mantente hidratado durante el día</p>
         </div>
         <input
@@ -197,7 +198,7 @@ export default function Hidratacion() {
                 disabled={saving}
                 className="relative overflow-hidden bg-white/8 hover:bg-cyan-500/15 border border-white/10 hover:border-cyan-500/30 text-white font-medium py-4 px-4 rounded-2xl transition-all duration-200 text-sm text-center group disabled:opacity-50"
               >
-                <div className="text-2xl mb-1">💧</div>
+                <Droplets className="w-6 h-6 mx-auto mb-1 text-cyan-400" />
                 <div className="font-semibold">{label}</div>
                 <div className="text-xs text-white/50">{ml} ml</div>
               </motion.button>
@@ -262,7 +263,7 @@ export default function Hidratacion() {
                       className="flex items-center justify-between bg-white/5 border border-white/10 hover:border-cyan-500/30 rounded-xl p-3 transition-colors"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl">💧</span>
+                        <Droplets className="w-5 h-5 text-cyan-400" />
                         <div>
                           <div className="text-slate-100 font-medium">{registro.cantidadMl} ml</div>
                           <div className="text-xs text-slate-400">
@@ -279,7 +280,7 @@ export default function Hidratacion() {
                         onClick={() => handleEliminar(registro.id)}
                         className="text-red-400 hover:text-red-300 hover:bg-red-900/30 p-2 rounded-lg transition-colors text-lg"
                       >
-                        🗑️
+                        <Trash2 className="w-4 h-4" />
                       </motion.button>
                     </motion.div>
                   ))}

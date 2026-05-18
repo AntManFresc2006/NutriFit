@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Bot, Eye, EyeOff, BookOpen, Check } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getIaConfig, saveIaConfig, deleteIaConfig, type IaConfigData } from '../api/iaConfig'
 
@@ -114,7 +115,7 @@ export default function OpcionesIA() {
               animate={{ opacity: 1, scale: 1 }}
               className="text-emerald-400 text-sm font-medium flex items-center gap-1"
             >
-              ✓ Guardado
+              Guardado
             </motion.span>
           )}
         </motion.div>
@@ -138,7 +139,7 @@ export default function OpcionesIA() {
           {/* Card 1: Tu IA personalizada */}
           <motion.div variants={item} className="card">
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-2xl">🤖</span>
+              <Bot className="w-8 h-8 text-white/70" />
               <div>
                 <h2 className="text-xl font-bold text-white">Tu IA personalizada</h2>
                 <p className="text-white/50 text-sm">Configura tu proveedor y modelo preferido</p>
@@ -155,7 +156,7 @@ export default function OpcionesIA() {
               {config ? (
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-sm font-medium text-emerald-300">✓ Configuración personalizada activa</span>
+                  <span className="text-sm font-medium text-emerald-300">Configuración personalizada activa</span>
                 </div>
               ) : (
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20">
@@ -204,7 +205,7 @@ export default function OpcionesIA() {
                     onClick={() => setShowApiKey(!showApiKey)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
                   >
-                    {showApiKey ? '🙈' : '👁️'}
+                    {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -238,7 +239,7 @@ export default function OpcionesIA() {
           {/* Card 2: Cómo obtener una API key */}
           <motion.div variants={item} className="card">
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl">📖</span>
+              <BookOpen className="w-8 h-8 text-white/70" />
               <div>
                 <h2 className="text-xl font-bold text-white">¿Cómo obtener una API key?</h2>
               </div>
@@ -257,7 +258,7 @@ export default function OpcionesIA() {
                     whileHover={{ x: 4 }}
                     className="flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-white/10 text-white/80 text-sm"
                   >
-                    <span className="text-emerald-400">✓</span>
+                    <Check className="w-4 h-4 text-emerald-400" />
                     <code className="font-mono">{modelo}</code>
                   </motion.div>
                 ))}

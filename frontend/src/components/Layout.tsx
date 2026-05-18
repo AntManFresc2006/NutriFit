@@ -4,20 +4,25 @@ import { logout as apiLogout } from '../api/auth'
 import { onServerReady } from '../api/client'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import {
+  LayoutDashboard, Utensils, Salad, QrCode, Activity, Trophy,
+  Droplets, ShoppingCart, CalendarDays, TrendingUp, User, Settings,
+  LogOut, Leaf, type LucideIcon,
+} from 'lucide-react'
 
-const navItems = [
-  { to: '/dashboard', icon: '📊', label: 'Dashboard' },
-  { to: '/comidas', icon: '🍽️', label: 'Comidas' },
-  { to: '/alimentos', icon: '🥗', label: 'Alimentos' },
-  { to: '/escaner', icon: '📷', label: 'Escáner' },
-  { to: '/ejercicios', icon: '🏃', label: 'Ejercicios' },
-  { to: '/retos', icon: '🏆', label: 'Retos' },
-  { to: '/hidratacion', icon: '💧', label: 'Hidratación' },
-  { to: '/lista-compra', icon: '🛒', label: 'Lista' },
-  { to: '/plan-semanal', icon: '🗓️', label: 'Plan' },
-  { to: '/tendencias', icon: '📈', label: 'Tendencias' },
-  { to: '/perfil', icon: '👤', label: 'Perfil' },
-  { to: '/opciones-ia', icon: '⚙️', label: 'Opciones IA' },
+const navItems: { to: string; icon: LucideIcon; label: string }[] = [
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/comidas', icon: Utensils, label: 'Comidas' },
+  { to: '/alimentos', icon: Salad, label: 'Alimentos' },
+  { to: '/escaner', icon: QrCode, label: 'Escáner' },
+  { to: '/ejercicios', icon: Activity, label: 'Ejercicios' },
+  { to: '/retos', icon: Trophy, label: 'Retos' },
+  { to: '/hidratacion', icon: Droplets, label: 'Hidratación' },
+  { to: '/lista-compra', icon: ShoppingCart, label: 'Lista' },
+  { to: '/plan-semanal', icon: CalendarDays, label: 'Plan' },
+  { to: '/tendencias', icon: TrendingUp, label: 'Tendencias' },
+  { to: '/perfil', icon: User, label: 'Perfil' },
+  { to: '/opciones-ia', icon: Settings, label: 'Opciones IA' },
 ]
 
 export default function Layout() {
@@ -61,8 +66,8 @@ export default function Layout() {
           transition={{ duration: 0.4, delay: 0.05 }}
           className="flex items-center gap-3 px-4 py-5 border-b border-white/8"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20 shrink-0">
-            🥗
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
+            <Leaf className="w-5 h-5 text-white" />
           </div>
           <span className="font-bold text-white lg:block hidden text-lg tracking-tight">NutriFit</span>
         </motion.div>
@@ -74,7 +79,7 @@ export default function Layout() {
           initial="hidden"
           animate="show"
         >
-          {navItems.map(({ to, icon, label }) => (
+          {navItems.map(({ to, icon: Icon, label }) => (
             <motion.div key={to} variants={itemVariants}>
               <NavLink
                 to={to}
@@ -86,7 +91,7 @@ export default function Layout() {
                   }`
                 }
               >
-                <span className="text-lg shrink-0">{icon}</span>
+                <Icon className="w-5 h-5 shrink-0" />
                 <span className="hidden lg:block">{label}</span>
               </NavLink>
             </motion.div>
@@ -120,7 +125,7 @@ export default function Layout() {
             onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2 rounded-xl text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 w-full text-sm font-medium"
           >
-            <span className="text-lg">🚪</span>
+            <LogOut className="w-5 h-5" />
             <span className="hidden lg:block">Cerrar sesión</span>
           </button>
         </motion.div>
@@ -156,7 +161,7 @@ export default function Layout() {
 
       {/* Bottom nav — solo en móvil (< md) */}
       <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-[#080c15]/95 backdrop-blur-xl border-t border-white/10 z-50 flex overflow-x-auto">
-        {navItems.map(({ to, icon, label }) => (
+        {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
@@ -168,7 +173,7 @@ export default function Layout() {
               }`
             }
           >
-            <span className="text-xl leading-none">{icon}</span>
+            <Icon className="w-6 h-6" />
             <span className="text-[10px] font-medium leading-none truncate max-w-[56px]">{label}</span>
           </NavLink>
         ))}
@@ -176,7 +181,7 @@ export default function Layout() {
           onClick={handleLogout}
           className="flex flex-col items-center justify-center gap-0.5 px-3 py-2 shrink-0 min-w-[64px] text-white/40 active:text-red-400 transition-all duration-200"
         >
-          <span className="text-xl leading-none">🚪</span>
+          <LogOut className="w-6 h-6" />
           <span className="text-[10px] font-medium leading-none">Salir</span>
         </button>
       </nav>

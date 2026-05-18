@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
+import { Flame, Zap, Scale, Target, Pencil } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getPerfil, updatePerfil } from '../api/perfil'
 import { getPesoHistorial, registrarPeso } from '../api/pesoHistorial'
@@ -148,7 +150,7 @@ export default function Perfil() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-emerald-400 text-sm font-medium flex items-center gap-1"
               >
-                ✓ Guardado
+                Guardado
               </motion.span>
             )}
             <motion.button
@@ -157,7 +159,7 @@ export default function Perfil() {
               whileTap={{ scale: 0.95 }}
               className={editing ? 'btn-secondary' : 'btn-primary'}
             >
-              {editing ? 'Cancelar' : '✏️ Editar'}
+              {editing ? 'Cancelar' : <span className="flex items-center gap-1.5"><Pencil className="w-4 h-4" />Editar</span>}
             </motion.button>
           </div>
         </motion.div>
@@ -187,16 +189,16 @@ export default function Perfil() {
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"
         >
           <motion.div variants={item}>
-            <StatCard label="TMB" value={`${Math.round(perfil.tmb)} kcal`} icon="🔥" />
+            <StatCard label="TMB" value={`${Math.round(perfil.tmb)} kcal`} icon={<Flame className="w-6 h-6 text-amber-400" />} />
           </motion.div>
           <motion.div variants={item}>
-            <StatCard label="TDEE" value={`${Math.round(perfil.tdee)} kcal`} icon="⚡" color="text-cyan-400" />
+            <StatCard label="TDEE" value={`${Math.round(perfil.tdee)} kcal`} icon={<Zap className="w-6 h-6 text-cyan-400" />} color="text-cyan-400" />
           </motion.div>
           <motion.div variants={item}>
-            <StatCard label="Peso actual" value={`${perfil.pesoKgActual} kg`} icon="⚖️" />
+            <StatCard label="Peso actual" value={`${perfil.pesoKgActual} kg`} icon={<Scale className="w-6 h-6" />} />
           </motion.div>
           <motion.div variants={item}>
-            <StatCard label="Peso objetivo" value={perfil.pesoObjetivo ? `${perfil.pesoObjetivo} kg` : '—'} icon="🎯" color="text-emerald-400" />
+            <StatCard label="Peso objetivo" value={perfil.pesoObjetivo ? `${perfil.pesoObjetivo} kg` : '—'} icon={<Target className="w-6 h-6 text-emerald-400" />} color="text-emerald-400" />
           </motion.div>
         </motion.div>
 
@@ -208,7 +210,7 @@ export default function Perfil() {
           className="card mb-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wide">📈 Evolución del peso</h2>
+            <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wide">Evolución del peso</h2>
             <form onSubmit={handleRegistrarPeso} className="flex items-center gap-2">
               <input
                 type="date"
@@ -289,7 +291,7 @@ export default function Perfil() {
             transition={{ delay: 0.2 }}
             className="card"
           >
-            <h2 className="text-base font-semibold text-white mb-4">ℹ️ Información personal</h2>
+            <h2 className="text-base font-semibold text-white mb-4">Información personal</h2>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
               <InfoRow label="Nombre" value={perfil.nombre} />
               <InfoRow label="Email" value={perfil.email} />
@@ -307,7 +309,7 @@ export default function Perfil() {
   )
 }
 
-function StatCard({ label, value, icon = '📊', color = 'text-white' }: { readonly label: string; readonly value: string; readonly icon?: string; readonly color?: string }) {
+function StatCard({ label, value, icon, color = 'text-white' }: { readonly label: string; readonly value: string; readonly icon?: ReactNode; readonly color?: string }) {
   return (
     <motion.div
       whileHover={{ scale: 1.05, y: -4 }}
@@ -316,7 +318,7 @@ function StatCard({ label, value, icon = '📊', color = 'text-white' }: { reado
     >
       <p className="text-xs text-white/50 uppercase tracking-wide">{label}</p>
       <p className={`text-lg font-bold mt-1 ${color}`}>{value}</p>
-      <span className="text-2xl block mt-2">{icon}</span>
+      <div className="mt-2">{icon}</div>
     </motion.div>
   )
 }

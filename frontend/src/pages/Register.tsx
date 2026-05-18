@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { register as apiRegister } from '../api/auth'
 import { useAuth } from '../contexts/AuthContext'
+import { Leaf } from 'lucide-react'
 
 export default function Register() {
   const { login } = useAuth()
@@ -65,9 +66,9 @@ export default function Register() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-            className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center text-3xl shadow-lg shadow-emerald-500/30"
+            className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/30"
           >
-            🥗
+            <Leaf className="w-8 h-8 text-white" />
           </motion.div>
           <motion.h1
             initial={{ opacity: 0 }}

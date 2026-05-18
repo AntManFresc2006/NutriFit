@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { Flame, Dumbbell, Scale, TrendingDown, Target } from 'lucide-react'
 import { getResumenDiario, getEvaluacionIA, getGamificacion } from '../api/resumen'
 import { getRecuperacion } from '../api/ejercicios'
 import MacroRing from '../components/MacroRing'
@@ -91,7 +93,7 @@ export default function Dashboard() {
             transition={{ delay: 0.1 }}
           >
             <h1 className="text-3xl font-bold text-white">
-              Hola, <span className="gradient-text">{user?.nombre}</span> 👋
+              Hola, <span className="gradient-text">{user?.nombre}</span>
             </h1>
             <p className="text-white/40 text-sm mt-1">{formatDate(fecha)}</p>
           </motion.div>
@@ -120,7 +122,6 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="card text-center py-16 text-white/40"
           >
-            <p className="text-4xl mb-3">📋</p>
             <p>Sin datos para este día. Registra comidas y ejercicios primero.</p>
           </motion.div>
         ) : (
@@ -134,7 +135,7 @@ export default function Dashboard() {
                   className="card border border-blue-500/30 bg-blue-500/5 mb-4"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">💪</span>
+                    <Dumbbell className="w-6 h-6 text-blue-300 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-semibold text-blue-300 text-sm">Ventana de recuperación activa</p>
                       <p className="text-white/70 text-sm mt-0.5">
@@ -176,11 +177,11 @@ export default function Dashboard() {
                   transition={{ staggerChildren: 0.05, delayChildren: 0.15 }}
                   className="grid grid-cols-2 gap-4"
                 >
-                  <StatCard icon="🔥" label="Kcal consumidas" value={`${Math.round(resumen.kcalTotales)} kcal`} color="text-amber-400" />
-                  <StatCard icon="💪" label="Kcal quemadas" value={`${Math.round(resumen.kcalQuemadasTotales)} kcal`} color="text-blue-400" />
-                  <StatCard icon="⚖️" label="TDEE" value={`${Math.round(resumen.tdee)} kcal`} color="text-slate-300" />
+                  <StatCard icon={<Flame className="w-6 h-6 text-amber-400" />} label="Kcal consumidas" value={`${Math.round(resumen.kcalTotales)} kcal`} color="text-amber-400" />
+                  <StatCard icon={<Dumbbell className="w-6 h-6 text-blue-400" />} label="Kcal quemadas" value={`${Math.round(resumen.kcalQuemadasTotales)} kcal`} color="text-blue-400" />
+                  <StatCard icon={<Scale className="w-6 h-6 text-slate-300" />} label="TDEE" value={`${Math.round(resumen.tdee)} kcal`} color="text-slate-300" />
                   <StatCard
-                    icon="📉"
+                    icon={<TrendingDown className={`w-6 h-6 ${resumen.balanceReal > 0 ? 'text-amber-400' : 'text-blue-400'}`} />}
                     label="Balance real"
                     value={`${resumen.balanceReal > 0 ? '+' : ''}${Math.round(resumen.balanceReal)} kcal`}
                     color={resumen.balanceReal > 0 ? 'text-amber-400' : 'text-blue-400'}
@@ -188,7 +189,7 @@ export default function Dashboard() {
                   />
                   {resumen.fechaObjetivo && (
                     <StatCard
-                      icon="🎯"
+                      icon={<Target className="w-6 h-6 text-emerald-400" />}
                       label="Fecha estimada objetivo"
                       value={resumen.fechaObjetivo}
                       color="text-emerald-400"
@@ -216,7 +217,7 @@ export default function Dashboard() {
                     >
                       <p className="text-xs text-white/50 uppercase tracking-wide">Racha de registro</p>
                       <p className="text-xl font-bold mt-1 gradient-text">
-                        🔥 {gamificacion.racha} {gamificacion.racha === 1 ? 'día' : 'días'}
+                        {gamificacion.racha} {gamificacion.racha === 1 ? 'día' : 'días'}
                       </p>
                       <p className="text-xs text-white/40 mt-1">días consecutivos</p>
                     </motion.div>
@@ -238,10 +239,10 @@ export default function Dashboard() {
                         <span className="text-sm font-normal text-white/40 ml-1">({gamificacion.nutriScore}/100)</span>
                       </p>
                       <div className="mt-1 flex gap-2 text-xs text-white/40 flex-wrap">
-                        <span title="Proteína">{gamificacion.cumpleProteina ? '✅' : '❌'} Prot.</span>
-                        <span title="Balance">{gamificacion.cumpleBalance ? '✅' : '❌'} Bal.</span>
-                        <span title="Ejercicio">{gamificacion.cumpleEjercicio ? '✅' : '❌'} Ej.</span>
-                        <span title="Variedad">{gamificacion.cumpleVariedad ? '✅' : '❌'} Var.</span>
+                        <span title="Proteína" className={gamificacion.cumpleProteina ? 'text-emerald-400' : 'text-white/30'}>Prot.</span>
+                        <span title="Balance" className={gamificacion.cumpleBalance ? 'text-emerald-400' : 'text-white/30'}>Bal.</span>
+                        <span title="Ejercicio" className={gamificacion.cumpleEjercicio ? 'text-emerald-400' : 'text-white/30'}>Ej.</span>
+                        <span title="Variedad" className={gamificacion.cumpleVariedad ? 'text-emerald-400' : 'text-white/30'}>Var.</span>
                       </div>
                     </motion.div>
                   </motion.div>
@@ -269,7 +270,7 @@ export default function Dashboard() {
                           Analizando...
                         </span>
                       ) : (
-                        '✨ Analizar día'
+                        'Analizar día'
                       )}
                     </motion.button>
                   </div>
@@ -295,7 +296,7 @@ export default function Dashboard() {
   )
 }
 
-function StatCard({ icon, label, value, color, extra }: { readonly icon: string; readonly label: string; readonly value: string; readonly color: string; readonly extra?: React.ReactNode }) {
+function StatCard({ icon, label, value, color, extra }: { readonly icon: ReactNode; readonly label: string; readonly value: string; readonly color: string; readonly extra?: ReactNode }) {
   return (
     <motion.div
       variants={{
@@ -313,7 +314,7 @@ function StatCard({ icon, label, value, color, extra }: { readonly icon: string;
           <p className={`text-xl font-bold mt-1 ${color}`}>{value}</p>
           {extra && <div className="mt-1">{extra}</div>}
         </div>
-        <span className="text-2xl">{icon}</span>
+        <div className="text-white/60">{icon}</div>
       </div>
     </motion.div>
   )

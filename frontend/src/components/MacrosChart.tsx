@@ -9,7 +9,7 @@ export default function MacrosChart({ data }: Props) {
   if (data.length === 0) {
     return (
       <div className="card">
-        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">🥗 Macros Promedio Semanal</h2>
+        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">Macros Promedio Semanal</h2>
         <div className="flex items-center justify-center h-80 text-slate-500">
           <p>Sin datos de macros disponibles</p>
         </div>
@@ -26,7 +26,7 @@ export default function MacrosChart({ data }: Props) {
 
   return (
     <div className="card">
-      <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">🥗 Macros Promedio Semanal</h2>
+      <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">Macros Promedio Semanal</h2>
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={chartData} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />

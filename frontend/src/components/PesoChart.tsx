@@ -10,7 +10,7 @@ export default function PesoChart({ data, pesoObjetivo }: Props) {
   if (data.length < 2) {
     return (
       <div className="card">
-        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">📉 Evolución del Peso</h2>
+        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">Evolución del Peso</h2>
         <div className="flex items-center justify-center h-80 text-slate-500">
           <p>Registra al menos 2 pesajes para ver la tendencia</p>
         </div>
@@ -30,7 +30,7 @@ export default function PesoChart({ data, pesoObjetivo }: Props) {
 
   return (
     <div className="card">
-      <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">📉 Evolución del Peso</h2>
+      <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">Evolución del Peso</h2>
       <ResponsiveContainer width="100%" height={320}>
         <LineChart data={chartData} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />

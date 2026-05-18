@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence as AnimatePresenceMotion } from 'framer-motion'
+import { Trophy, X, Timer } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getRetos, sincronizarProgreso, aceptarReto, abandonarReto, type Reto } from '../api/retos'
 
@@ -107,7 +108,7 @@ export default function Retos() {
         </AnimatePresence>
 
         <div className="mb-8">
-          <h1 className="gradient-text text-3xl font-bold mb-2">🏆 Modo Reto</h1>
+          <h1 className="gradient-text text-3xl font-bold mb-2">Modo Reto</h1>
           <p className="text-white/50 mb-6">Acepta desafíos y gana puntos completando objetivos</p>
 
           <motion.div
@@ -179,12 +180,12 @@ export default function Retos() {
                         transition={{ type: 'spring', stiffness: 300 }}
                         className="card hover:border-emerald-500/50 transition-colors"
                       >
-                        <div className="text-5xl mb-3">{reto.icono}</div>
+                        <Trophy className="w-10 h-10 text-amber-400 mb-3" />
                         <h3 className="font-bold text-white mb-2">{reto.titulo}</h3>
                         <p className="text-white/50 text-sm mb-3 line-clamp-2">{reto.descripcion}</p>
                         <div className="flex items-center gap-3 mb-4 text-xs text-white/50">
-                          <span>⏱️ {reto.duracionDias} días</span>
-                          <span>🏆 {reto.puntos} pts</span>
+                          <span className="flex items-center gap-1"><Timer className="w-3.5 h-3.5" />{reto.duracionDias} días</span>
+                          <span className="flex items-center gap-1"><Trophy className="w-3.5 h-3.5" />{reto.puntos} pts</span>
                         </div>
                         <motion.button
                           onClick={() => handleAceptarReto(reto.id)}
@@ -222,7 +223,7 @@ export default function Retos() {
                         <motion.div key={reto.id} variants={item} className="card border-l-4 border-l-cyan-500">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex items-start gap-3 flex-1">
-                              <span className="text-3xl">{reto.icono}</span>
+                              <Trophy className="w-8 h-8 text-amber-400" />
                               <div>
                                 <h3 className="font-bold text-white">{reto.titulo}</h3>
                                 <p className="text-white/50 text-sm mt-0.5">{reto.descripcion}</p>
@@ -234,7 +235,7 @@ export default function Retos() {
                               whileTap={{ scale: 0.9 }}
                               className="text-white/50 hover:text-red-400 text-xs font-medium shrink-0"
                             >
-                              ✕
+                              <X className="w-4 h-4" />
                             </motion.button>
                           </div>
 
@@ -328,15 +329,15 @@ export default function Retos() {
                         className="card border border-emerald-500/30 bg-emerald-500/5"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="text-3xl">{reto.icono}</div>
+                          <Trophy className="w-8 h-8 text-amber-400" />
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="font-bold text-emerald-400">{reto.titulo}</h3>
-                              <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">✓ Completado</span>
+                              <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">Completado</span>
                             </div>
                             <p className="text-white/50 text-sm">{reto.descripcion}</p>
                             <div className="mt-3 flex items-center gap-4 text-sm">
-                              <span className="text-amber-400 font-bold">🏆 +{reto.puntos} puntos</span>
+                              <span className="text-amber-400 font-bold flex items-center gap-1"><Trophy className="w-3.5 h-3.5" />+{reto.puntos} puntos</span>
                               {reto.fechaFin && (
                                 <span className="text-white/40">
                                   {new Date(reto.fechaFin).toLocaleDateString('es-ES')}

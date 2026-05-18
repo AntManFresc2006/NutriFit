@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
+import { Activity, Star, TrendingDown, Flame } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getTendencias, type TendenciasData } from '../api/tendencias'
 import PesoChart from '../components/PesoChart'
@@ -30,7 +32,7 @@ export default function Tendencias() {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="flex-1 overflow-auto p-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-slate-100 mb-4">Análisis de Tendencias 📈</h1>
+            <h1 className="text-2xl font-bold text-slate-100 mb-4">Análisis de Tendencias</h1>
             <div className="flex gap-2">
               {[30, 60, 90].map(d => (
                 <button
@@ -84,7 +86,6 @@ export default function Tendencias() {
 
         {!data ? (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card text-center py-16 text-white/50">
-            <p className="text-5xl mb-3">📊</p>
             <p>Sin datos disponibles. Registra comidas, pesajes y ejercicios primero.</p>
           </motion.div>
         ) : (
@@ -99,7 +100,7 @@ export default function Tendencias() {
                 <StatsCard
                   label="Días con ejercicio"
                   value={`${data.ejercicio.filter(e => e.tuvoEjercicio).length}/${data.ejercicio.length}`}
-                  icon="🏃"
+                  icon={<Activity className="w-8 h-8 text-blue-400" />}
                   color="text-blue-400"
                 />
               </motion.div>
@@ -109,7 +110,7 @@ export default function Tendencias() {
                   value={data.nutriScore.length > 0
                     ? Math.round(data.nutriScore.reduce((acc, p) => acc + p.score, 0) / data.nutriScore.length)
                     : '—'}
-                  icon="⭐"
+                  icon={<Star className="w-8 h-8 text-yellow-400" />}
                   color="text-yellow-400"
                 />
               </motion.div>
@@ -119,7 +120,7 @@ export default function Tendencias() {
                   value={data.peso.length > 1
                     ? `${data.peso[data.peso.length - 1].pesoKg - data.peso[0].pesoKg > 0 ? '+' : ''}${(data.peso[data.peso.length - 1].pesoKg - data.peso[0].pesoKg).toFixed(1)} kg`
                     : '—'}
-                  icon="📉"
+                  icon={<TrendingDown className="w-8 h-8 text-green-400" />}
                   color="text-green-400"
                 />
               </motion.div>
@@ -127,7 +128,7 @@ export default function Tendencias() {
                 <StatsCard
                   label="Racha actual"
                   value={calcularRacha(data.nutriScore) + ' días'}
-                  icon="🔥"
+                  icon={<Flame className="w-8 h-8 text-orange-400" />}
                   color="text-orange-400"
                 />
               </motion.div>
@@ -167,7 +168,7 @@ function StatsCard({
 }: {
   readonly label: string
   readonly value: string | number
-  readonly icon: string
+  readonly icon: ReactNode
   readonly color: string
 }) {
   return (
@@ -178,7 +179,7 @@ function StatsCard({
     >
       <p className="text-xs text-white/50 uppercase tracking-wide">{label}</p>
       <p className={`text-2xl font-bold mt-2 ${color}`}>{value}</p>
-      <span className="text-3xl block mt-2">{icon}</span>
+      <div className="mt-2">{icon}</div>
     </motion.div>
   )
 }

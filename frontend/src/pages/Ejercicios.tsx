@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Wind, Dumbbell, Trash2, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import {
   getEjercicios,
@@ -18,10 +19,10 @@ function today() {
   return new Date().toISOString().split('T')[0]
 }
 
-const INTENSIDADES: { value: Intensidad; label: string; desc: string; icon: string }[] = [
-  { value: 'BAJA',  label: 'Baja',  desc: 'Muchas reps · poco peso',    icon: '🟢' },
-  { value: 'MEDIA', label: 'Media', desc: 'Reps normales · peso moderado', icon: '🟡' },
-  { value: 'ALTA',  label: 'Alta',  desc: 'Pocas reps · mucho peso',     icon: '🔴' },
+const INTENSIDADES: { value: Intensidad; label: string; desc: string; color: string }[] = [
+  { value: 'BAJA',  label: 'Baja',  desc: 'Muchas reps · poco peso',    color: 'bg-green-500' },
+  { value: 'MEDIA', label: 'Media', desc: 'Reps normales · peso moderado', color: 'bg-yellow-400' },
+  { value: 'ALTA',  label: 'Alta',  desc: 'Pocas reps · mucho peso',     color: 'bg-red-500' },
 ]
 
 export default function Ejercicios() {
@@ -127,7 +128,7 @@ export default function Ejercicios() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold gradient-text">🏃 Ejercicios</h1>
+          <h1 className="text-2xl font-bold gradient-text">Ejercicios</h1>
           <p className="text-slate-400 text-sm mt-0.5">Actividad física registrada</p>
         </div>
         <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="input w-auto" />
@@ -177,14 +178,14 @@ export default function Ejercicios() {
           >
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-white">¿Qué tipo de ejercicio?</h2>
-              <button onClick={cancelar} className="text-slate-500 hover:text-white text-sm">✕ Cancelar</button>
+              <button onClick={cancelar} className="text-slate-500 hover:text-white text-sm">Cancelar</button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => iniciarFlujo('AEROBICO')}
                 className="flex flex-col items-center gap-2 p-5 rounded-xl border border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all"
               >
-                <span className="text-4xl">🫁</span>
+                <Wind className="w-10 h-10 text-emerald-400" />
                 <span className="font-semibold text-white">Aeróbico</span>
                 <span className="text-xs text-slate-400 text-center">Cardio · quema por tiempo</span>
               </button>
@@ -192,7 +193,7 @@ export default function Ejercicios() {
                 onClick={() => iniciarFlujo('ANAEROBICO')}
                 className="flex flex-col items-center gap-2 p-5 rounded-xl border border-white/10 hover:border-cyan-500/50 hover:bg-cyan-500/5 transition-all"
               >
-                <span className="text-4xl">💪</span>
+                <Dumbbell className="w-10 h-10 text-cyan-400" />
                 <span className="font-semibold text-white">Anaeróbico</span>
                 <span className="text-xs text-slate-400 text-center">Fuerza · series e intensidad</span>
               </button>
@@ -212,14 +213,14 @@ export default function Ejercicios() {
             <div className="flex items-center gap-2">
               <button onClick={() => setPaso('tipo')} className="text-slate-500 hover:text-white text-sm">← Volver</button>
               <span className="text-white font-semibold flex-1">
-                {tipoFlujo === 'AEROBICO' ? '🫁 Aeróbico' : '💪 Anaeróbico'} · Elige ejercicio
+                {tipoFlujo === 'AEROBICO' ? 'Aeróbico' : 'Anaeróbico'} · Elige ejercicio
               </span>
-              <button onClick={cancelar} className="text-slate-500 hover:text-white text-sm">✕</button>
+              <button onClick={cancelar} className="text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
             </div>
             <input
               type="text"
               className="input"
-              placeholder="🔍 Buscar..."
+              placeholder="Buscar..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               autoFocus
@@ -256,7 +257,7 @@ export default function Ejercicios() {
             <div className="flex items-center gap-2">
               <button onClick={() => setPaso('ejercicio')} className="text-slate-500 hover:text-white text-sm">← Volver</button>
               <span className="text-white font-semibold flex-1">{selected.nombre}</span>
-              <button onClick={cancelar} className="text-slate-500 hover:text-white text-sm">✕</button>
+              <button onClick={cancelar} className="text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
             </div>
 
             {tipoFlujo === 'AEROBICO' ? (
@@ -288,7 +289,7 @@ export default function Ejercicios() {
                             : 'border-white/10 text-slate-400 hover:border-white/20'
                         }`}
                       >
-                        <span className="text-xl">{i.icon}</span>
+                        <span className={`w-3 h-3 rounded-full ${i.color}`} />
                         <span className="text-sm font-medium">{i.label}</span>
                         <span className="text-[10px] text-center leading-tight opacity-70">{i.desc}</span>
                       </button>
@@ -335,7 +336,6 @@ export default function Ejercicios() {
         </div>
       ) : registros.length === 0 ? (
         <div className="card text-center py-16 text-slate-400">
-          <p className="text-4xl mb-3">🏃</p>
           <p>Sin ejercicios registrados para este día.</p>
         </div>
       ) : (
@@ -398,7 +398,7 @@ export default function Ejercicios() {
                               onClick={() => setConfirmDeleteId(r.id)}
                               className="btn-danger"
                             >
-                              🗑
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           )}
                         </AnimatePresence>

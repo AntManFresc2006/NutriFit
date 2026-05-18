@@ -11,7 +11,7 @@ export default function EjercicioHeatmap({ data }: Props) {
   if (data.length === 0) {
     return (
       <div className="card">
-        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">🏃 Actividad Física</h2>
+        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-4">Actividad Física</h2>
         <div className="flex items-center justify-center h-80 text-slate-500">
           <p>Sin datos de ejercicio disponibles</p>
         </div>
@@ -58,7 +58,7 @@ export default function EjercicioHeatmap({ data }: Props) {
 
   return (
     <div className="card">
-      <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-6">🏃 Actividad Física</h2>
+      <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-6">Actividad Física</h2>
       <div className="space-y-4">
         {weeks.map((week, weekIdx) => (
           <div key={weekIdx} className="flex items-center gap-2">

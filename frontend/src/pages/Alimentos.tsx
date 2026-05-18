@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Search, Trash2 } from 'lucide-react'
 import { getAlimentos, createAlimento, deleteAlimento } from '../api/alimentos'
 import type { Alimento, AlimentoRequest } from '../types'
 
@@ -96,7 +97,7 @@ export default function Alimentos() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
         >
-          {showForm ? '✕ Cancelar' : '+ Nuevo alimento'}
+          {showForm ? 'Cancelar' : '+ Nuevo alimento'}
         </motion.button>
       </div>
 
@@ -152,7 +153,7 @@ export default function Alimentos() {
       </AnimatePresence>
 
       <div className="relative mb-6">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-lg">🔍</span>
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-5 h-5" />
         <motion.input
           type="text"
           className="input pl-12 text-lg py-4 rounded-2xl w-full"
@@ -193,13 +194,6 @@ export default function Alimentos() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: 'spring', stiffness: 100 }}
         >
-          <motion.p
-            className="text-6xl mb-3"
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            🥗
-          </motion.p>
           <p>No se encontraron alimentos{query ? ` para "${query}"` : ''}.</p>
         </motion.div>
       ) : (
@@ -281,7 +275,7 @@ export default function Alimentos() {
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                             >
-                              🗑
+                              <Trash2 className="w-4 h-4" />
                             </motion.button>
                           )}
                         </AnimatePresence>

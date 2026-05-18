@@ -4,6 +4,7 @@ import { Html5Qrcode } from 'html5-qrcode'
 import { escanearBarcode, type EscanerResult } from '../api/escaner'
 import { createAlimento } from '../api/alimentos'
 import { getComidas, createComida, addItemToComida } from '../api/comidas'
+import { Camera, Keyboard } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import type { Comida } from '../types'
 
@@ -239,7 +240,7 @@ export default function Escaner() {
               {addSuccess && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                   className="mb-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm"
-                >✓ {addSuccess}</motion.div>
+                >{addSuccess}</motion.div>
               )}
             </AnimatePresence>
 
@@ -289,8 +290,8 @@ export default function Escaner() {
                 <button onClick={() => seleccionarMetodo('camara')}
                   className="w-full card flex items-center gap-4 p-4 hover:border-emerald-500/40 transition-all text-left group cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center text-2xl shrink-0 group-hover:bg-emerald-500/25 transition-colors">
-                    📷
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/25 transition-colors">
+                    <Camera className="w-6 h-6 text-emerald-400" />
                   </div>
                   <div className="flex-1">
                     <p className="text-white font-medium text-sm">Escanear código de barras</p>
@@ -302,8 +303,8 @@ export default function Escaner() {
                 <button onClick={() => seleccionarMetodo('manual')}
                   className="w-full card flex items-center gap-4 p-4 hover:border-blue-500/40 transition-all text-left group cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/15 flex items-center justify-center text-2xl shrink-0 group-hover:bg-blue-500/25 transition-colors">
-                    ⌨️
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/15 flex items-center justify-center shrink-0 group-hover:bg-blue-500/25 transition-colors">
+                    <Keyboard className="w-6 h-6 text-blue-400" />
                   </div>
                   <div className="flex-1">
                     <p className="text-white font-medium text-sm">Introducir código manualmente</p>

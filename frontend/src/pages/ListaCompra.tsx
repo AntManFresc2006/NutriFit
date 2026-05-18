@@ -1,18 +1,9 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Trash2, X, Lightbulb } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getItems, addItem, toggleItem, deleteItem, clearCompletados, getSugerencias } from '../api/listaCompra'
 import type { ListaAgrupada } from '../api/listaCompra'
-
-const categoryIcons: Record<string, string> = {
-  PROTEINAS: '💪',
-  VERDURAS: '🥦',
-  FRUTAS: '🍎',
-  LACTEOS: '🥛',
-  CEREALES: '🌾',
-  BEBIDAS: '🥤',
-  OTROS: '📦',
-}
 
 const categoryLabels: Record<string, string> = {
   PROTEINAS: 'Proteínas',
@@ -137,7 +128,7 @@ export default function ListaCompra() {
           transition={{ duration: 0.5 }}
         >
           <div>
-            <h1 className="text-3xl font-bold gradient-text mb-2">🛒 Lista de la Compra</h1>
+            <h1 className="text-3xl font-bold gradient-text mb-2">Lista de la Compra</h1>
             <AnimatePresence>
               {totalItems > 0 && (
                 <motion.div
@@ -150,14 +141,14 @@ export default function ListaCompra() {
                     className="text-emerald-400 font-medium"
                     whileHover={{ scale: 1.05 }}
                   >
-                    ✓ {pendientes} pendientes
+                    {pendientes} pendientes
                   </motion.span>
                   {completados > 0 && (
                     <motion.span
                       className="text-white/40"
                       whileHover={{ scale: 1.05 }}
                     >
-                      ✓ {completados} completados
+                      {completados} completados
                     </motion.span>
                   )}
                 </motion.div>
@@ -266,7 +257,7 @@ export default function ListaCompra() {
                 onClick={() => setError(null)}
                 className="ml-4 text-red-400/50 hover:text-red-400 transition-colors"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </motion.div>
           )}
@@ -292,7 +283,7 @@ export default function ListaCompra() {
                 >
                   ▼
                 </motion.span>
-                💡 Tus alimentos habituales:
+                <Lightbulb className="w-4 h-4" /> Tus alimentos habituales:
               </motion.button>
               <AnimatePresence>
                 {expandSugerencias && (
@@ -333,13 +324,6 @@ export default function ListaCompra() {
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 100 }}
             >
-              <motion.div
-                className="text-6xl mb-4"
-                animate={{ y: [0, -12, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                🛒
-              </motion.div>
               <p className="text-xl gradient-text font-semibold mb-2">Tu lista está vacía</p>
               <p className="text-white/40">Añade productos usando el formulario de arriba</p>
             </motion.div>
@@ -364,7 +348,6 @@ export default function ListaCompra() {
                   animate="show"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl">{categoryIcons[cat]}</span>
                     <span className="section-title">{categoryLabels[cat]}</span>
                     <motion.span className="text-xs text-white/30" whileHover={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                       ({catItems.length})
@@ -426,7 +409,7 @@ export default function ListaCompra() {
                             whileHover={{ scale: 1.15, color: 'rgb(248, 113, 113)' }}
                             whileTap={{ scale: 0.9 }}
                           >
-                            🗑️
+                            <Trash2 className="w-4 h-4" />
                           </motion.button>
                         </motion.div>
                       ))}

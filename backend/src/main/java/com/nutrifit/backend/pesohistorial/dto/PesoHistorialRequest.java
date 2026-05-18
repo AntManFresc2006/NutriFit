@@ -2,6 +2,9 @@ package com.nutrifit.backend.pesohistorial.dto;
 
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * Solicitud para registrar o actualizar el peso del usuario en una fecha.
+ */
 public class PesoHistorialRequest {
 
     @NotNull(message = "La fecha es requerida en formato yyyy-MM-dd")

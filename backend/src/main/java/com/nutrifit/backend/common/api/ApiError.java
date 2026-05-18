@@ -2,6 +2,9 @@ package com.nutrifit.backend.common.api;
 
 import java.time.LocalDateTime;
 
+/**
+ * Estructura estándar para respuestas de error en la API REST.
+ */
 public class ApiError {
 
     private LocalDateTime timestamp;

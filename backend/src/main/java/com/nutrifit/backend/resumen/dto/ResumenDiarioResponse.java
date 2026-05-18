@@ -2,6 +2,13 @@ package com.nutrifit.backend.resumen.dto;
 
 import java.time.LocalDate;
 
+/**
+ * DTO de salida con los totales nutricionales del día y el balance calórico neto.
+ *
+ * <p>{@code balanceReal} = kcalTotales − TDEE − kcalQuemadasTotales.
+ * Los campos {@code diasParaObjetivo} y {@code fechaObjetivo} se calculan
+ * solo cuando el usuario tiene peso objetivo y hay un déficit o superávit claro.</p>
+ */
 public class ResumenDiarioResponse {
 
     private Long usuarioId;

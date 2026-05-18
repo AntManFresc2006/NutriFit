@@ -3,6 +3,9 @@ package com.nutrifit.backend.plansemanal.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * DTO con el plan semanal de alimentación generado por IA.
+ */
 public class PlanSemanalResponse {
 
     private Long id;

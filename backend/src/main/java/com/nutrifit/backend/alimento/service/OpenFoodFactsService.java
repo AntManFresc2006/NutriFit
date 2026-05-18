@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Servicio para consultar la API externa Open Food Facts.
+ * Permite buscar productos alimentarios y extraer su información nutricional.
+ */
 @Service
 public class OpenFoodFactsService {
 
@@ -34,6 +38,12 @@ public class OpenFoodFactsService {
             .build();
     private final ObjectMapper mapper = new ObjectMapper();
 
+    /**
+     * Busca productos en la API Open Food Facts por nombre o descripción.
+     *
+     * @param query texto de búsqueda del producto
+     * @return lista de productos encontrados con sus datos nutricionales
+     */
     public List<AlimentoExternoResponse> buscar(String query) {
         try {
             String encoded = URLEncoder.encode(query.trim(), StandardCharsets.UTF_8);

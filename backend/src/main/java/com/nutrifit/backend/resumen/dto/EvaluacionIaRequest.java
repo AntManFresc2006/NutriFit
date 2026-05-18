@@ -4,6 +4,13 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * DTO de entrada para la evaluación nutricional por IA.
+ *
+ * <p>Los campos {@code kcalMedia7d}, {@code proteinasMedia7d}, {@code diasConEjercicio7d}
+ * y {@code balanceMedia7d} se rellenan en el controlador a partir de los últimos 7 días;
+ * el cliente no los envía.</p>
+ */
 public class EvaluacionIaRequest {
 
     @NotNull

@@ -1,5 +1,8 @@
 package com.nutrifit.backend.auth.model;
 
+/**
+ * Modelo de usuario: credenciales e información básica de autenticación.
+ */
 public class Usuario {
 
     private Long id;
@@ -10,6 +13,14 @@ public class Usuario {
     public Usuario() {
     }
 
+    /**
+     * Construye un usuario con todos sus campos.
+     *
+     * @param id            identificador único
+     * @param nombre        nombre del usuario
+     * @param email         correo electrónico (debe ser único)
+     * @param passwordHash  hash BCrypt de la contraseña
+     */
     public Usuario(Long id, String nombre, String email, String passwordHash) {
         this.id = id;
         this.nombre = nombre;

@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+/**
+ * Limpia sesiones expiradas cada hora (3.600.000 ms).
+ */
 @Component
 public class SessionCleanupJob {
 
@@ -17,6 +20,9 @@ public class SessionCleanupJob {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Elimina sesiones cuya fecha de expiración ha pasado. Se ejecuta automáticamente cada hora.
+     */
     @Scheduled(fixedRate = 3_600_000)
     public void eliminarSesionesExpiradas() {
         int eliminadas = jdbcTemplate.update(

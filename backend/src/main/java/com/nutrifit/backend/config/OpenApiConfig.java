@@ -7,9 +7,15 @@ import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configura la documentación OpenAPI/Swagger para la API REST.
+ */
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * Define la información general y características de la API para Swagger UI.
+     */
     @Bean
     public OpenAPI nutriFitOpenAPI() {
         return new OpenAPI()

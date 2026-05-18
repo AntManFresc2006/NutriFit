@@ -2,6 +2,9 @@ package com.nutrifit.backend.alimento.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * DTO de entrada para enviar una foto codificada en Base64 para análisis con IA.
+ */
 public class EscanearFotoRequest {
 
     @NotBlank(message = "La imagen en base64 es obligatoria")

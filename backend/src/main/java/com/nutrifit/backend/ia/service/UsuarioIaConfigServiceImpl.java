@@ -9,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+/**
+ * Implementación del servicio de configuración de IA.
+ * Proporciona conversión entre modelos y DTOs.
+ */
 @Service
 public class UsuarioIaConfigServiceImpl implements UsuarioIaConfigService {
 

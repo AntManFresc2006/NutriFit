@@ -2,6 +2,9 @@ package com.nutrifit.backend.auth.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * Modelo de sesión: token de autenticación asociado a un usuario con fecha de expiración.
+ */
 public class Sesion {
 
     private Long id;
@@ -13,6 +16,15 @@ public class Sesion {
     public Sesion() {
     }
 
+    /**
+     * Construye una sesión con todos sus campos.
+     *
+     * @param id        identificador único de la sesión
+     * @param usuarioId identificador del usuario propietario
+     * @param token     token de autenticación (UUID)
+     * @param createdAt fecha de creación
+     * @param expiresAt fecha de expiración
+     */
     public Sesion(Long id, Long usuarioId, String token, LocalDateTime createdAt, LocalDateTime expiresAt) {
         this.id = id;
         this.usuarioId = usuarioId;

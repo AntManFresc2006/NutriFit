@@ -2,6 +2,9 @@ package com.nutrifit.backend.listacompra.dto;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO con datos de un artículo de la lista de compra.
+ */
 public class ListaCompraItemResponse {
     private Long id;
     private String nombre;

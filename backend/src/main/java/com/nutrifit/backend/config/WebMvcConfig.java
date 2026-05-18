@@ -11,6 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+/**
+ * Configura CORS e interceptores de autenticación para las solicitudes HTTP.
+ */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
@@ -20,6 +23,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
         this.authInterceptor = authInterceptor;
     }
 
+    /**
+     * Configura CORS permitiendo solicitudes desde el frontend en producción y desarrollo.
+     */
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();

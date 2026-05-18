@@ -2,6 +2,9 @@ package com.nutrifit.backend.reto.dto;
 
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * DTO para aceptar un reto por su ID.
+ */
 public class AceptarRetoRequest {
     @NotNull
     private Long retoId;

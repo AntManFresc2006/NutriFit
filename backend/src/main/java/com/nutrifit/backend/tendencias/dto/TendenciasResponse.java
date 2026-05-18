@@ -2,6 +2,9 @@ package com.nutrifit.backend.tendencias.dto;
 
 import java.util.List;
 
+/**
+ * DTO de salida con las cuatro series de tendencias nutricionales del usuario.
+ */
 public class TendenciasResponse {
     private List<PesoTendenciaPoint> peso;
     private List<NutriScoreTendenciaPoint> nutriScore;

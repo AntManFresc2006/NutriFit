@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
 import java.time.LocalDate;
 
+/**
+ * Solicitud para registrar una ingesta de agua.
+ */
 public class AguaRequest {
 
     @NotNull(message = "La fecha es requerida")

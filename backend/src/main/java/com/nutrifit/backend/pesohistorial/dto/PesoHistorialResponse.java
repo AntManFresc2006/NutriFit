@@ -1,5 +1,8 @@
 package com.nutrifit.backend.pesohistorial.dto;
 
+/**
+ * Respuesta con los datos de un registro de peso histórico.
+ */
 public class PesoHistorialResponse {
 
     private Long id;

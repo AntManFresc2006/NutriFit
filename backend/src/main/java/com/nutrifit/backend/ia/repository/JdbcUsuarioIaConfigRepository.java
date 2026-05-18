@@ -8,6 +8,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación JDBC del repositorio de configuración de IA.
+ * Maneja la tabla 'usuario_ia_config'.
+ */
 @Repository
 public class JdbcUsuarioIaConfigRepository implements UsuarioIaConfigRepository {
 

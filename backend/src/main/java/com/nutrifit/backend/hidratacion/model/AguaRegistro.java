@@ -3,6 +3,9 @@ package com.nutrifit.backend.hidratacion.model;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * Modelo que representa el registro de una ingesta de agua por un usuario.
+ */
 public class AguaRegistro {
 
     private Long id;

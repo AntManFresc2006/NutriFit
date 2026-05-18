@@ -2,6 +2,9 @@ package com.nutrifit.backend.alimento.dto;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO de salida con los datos nutricionales extraídos de una foto mediante análisis con IA.
+ */
 public class EscanearFotoResponse {
 
     private String nombre;

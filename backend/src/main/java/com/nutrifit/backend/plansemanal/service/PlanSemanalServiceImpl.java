@@ -19,6 +19,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementación del servicio de plan semanal.
+ * Genera planes mediante IA (OpenRouter) y gestiona persistencia.
+ */
 @Service
 public class PlanSemanalServiceImpl implements PlanSemanalService {
 

@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+/**
+ * Implementación de servicio de autenticación: registro, login y logout con gestión de sesiones.
+ */
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -28,6 +31,14 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordService passwordService;
     private final TokenService tokenService;
 
+    /**
+     * Inyecta dependencias de repositorios y servicios de seguridad.
+     *
+     * @param usuarioRepository repositorio de usuarios
+     * @param sesionRepository  repositorio de sesiones
+     * @param passwordService   servicio de hash de contraseñas (BCrypt)
+     * @param tokenService      servicio de generación de tokens
+     */
     public AuthServiceImpl(
             UsuarioRepository usuarioRepository,
             SesionRepository sesionRepository,
@@ -40,6 +51,14 @@ public class AuthServiceImpl implements AuthService {
         this.tokenService = tokenService;
     }
 
+    /**
+     * Registra un nuevo usuario. Normaliza email a minúsculas y espacios trimmed,
+     * hash contraseña con BCrypt, abre sesión automáticamente (sin requerir login posterior).
+     *
+     * @param request datos de registro
+     * @return token de sesión e información del usuario
+     * @throws BadRequestException si el email ya existe
+     */
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -74,6 +93,15 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
+    /**
+     * Autentica un usuario. Normaliza email a minúsculas, busca usuario, verifica contraseña
+     * con BCrypt y abre nueva sesión. Usa mismo mensaje de error para email no existente
+     * y contraseña incorrecta (previene enumeración de cuentas).
+     *
+     * @param request credenciales
+     * @return token de sesión e información del usuario
+     * @throws UnauthorizedException si email no existe o contraseña es incorrecta
+     */
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
@@ -104,6 +132,13 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
+    /**
+     * Cierra sesión eliminando el token de la base de datos.
+     * El AuthInterceptor rechazará cualquier petición futura con ese token.
+     *
+     * @param token token a revocar
+     * @throws BadRequestException si el token está vacío
+     */
     @Override
     public void logout(String token) {
         if (token == null || token.isBlank()) {

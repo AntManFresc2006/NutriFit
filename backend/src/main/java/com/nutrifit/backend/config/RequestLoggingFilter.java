@@ -11,6 +11,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Filtro que registra todas las solicitudes HTTP entrantes con método, URI, status y duración.
+ */
 @Component
 public class RequestLoggingFilter extends OncePerRequestFilter {
 

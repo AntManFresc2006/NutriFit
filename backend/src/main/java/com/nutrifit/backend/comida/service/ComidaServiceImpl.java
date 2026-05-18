@@ -35,6 +35,13 @@ public class ComidaServiceImpl implements ComidaService {
         this.alimentoRepository = alimentoRepository;
     }
 
+    /**
+     * Añade un alimento a una comida validando su existencia previamente.
+     *
+     * @param comidaId identificador de la comida
+     * @param request datos del alimento y cantidad
+     * @throws ResourceNotFoundException si la comida o el alimento no existen
+     */
     @Override
     @Transactional
     public void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request) {
@@ -48,6 +55,13 @@ public class ComidaServiceImpl implements ComidaService {
         comidaRepository.addAlimentoToComida(comidaId, request.getAlimentoId(), request.getGramos());
     }
 
+    /**
+     * Obtiene los items de una comida con sus macros calculados.
+     *
+     * @param comidaId identificador de la comida
+     * @return lista de items con información nutricional estimada
+     * @throws ResourceNotFoundException si la comida no existe
+     */
     @Override
     @Transactional(readOnly = true)
     public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
@@ -57,6 +71,13 @@ public class ComidaServiceImpl implements ComidaService {
         return comidaRepository.findDetalleItemsByComidaId(comidaId);
     }
 
+    /**
+     * Obtiene las comidas de un usuario para un día específico.
+     *
+     * @param usuarioId identificador del usuario
+     * @param fecha fecha de las comidas buscadas
+     * @return lista de comidas del día
+     */
     @Override
     @Transactional(readOnly = true)
     public List<ComidaResponse> findByUsuarioAndFecha(Long usuarioId, LocalDate fecha) {
@@ -66,6 +87,13 @@ public class ComidaServiceImpl implements ComidaService {
                 .toList();
     }
 
+    /**
+     * Crea una nueva comida para un usuario normalizando el tipo a mayúsculas.
+     *
+     * @param usuarioId identificador del usuario propietario
+     * @param request datos de la comida a crear
+     * @return comida creada con su id asignado
+     */
     @Override
     @Transactional
     public ComidaResponse save(Long usuarioId, ComidaRequest request) {
@@ -79,6 +107,12 @@ public class ComidaServiceImpl implements ComidaService {
         return toResponse(guardada);
     }
 
+    /**
+     * Elimina una comida y todos sus items asociados.
+     *
+     * @param id identificador de la comida a eliminar
+     * @throws ResourceNotFoundException si la comida no existe
+     */
     @Override
     @Transactional
     public void deleteById(Long id) {
@@ -87,6 +121,13 @@ public class ComidaServiceImpl implements ComidaService {
         comidaRepository.deleteById(id);
     }
 
+    /**
+     * Elimina un item de comida-alimento validando que pertenece a la comida especificada.
+     *
+     * @param comidaId identificador de la comida
+     * @param itemId identificador del item a eliminar
+     * @throws ResourceNotFoundException si el item no existe o no pertenece a la comida
+     */
     @Override
     @Transactional
     public void deleteItem(Long comidaId, Long itemId) {

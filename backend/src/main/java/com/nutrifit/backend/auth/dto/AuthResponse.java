@@ -1,5 +1,8 @@
 package com.nutrifit.backend.auth.dto;
 
+/**
+ * Respuesta de autenticación: token de sesión e información del usuario.
+ */
 public class AuthResponse {
 
     private Long usuarioId;

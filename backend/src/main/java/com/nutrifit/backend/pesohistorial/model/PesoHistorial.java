@@ -2,6 +2,9 @@ package com.nutrifit.backend.pesohistorial.model;
 
 import java.time.LocalDate;
 
+/**
+ * Modelo que representa el registro histórico del peso de un usuario en una fecha.
+ */
 public class PesoHistorial {
 
     private Long id;

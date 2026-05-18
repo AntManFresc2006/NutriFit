@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
+/**
+ * Controlador REST para acceder a estadísticas de gamificación del usuario.
+ */
 @Tag(name = "Gamificación", description = "Estadísticas de gamificación del usuario")
 @RestController
 @RequestMapping("/api/gamificacion")

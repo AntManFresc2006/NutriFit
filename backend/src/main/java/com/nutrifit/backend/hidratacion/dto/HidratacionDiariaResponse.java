@@ -3,6 +3,9 @@ package com.nutrifit.backend.hidratacion.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Respuesta con el resumen diario de hidratación del usuario.
+ */
 public class HidratacionDiariaResponse {
 
     private LocalDate fecha;

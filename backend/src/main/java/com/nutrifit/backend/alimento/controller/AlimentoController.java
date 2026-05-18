@@ -127,6 +127,12 @@ public class AlimentoController {
         alimentoService.deleteById(id);
     }
 
+    /**
+     * Busca alimentos en la base de datos externa Open Food Facts.
+     *
+     * @param q texto de búsqueda del alimento
+     * @return lista de alimentos encontrados en el catálogo externo
+     */
     @Operation(summary = "Buscar alimentos externos")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Búsqueda completada exitosamente"),
@@ -140,6 +146,12 @@ public class AlimentoController {
         return openFoodFactsService.buscar(q);
     }
 
+    /**
+     * Analiza una foto de un producto alimenticio usando IA para extraer información nutricional.
+     *
+     * @param request contiene la imagen codificada en Base64 y su tipo MIME
+     * @return respuesta con los datos nutricionales detectados en la imagen
+     */
     @Operation(summary = "Escanear producto con IA desde foto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Análisis completado exitosamente"),

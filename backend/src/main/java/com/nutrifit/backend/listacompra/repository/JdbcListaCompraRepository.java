@@ -11,6 +11,10 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+/**
+ * Implementación JDBC del repositorio de lista de compra.
+ * Maneja la tabla 'lista_compra'.
+ */
 @Repository
 public class JdbcListaCompraRepository implements ListaCompraRepository {
 

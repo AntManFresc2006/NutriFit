@@ -1,5 +1,8 @@
 package com.nutrifit.backend.ejercicio.model;
 
+/**
+ * Modelo que representa un ejercicio del catálogo compartido con su valor MET.
+ */
 public class Ejercicio {
 
     private Long id;

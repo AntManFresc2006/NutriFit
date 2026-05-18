@@ -10,6 +10,9 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación JDBC del repositorio de usuarios: operaciones INSERT y SELECT en tabla usuarios.
+ */
 @Repository
 public class JdbcUsuarioRepository implements UsuarioRepository {
 

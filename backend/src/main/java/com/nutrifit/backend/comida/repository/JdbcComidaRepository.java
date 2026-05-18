@@ -48,6 +48,13 @@ public class JdbcComidaRepository implements ComidaRepository {
         }, usuarioId, fecha);
     }
 
+    /**
+     * Añade un alimento a una comida registrando la cantidad en gramos.
+     *
+     * @param comidaId identificador de la comida
+     * @param alimentoId identificador del alimento
+     * @param gramos cantidad consumida en gramos
+     */
     @Override
     public void addAlimentoToComida(Long comidaId, Long alimentoId, double gramos) {
         String sql = """

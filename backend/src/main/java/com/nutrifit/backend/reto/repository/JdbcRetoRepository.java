@@ -10,6 +10,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación JDBC del repositorio de retos.
+ * Maneja las tablas 'retos' y 'usuario_retos'.
+ */
 @Repository
 public class JdbcRetoRepository implements RetoRepository {
 

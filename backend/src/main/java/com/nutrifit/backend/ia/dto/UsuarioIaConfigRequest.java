@@ -2,6 +2,9 @@ package com.nutrifit.backend.ia.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * DTO para actualizar la configuración de IA personalizada.
+ */
 public class UsuarioIaConfigRequest {
 
     @NotBlank(message = "proxyUrl es obligatorio")

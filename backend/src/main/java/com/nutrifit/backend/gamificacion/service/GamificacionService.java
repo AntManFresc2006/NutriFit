@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Servicio de gamificación. Calcula racha, NutriScore y badges basados en actividad diaria.
+ */
 @Service
 public class GamificacionService {
 
@@ -21,6 +24,12 @@ public class GamificacionService {
         this.perfilService = perfilService;
     }
 
+    /**
+     * Calcula todas las métricas de gamificación para un usuario en una fecha específica.
+     * @param usuarioId ID del usuario.
+     * @param fecha Fecha a evaluar.
+     * @return Respuesta con racha, NutriScore, calificación y badges.
+     */
     public GamificacionResponse calcular(Long usuarioId, LocalDate fecha) {
         try {
             int racha = calcularRacha(usuarioId, fecha);

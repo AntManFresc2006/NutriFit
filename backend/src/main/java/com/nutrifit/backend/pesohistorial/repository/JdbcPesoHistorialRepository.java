@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Implementación JDBC del repositorio de historial de peso. Gestiona la tabla peso_historial.
+ */
 @Repository
 public class JdbcPesoHistorialRepository implements PesoHistorialRepository {
 

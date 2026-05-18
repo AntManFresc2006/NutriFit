@@ -14,17 +14,29 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 
+/**
+ * Manejador centralizado de excepciones para la API REST.
+ * Convierte excepciones en respuestas HTTP con estructura ApiError.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    /**
+     * Maneja ResourceNotFoundException.
+     * Devuelve 404 Not Found cuando un recurso no existe.
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         ApiError error = buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    /**
+     * Maneja MethodArgumentNotValidException.
+     * Devuelve 400 Bad Request por errores de validación en los campos.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
         String message = ex.getBindingResult()
@@ -38,6 +50,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    /**
+     * Maneja excepciones generales de validación y formato.
+     * Devuelve 400 Bad Request por argumentos inválidos o formato de JSON incorrecto.
+     */
     @ExceptionHandler({
             IllegalArgumentException.class,
             ConstraintViolationException.class,
@@ -48,12 +64,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    /**
+     * Maneja TooManyRequestsException.
+     * Devuelve 429 Too Many Requests cuando se excede el límite de solicitudes.
+     */
     @ExceptionHandler(TooManyRequestsException.class)
     public ResponseEntity<ApiError> handleTooManyRequests(TooManyRequestsException ex, HttpServletRequest request) {
         ApiError error = buildError(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request.getRequestURI());
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(error);
     }
 
+    /**
+     * Maneja DataAccessException.
+     * Devuelve 500 Internal Server Error por errores de acceso a la base de datos.
+     */
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ApiError> handleDataAccess(DataAccessException ex, HttpServletRequest request) {
         log.error("DataAccessException en {}: {}", request.getRequestURI(), ex.getMostSpecificCause().getMessage());
@@ -61,12 +85,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
+    /**
+     * Maneja UnauthorizedException.
+     * Devuelve 401 Unauthorized cuando falta autenticación o es inválida.
+     */
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ApiError> handleUnauthorized(UnauthorizedException ex, HttpServletRequest request) {
         ApiError error = buildError(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    /**
+     * Maneja excepciones genéricas no específicas.
+     * Devuelve 500 Internal Server Error por cualquier otra excepción.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest request) {
         ApiError error = buildError(

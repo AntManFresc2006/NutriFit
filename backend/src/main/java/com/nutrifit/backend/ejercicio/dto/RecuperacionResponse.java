@@ -1,5 +1,8 @@
 package com.nutrifit.backend.ejercicio.dto;
 
+/**
+ * Respuesta con sugerencias de recuperación post-ejercicio.
+ */
 public class RecuperacionResponse {
     private boolean tieneEjercicioIntensivo;
     private String ejercicioNombre;

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Lógica para registrar la actividad física diaria del usuario.
+ * Implementación del servicio de registros de ejercicio con cálculo automático de kcal.
  *
  * <p>Para calcular las kcal quemadas se necesitan el MET del ejercicio y el peso
  * actual del usuario, así que este servicio depende tanto de {@code EjercicioRepository}

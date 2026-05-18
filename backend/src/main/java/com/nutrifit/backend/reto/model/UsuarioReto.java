@@ -3,6 +3,9 @@ package com.nutrifit.backend.reto.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Representa la aceptación y progreso de un usuario en un reto específico.
+ */
 public class UsuarioReto {
     private Long id;
     private Long usuarioId;

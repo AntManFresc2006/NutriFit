@@ -1,5 +1,8 @@
 package com.nutrifit.backend.reto.model;
 
+/**
+ * Representa un reto o desafío disponible en la aplicación.
+ */
 public class Reto {
     private Long id;
     private String titulo;

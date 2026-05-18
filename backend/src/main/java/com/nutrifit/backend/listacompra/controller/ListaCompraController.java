@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.List;
 
+/**
+ * Controlador REST para gestionar la lista de compra del usuario.
+ */
 @Tag(name = "Lista de la Compra", description = "Gestión de lista de compra personal")
 @RestController
 @RequestMapping("/api/lista-compra")

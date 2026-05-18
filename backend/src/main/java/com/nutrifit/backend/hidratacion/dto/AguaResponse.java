@@ -3,6 +3,9 @@ package com.nutrifit.backend.hidratacion.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * Respuesta con los datos de un registro de ingesta de agua.
+ */
 public class AguaResponse {
 
     private Long id;

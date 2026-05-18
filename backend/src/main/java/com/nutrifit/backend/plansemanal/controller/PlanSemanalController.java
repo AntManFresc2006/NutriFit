@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+/**
+ * Controlador REST para generar y gestionar planes semanales de alimentación.
+ */
 @Tag(name = "Plan Semanal", description = "Generación y gestión de planes alimentarios semanales")
 @RestController
 @RequestMapping("/api/plan-semanal")

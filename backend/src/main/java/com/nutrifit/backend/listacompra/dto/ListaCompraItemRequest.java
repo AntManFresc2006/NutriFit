@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+/**
+ * DTO para crear o actualizar un artículo en la lista de compra.
+ */
 public class ListaCompraItemRequest {
     @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 200, message = "El nombre no puede exceder 200 caracteres")

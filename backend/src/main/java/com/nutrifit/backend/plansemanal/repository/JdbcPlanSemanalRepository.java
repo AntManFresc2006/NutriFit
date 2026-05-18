@@ -8,6 +8,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+/**
+ * Implementación JDBC del repositorio de plan semanal.
+ * Maneja la tabla 'plan_semanal'.
+ */
 @Repository
 public class JdbcPlanSemanalRepository implements PlanSemanalRepository {
 

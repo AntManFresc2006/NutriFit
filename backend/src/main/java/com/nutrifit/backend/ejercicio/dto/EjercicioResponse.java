@@ -1,5 +1,8 @@
 package com.nutrifit.backend.ejercicio.dto;
 
+/**
+ * Respuesta con los datos de un ejercicio del catálogo.
+ */
 public class EjercicioResponse {
 
     private Long id;

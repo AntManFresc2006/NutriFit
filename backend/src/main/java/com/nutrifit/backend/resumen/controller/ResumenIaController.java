@@ -16,6 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.Map;
 
+/**
+ * Controlador que genera una evaluación nutricional personalizada usando IA.
+ *
+ * <p>Enriquece la petición con el contexto de los últimos 7 días antes de
+ * delegar en {@link EvaluacionIaService}, de modo que el modelo recibe
+ * datos históricos además del resumen del día en curso.</p>
+ */
 @Tag(name = "Evaluación IA", description = "Evaluación nutricional personalizada mediante inteligencia artificial")
 @RestController
 @RequestMapping("/api/resumen")
@@ -34,6 +41,15 @@ public class ResumenIaController {
     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
     @ApiResponse(responseCode = "401", description = "No autenticado")
     @ApiResponse(responseCode = "500", description = "Error al contactar el modelo IA")
+    /**
+     * Genera una evaluación nutricional del día usando un modelo de IA.
+     *
+     * <p>Calcula el contexto de los últimos 7 días (kcal media, proteínas, días con
+     * ejercicio y balance medio) y lo inyecta en la petición antes de llamar al servicio.</p>
+     *
+     * @param request datos del día actual con kcal, macros, balance y TDEE
+     * @return evaluación en texto plano generada por el modelo IA
+     */
     @PostMapping("/evaluacion-ia")
     public ResponseEntity<Map<String, String>> evaluar(@Valid @RequestBody EvaluacionIaRequest request) {
         try {

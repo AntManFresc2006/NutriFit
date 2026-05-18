@@ -10,6 +10,9 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación JDBC del repositorio de registros de agua. Gestiona la tabla agua_registro.
+ */
 @Repository
 public class JdbcAguaRepository implements AguaRepository {
 

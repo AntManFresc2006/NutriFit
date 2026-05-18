@@ -1,5 +1,8 @@
 package com.nutrifit.backend.ia.model;
 
+/**
+ * Configuración personalizada de IA para un usuario (proxy, modelo y API key).
+ */
 public class UsuarioIaConfig {
 
     private Long usuarioId;

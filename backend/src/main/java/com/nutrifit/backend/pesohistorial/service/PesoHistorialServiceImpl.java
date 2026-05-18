@@ -8,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Implementación del servicio de historial de peso con operaciones de lectura y actualización.
+ */
 @Service
 public class PesoHistorialServiceImpl implements PesoHistorialService {
 

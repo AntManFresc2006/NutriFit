@@ -2,6 +2,9 @@ package com.nutrifit.backend.tendencias.dto;
 
 import java.time.LocalDate;
 
+/**
+ * Punto de la serie temporal de actividad física diaria del usuario.
+ */
 public class EjercicioTendenciaPoint {
     private LocalDate fecha;
     private boolean tuvoEjercicio;

@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * Implementación del servicio de lista de compra.
+ * Agrupa artículos por categoría y proporciona sugerencias.
+ */
 @Service
 public class ListaCompraServiceImpl implements ListaCompraService {
 

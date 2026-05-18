@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
+/**
+ * Solicitud para registrar un ejercicio realizado por el usuario.
+ */
 public class RegistroEjercicioRequest {
 
     @NotNull(message = "El ejercicioId es obligatorio")

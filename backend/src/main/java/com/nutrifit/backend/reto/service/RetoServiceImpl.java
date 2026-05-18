@@ -16,6 +16,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Implementación del servicio de retos.
+ * Calcula progreso según el tipo de reto y sincroniza con actividad del usuario.
+ */
 @Service
 public class RetoServiceImpl implements RetoService {
 

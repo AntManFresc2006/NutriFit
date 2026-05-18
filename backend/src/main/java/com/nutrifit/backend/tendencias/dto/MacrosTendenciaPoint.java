@@ -2,6 +2,9 @@ package com.nutrifit.backend.tendencias.dto;
 
 import java.time.LocalDate;
 
+/**
+ * Punto de la serie temporal de macronutrientes, agregado por semana natural.
+ */
 public class MacrosTendenciaPoint {
     private String semana;
     private LocalDate inicioSemana;

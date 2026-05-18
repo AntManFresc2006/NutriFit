@@ -2,6 +2,9 @@ package com.nutrifit.backend.tendencias.dto;
 
 import java.time.LocalDate;
 
+/**
+ * Punto de la serie temporal de peso corporal del usuario.
+ */
 public class PesoTendenciaPoint {
     private LocalDate fecha;
     private double pesoKg;

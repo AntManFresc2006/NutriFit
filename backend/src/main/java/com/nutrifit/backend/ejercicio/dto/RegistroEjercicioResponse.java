@@ -2,6 +2,9 @@ package com.nutrifit.backend.ejercicio.dto;
 
 import java.time.LocalDate;
 
+/**
+ * Respuesta con los datos de un registro de ejercicio completado.
+ */
 public class RegistroEjercicioResponse {
 
     private Long id;

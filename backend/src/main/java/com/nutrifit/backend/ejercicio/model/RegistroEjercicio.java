@@ -2,6 +2,9 @@ package com.nutrifit.backend.ejercicio.model;
 
 import java.time.LocalDate;
 
+/**
+ * Modelo que representa un registro de ejercicio realizado por un usuario en una fecha.
+ */
 public class RegistroEjercicio {
 
     private Long id;

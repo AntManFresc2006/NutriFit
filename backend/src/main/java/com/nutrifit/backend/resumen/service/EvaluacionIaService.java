@@ -18,6 +18,13 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Servicio que genera una evaluación nutricional personalizada llamando a OpenRouter.
+ *
+ * <p>Intenta primero el modelo primario (Gemma) y, si falla, usa el de respaldo (DeepSeek).
+ * Si el usuario tiene configuración de IA propia, usa esa antes de recurrir a los modelos
+ * por defecto.</p>
+ */
 @Service
 public class EvaluacionIaService {
 
@@ -43,6 +50,14 @@ public class EvaluacionIaService {
         this.usuarioIaConfigRepository = usuarioIaConfigRepository;
     }
 
+    /**
+     * Genera la evaluación nutricional para el usuario indicado en la petición.
+     *
+     * @param req datos del día y promedios semanales
+     * @return texto de evaluación generado por el modelo IA
+     * @throws IOException          si el modelo devuelve un error HTTP o respuesta vacía
+     * @throws InterruptedException si el hilo es interrumpido durante la llamada HTTP
+     */
     public String evaluar(EvaluacionIaRequest req) throws IOException, InterruptedException {
         return evaluarConUsuarioId(req, req.getUsuarioId());
     }

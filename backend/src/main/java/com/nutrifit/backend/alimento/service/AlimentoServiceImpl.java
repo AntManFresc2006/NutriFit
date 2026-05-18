@@ -173,6 +173,15 @@ public class AlimentoServiceImpl implements AlimentoService {
         );
     }
 
+    /**
+     * Analiza una foto codificada en Base64 usando IA para extraer información nutricional.
+     * Se comunica con la API OpenRouter para procesar la imagen.
+     *
+     * @param imagenBase64 imagen codificada en Base64
+     * @param mimeType tipo MIME de la imagen
+     * @return información nutricional extraída
+     * @throws Exception si hay error en la comunicación con la API OpenRouter
+     */
     @Override
     public EscanearFotoResponse escanearFoto(String imagenBase64, String mimeType) throws Exception {
         String prompt = """

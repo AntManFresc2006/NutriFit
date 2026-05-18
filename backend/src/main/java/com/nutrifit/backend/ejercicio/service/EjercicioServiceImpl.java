@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Implementación del servicio de ejercicios con lógica de búsqueda y persistencia.
+ */
 @Service
 public class EjercicioServiceImpl implements EjercicioService {
 

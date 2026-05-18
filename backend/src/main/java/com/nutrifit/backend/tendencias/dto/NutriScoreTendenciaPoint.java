@@ -2,6 +2,9 @@ package com.nutrifit.backend.tendencias.dto;
 
 import java.time.LocalDate;
 
+/**
+ * Punto de la serie temporal del NutriScore diario calculado por el servicio de gamificación.
+ */
 public class NutriScoreTendenciaPoint {
     private LocalDate fecha;
     private int score;

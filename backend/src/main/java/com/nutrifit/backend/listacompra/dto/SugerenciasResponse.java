@@ -2,6 +2,9 @@ package com.nutrifit.backend.listacompra.dto;
 
 import java.util.List;
 
+/**
+ * DTO con sugerencias de alimentos basadas en historial.
+ */
 public class SugerenciasResponse {
     private List<String> sugerencias;
 

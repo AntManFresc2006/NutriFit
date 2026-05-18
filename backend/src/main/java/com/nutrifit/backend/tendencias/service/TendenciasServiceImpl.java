@@ -12,6 +12,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/**
+ * Implementación del servicio de tendencias nutricionales.
+ *
+ * <p>Ejecuta cuatro consultas SQL independientes para obtener las series de peso,
+ * NutriScore (calculado por {@link GamificacionService}), macros agrupados por semana
+ * y registros de ejercicio, y las empaqueta en {@link TendenciasResponse}.</p>
+ */
 @Service
 public class TendenciasServiceImpl implements TendenciasService {
 

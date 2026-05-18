@@ -9,5 +9,13 @@ import java.time.LocalDate;
  */
 public interface ResumenDiarioService {
 
+    /**
+     * Calcula el resumen nutricional del día enriquecido con TDEE, balance real
+     * y, si procede, fecha estimada para alcanzar el objetivo de peso.
+     *
+     * @param usuarioId identificador del usuario
+     * @param fecha     día a resumir
+     * @return resumen completo con totales, balance y proyección de peso
+     */
     ResumenDiarioResponse obtenerResumenDiario(Long usuarioId, LocalDate fecha);
 }

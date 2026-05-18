@@ -3,6 +3,9 @@ package com.nutrifit.backend.auth.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * Petición de login: email y contraseña.
+ */
 public class LoginRequest {
 
     @NotBlank(message = "El email es obligatorio")

@@ -10,6 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Implementación del servicio de resumen diario.
+ *
+ * <p>Obtiene los totales del repositorio y los enriquece con el TDEE del perfil,
+ * el estado del balance (DÉFICIT / MANTENIMIENTO / SUPERÁVIT) y, si el usuario
+ * tiene peso objetivo y hay un balance sostenido, una proyección de fecha estimada.</p>
+ */
 @Service
 public class ResumenDiarioServiceImpl implements ResumenDiarioService {
 

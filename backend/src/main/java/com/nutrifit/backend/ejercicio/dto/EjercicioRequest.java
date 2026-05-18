@@ -5,6 +5,9 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * Solicitud para crear un nuevo ejercicio en el catálogo.
+ */
 public class EjercicioRequest {
 
     @NotBlank(message = "El nombre es obligatorio")

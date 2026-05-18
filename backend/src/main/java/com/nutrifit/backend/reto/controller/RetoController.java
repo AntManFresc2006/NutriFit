@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Controlador REST para gestionar retos y su progreso.
+ */
 @Tag(name = "Retos", description = "Desafíos de fitness y seguimiento de progreso")
 @RestController
 @RequestMapping("/api/retos")

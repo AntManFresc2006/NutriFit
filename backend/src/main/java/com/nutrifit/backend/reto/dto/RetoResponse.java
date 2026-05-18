@@ -2,6 +2,9 @@ package com.nutrifit.backend.reto.dto;
 
 import java.time.LocalDate;
 
+/**
+ * DTO con detalles de un reto incluyendo estado del usuario.
+ */
 public class RetoResponse {
     private Long id;
     private String titulo;

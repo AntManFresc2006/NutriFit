@@ -2,6 +2,9 @@ package com.nutrifit.backend.listacompra.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * Representa un artículo en la lista de compra de un usuario.
+ */
 public class ListaCompraItem {
     private Long id;
     private Long usuarioId;

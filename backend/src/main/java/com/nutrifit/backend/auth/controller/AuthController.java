@@ -17,6 +17,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controlador de autenticación: registro, login y logout con manejo de cookies de sesión.
+ */
 @Tag(name = "Autenticación", description = "Endpoints de registro, login y logout")
 @RestController
 @RequestMapping("/api/auth")
@@ -25,11 +28,27 @@ public class AuthController {
     private final AuthService authService;
     private final LoginRateLimiter rateLimiter;
 
+    /**
+     * Inyecta las dependencias de autenticación y rate limiting.
+     *
+     * @param authService    servicio de autenticación
+     * @param rateLimiter    limitador de intentos de login
+     */
     public AuthController(AuthService authService, LoginRateLimiter rateLimiter) {
         this.authService = authService;
         this.rateLimiter = rateLimiter;
     }
 
+    /**
+     * Registra un nuevo usuario. Verifica el rate limit y abre sesión automáticamente.
+     *
+     * @param request      datos de registro (nombre, email, contraseña)
+     * @param httpRequest  petición HTTP (para extraer IP)
+     * @param response     respuesta HTTP (para establecer cookie)
+     * @return token de sesión e información del usuario
+     * @throws TooManyRequestsException si se superan los intentos permitidos
+     * @throws BadRequestException si el email ya existe o los datos son inválidos
+     */
     @Operation(summary = "Registrar nuevo usuario")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
@@ -45,6 +64,16 @@ public class AuthController {
         return authResponse;
     }
 
+    /**
+     * Inicia sesión con email y contraseña. Verifica el rate limit y establece cookie de sesión.
+     *
+     * @param request      credenciales (email, contraseña)
+     * @param httpRequest  petición HTTP (para extraer IP)
+     * @param response     respuesta HTTP (para establecer cookie)
+     * @return token de sesión e información del usuario
+     * @throws TooManyRequestsException si se superan los intentos permitidos
+     * @throws UnauthorizedException si las credenciales son inválidas
+     */
     @Operation(summary = "Iniciar sesión")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Sesión iniciada exitosamente"),
@@ -59,6 +88,13 @@ public class AuthController {
         return authResponse;
     }
 
+    /**
+     * Cierra sesión: invalida el token y limpia la cookie. Busca el token en cookie (prioridad) o header.
+     *
+     * @param request  petición HTTP (para extraer token de cookie o header)
+     * @param response respuesta HTTP (para limpiar cookie)
+     * @throws UnauthorizedException si no se encuentra token válido
+     */
     @Operation(summary = "Cerrar sesión")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Sesión cerrada exitosamente"),

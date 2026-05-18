@@ -1,5 +1,8 @@
 package com.nutrifit.backend.gamificacion.dto;
 
+/**
+ * DTO con estadísticas de gamificación del usuario.
+ */
 public class GamificacionResponse {
     private int racha;
     private int nutriScore;

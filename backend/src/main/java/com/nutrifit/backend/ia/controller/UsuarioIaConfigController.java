@@ -12,6 +12,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controlador REST para gestionar la configuración de IA personalizada del usuario.
+ */
 @Tag(name = "Opciones de IA", description = "Gestión de configuración personalizada de IA")
 @RestController
 @RequestMapping("/api/ia-config")

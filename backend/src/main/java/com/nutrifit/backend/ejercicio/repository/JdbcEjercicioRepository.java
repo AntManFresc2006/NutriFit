@@ -10,6 +10,9 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación JDBC del repositorio de ejercicios. Gestiona la tabla ejercicios.
+ */
 @Repository
 public class JdbcEjercicioRepository implements EjercicioRepository {
 

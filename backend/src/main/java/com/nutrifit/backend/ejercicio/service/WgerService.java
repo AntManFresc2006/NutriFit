@@ -19,6 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Servicio que consume la API externa Wger para obtener un catálogo amplio de ejercicios.
+ *
+ * <p>Cachea los datos de la API durante 6 horas para reducir el número de peticiones.
+ * Extrae el nombre en inglés y asigna un MET estimado según la categoría.</p>
+ */
 @Service
 public class WgerService {
 
@@ -48,6 +54,12 @@ public class WgerService {
     private final AtomicReference<List<EjercicioExternoResponse>> cache = new AtomicReference<>(null);
     private volatile long cacheTimestamp = 0;
 
+    /**
+     * Busca ejercicios en el catálogo Wger que contengan la consulta en su nombre.
+     *
+     * @param query texto a buscar
+     * @return lista de hasta 10 ejercicios coincidentes
+     */
     public List<EjercicioExternoResponse> buscar(String query) {
         try {
             List<EjercicioExternoResponse> all = getAll();

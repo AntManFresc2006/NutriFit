@@ -17,6 +17,10 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
 
+/**
+ * Implementación del servicio de escaneo de códigos de barras.
+ * Orquesta las consultas a la API Open Food Facts para obtener información de productos.
+ */
 @Service
 public class EscanerServiceImpl implements EscanerService {
 
@@ -30,6 +34,13 @@ public class EscanerServiceImpl implements EscanerService {
             .build();
     private final ObjectMapper mapper = new ObjectMapper();
 
+    /**
+     * Busca un producto en la API Open Food Facts a partir de su código de barras.
+     *
+     * @param barcode código de barras del producto
+     * @return información nutricional y detalles del producto encontrado
+     * @throws ResourceNotFoundException si no se encuentra el producto o hay error en la búsqueda
+     */
     @Override
     public EscanerResponse buscarPorBarcode(String barcode) {
         if (barcode == null || barcode.isBlank()) {

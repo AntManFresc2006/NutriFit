@@ -1,5 +1,8 @@
 package com.nutrifit.backend.ia.dto;
 
+/**
+ * DTO con la configuración de IA del usuario.
+ */
 public class UsuarioIaConfigResponse {
 
     private String proxyUrl;

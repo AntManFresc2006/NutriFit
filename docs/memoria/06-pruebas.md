@@ -216,7 +216,37 @@ private static class StubApiClient extends BaseApiClient {}
 
 ---
 
-## 6.4 Pruebas manuales de la API
+## 6.4 Pruebas unitarias del frontend React
+
+El frontend React cuenta con 17 tests unitarios ejecutados con Vitest y React Testing Library sobre jsdom. Los tests están organizados en cinco clases agrupadas en `frontend/src/test/components/`.
+
+**Tabla 6.3 — Suite de pruebas del frontend React**
+
+| Archivo de test            | Tests | Qué verifica                                                                       |
+|----------------------------|-------|------------------------------------------------------------------------------------|
+| `Login.test.tsx`           | 3     | Renderizado del formulario, actualización de inputs, error en login fallido        |
+| `AuthContext.test.tsx`     | 4     | Estado inicial, login con persistencia en localStorage, logout, carga desde localStorage |
+| `ProtectedRoute.test.tsx`  | 2     | Renderiza contenido si hay sesión, redirige a login si no hay sesión               |
+| `Register.test.tsx`        | 4     | Renderizado, validación de contraseña corta (client-side), llamada API, error API  |
+| `ErrorBoundary.test.tsx`   | 4     | Renderiza hijos sin error, muestra fallback al capturar excepción, muestra mensaje de error, botón de recarga |
+| **Total**                  | **17**|                                                                                    |
+
+Los tests de `Register` verifican la validación client-side: si la contraseña tiene menos de seis caracteres, el servicio no llega a invocarse y el mensaje de error aparece en pantalla. Este comportamiento es análogo al verificado en `AuthServiceImplTest` para la capa de backend.
+
+Los tests de `ErrorBoundary` usan un componente auxiliar `ThrowingComponent` para forzar el lanzamiento de una excepción controlada y comprobar que el boundary captura el error, muestra el mensaje correcto y ofrece el botón de recarga:
+
+```tsx
+const ThrowingComponent = ({ shouldThrow }: { shouldThrow: boolean }) => {
+  if (shouldThrow) throw new Error('Error de prueba')
+  return <div>Contenido normal</div>
+}
+```
+
+`console.error` se silencia con `vi.spyOn` en el `beforeEach` para evitar ruido en la salida de los tests, dado que React registra el error capturado internamente.
+
+---
+
+## 6.5 Pruebas manuales de la API
 
 Todos los endpoints han sido verificados mediante peticiones HTTP reales contra el servidor en ejecución, siguiendo el plan de pruebas recogido en `docs/tests/food-crud-test-plan.md`.
 
@@ -261,7 +291,7 @@ El campo `message` corresponde al mensaje definido en la anotación de validaci�
 
 ---
 
-## 6.5 Cobertura de la capa de servicio
+## 6.6 Cobertura de la capa de servicio
 
 JaCoCo mide la cobertura durante la fase `verify` de Maven y genera un informe HTML en `backend/target/site/jacoco/`. La cobertura global de líneas del backend es del 23 %, una cifra baja porque incluye controladores, repositorios y configuración de infraestructura que no ejecutan lógica de negocio propia.
 
@@ -287,4 +317,4 @@ Los controladores, repositorios y capas de configuración quedan fuera de la cob
 
 ## Cierre de la sección
 
-La suite de pruebas suma 118 tests en total: 91 unitarios del backend, 24 del cliente JavaFX y 3 del frontend. Los tests del backend se ejecutan sin base de datos ni contexto de Spring, lo que los hace rápidos y reproducibles en cualquier entorno. Los del cliente JavaFX verifican el comportamiento de la sesión, los modelos observables y la comunicación HTTP sin requerir un display ni el toolkit gráfico. Las pruebas manuales, respaldadas por los archivos `.http` y por Swagger UI, complementan la cobertura automatizada verificando el comportamiento extremo a extremo, incluyendo validación de entrada, manejo de errores y flujos de autenticación.
+La suite de pruebas suma 132 tests en total: 91 unitarios del backend, 24 del cliente JavaFX y 17 del frontend React. Los tests del backend se ejecutan sin base de datos ni contexto de Spring, lo que los hace rápidos y reproducibles en cualquier entorno. Los del cliente JavaFX verifican el comportamiento de la sesión, los modelos observables y la comunicación HTTP sin requerir un display ni el toolkit gráfico. Las pruebas manuales, respaldadas por los archivos `.http` y por Swagger UI, complementan la cobertura automatizada verificando el comportamiento extremo a extremo, incluyendo validación de entrada, manejo de errores y flujos de autenticación.

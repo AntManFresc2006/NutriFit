@@ -61,6 +61,6 @@ Lo que no está en esta lista: aplicación móvil nativa, integración con senso
 
 ## 8.6 Resumen
 
-NutriFit funciona. Implementa 18 módulos con arquitectura clara, despliegue en la nube, integración con IA, y análisis nutritivo completo. Sus decisiones están documentadas, sus límites están claros. Los 118 tests pasan sin base de datos ni display. La interfaz es responsiva y fluida.
+NutriFit funciona. Implementa 18 módulos con arquitectura clara, despliegue en la nube, integración con IA, y análisis nutritivo completo. Sus decisiones están documentadas, sus límites están claros. Los 132 tests pasan sin base de datos ni display. La interfaz es responsiva y fluida.
 
 El punto no era construir una app de producción corporativa, sino demostrar decisiones técnicas coherentes, documentarlas sin adornos, e implementar funcionalidad real. Eso es lo que aquí aparece.

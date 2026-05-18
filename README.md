@@ -145,8 +145,8 @@ docker-compose down -v
 |---|---|---|
 | Backend (Spring Boot) | 91 | JUnit 5 + Mockito + AssertJ |
 | Cliente JavaFX | 24 | JUnit 5 + Mockito + AssertJ |
-| Frontend (React) | 3 | Vitest |
-| **Total** | **118** | |
+| Frontend (React) | 17 | Vitest |
+| **Total** | **132** | |
 
 Los 91 tests del backend cubren la capa de servicio al completo. Los servicios con lógica de negocio propia (auth, comidas, perfil, hidratación, peso, gamificación) tienen el 100% de cobertura de líneas. Controladores y repositorios se verifican mediante pruebas manuales con archivos `.http` en `docs/api/`.
 

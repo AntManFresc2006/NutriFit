@@ -150,6 +150,59 @@ Swagger/OpenAPI disponible en `http://localhost:8080/swagger-ui.html` (backend c
 
 Ver configuraciones en `backend/render.yaml` y `frontend/vercel.json`.
 
+## FAQ / Troubleshooting
+
+### El backend tarda 30-60 segundos en responder la primera petición
+
+El backend está desplegado en Render con el plan gratuito, que suspende la instancia tras 15 minutos de inactividad. La primera petición la reanuda, lo que añade ese tiempo de arranque. Las peticiones siguientes responden con normalidad. No hay solución en el plan gratuito; en producción real se usaría un plan de pago o un ping periódico.
+
+### Error `401 Unauthorized` en todas las peticiones tras un tiempo de inactividad
+
+El token de sesión caduca a los 7 días. Si ves 401 de forma persistente, cierra sesión y vuelve a autenticarte. En el cliente JavaFX, el token se guarda únicamente en memoria: al cerrar la aplicación la sesión se pierde y hay que hacer login de nuevo.
+
+### El frontend no llega al backend: error de CORS en la consola del navegador
+
+El backend solo acepta peticiones desde `https://nutri-fit-snowy.vercel.app` y `http://localhost:5173`. Si el frontend está desplegado en otra URL de Vercel, actualiza `allowedOrigins` en `WebMvcConfig.java`:
+
+```java
+config.setAllowedOrigins(List.of("https://tu-url.vercel.app", "http://localhost:5173"));
+```
+
+Este problema apareció durante el desarrollo al cambiar el nombre del proyecto en Vercel (commit `9febf47`).
+
+### Flyway lanza `Migration checksum mismatch` al arrancar el backend
+
+Ocurre si se modifica un archivo de migración ya aplicado (los archivos `V*.sql` en `backend/src/main/resources/db/migration` son inmutables una vez ejecutados). Soluciones:
+
+```sql
+-- Opción 1: reparar el checksum (solo en desarrollo)
+-- añadir spring.flyway.repair=true en application-local.properties y arrancar una vez
+
+-- Opción 2: recrear la base de datos desde cero
+DROP DATABASE nutrifit;
+CREATE DATABASE nutrifit;
+```
+
+### Las funciones de IA no responden o devuelven error 500
+
+Las evaluaciones de IA requieren una clave válida de OpenRouter. Si la clave no está configurada o está expirada, el servicio lanza una excepción no controlada. Comprueba la variable de entorno en Render (`OPENROUTER_API_KEY`) o en `application-local.properties` en desarrollo. La funcionalidad de escáner de códigos de barras es independiente de IA y seguirá funcionando.
+
+### `mvn spring-boot:run` falla con `UnsupportedClassVersionError`
+
+El proyecto requiere Java 21. Comprueba la versión activa:
+
+```bash
+java -version   # debe mostrar 21.x.x
+```
+
+Si tienes varias versiones instaladas, usa `JAVA_HOME` para seleccionar la correcta:
+
+```bash
+JAVA_HOME=/usr/lib/jvm/java-21 mvn spring-boot:run "-Dspring-boot.run.profiles=local"
+```
+
+---
+
 ## Privacidad
 
 NutriFit almacena datos de salud (peso, calorías, ejercicio, hidratación). La aplicación aplica BCrypt para contraseñas, eliminación en cascada de todos los datos del usuario y caducidad de sesiones a 7 días. Ver [docs/memoria/07-seguridad.md](docs/memoria/07-seguridad.md#76-privacidad-y-rgpd) para el análisis completo de tratamiento de datos conforme al RGPD.

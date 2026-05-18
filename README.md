@@ -120,6 +120,25 @@ docker-compose down -v
 - `/api/ia-config` — configuración IA del usuario
 - `/api/health` — health check
 
+## Tests
+
+| Módulo | Tests | Framework |
+|---|---|---|
+| Backend (Spring Boot) | 91 | JUnit 5 + Mockito + AssertJ |
+| Cliente JavaFX | 24 | JUnit 5 + Mockito + AssertJ |
+| Frontend (React) | 3 | Vitest |
+| **Total** | **118** | |
+
+Los 91 tests del backend cubren la capa de servicio al completo. Los servicios con lógica de negocio propia (auth, comidas, perfil, hidratación, peso, gamificación) tienen el 100% de cobertura de líneas. Controladores y repositorios se verifican mediante pruebas manuales con archivos `.http` en `docs/api/`.
+
+```bash
+# Ejecutar tests backend
+cd backend && mvn test
+
+# Ejecutar tests cliente JavaFX
+cd client && mvn test
+```
+
 ## Documentación de API
 
 Swagger/OpenAPI disponible en `http://localhost:8080/swagger-ui.html` (backend corriendo).

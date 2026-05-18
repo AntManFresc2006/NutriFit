@@ -150,6 +150,10 @@ Swagger/OpenAPI disponible en `http://localhost:8080/swagger-ui.html` (backend c
 
 Ver configuraciones en `backend/render.yaml` y `frontend/vercel.json`.
 
+## Privacidad
+
+NutriFit almacena datos de salud (peso, calorías, ejercicio, hidratación). La aplicación aplica BCrypt para contraseñas, eliminación en cascada de todos los datos del usuario y caducidad de sesiones a 7 días. Ver [docs/memoria/07-seguridad.md](docs/memoria/07-seguridad.md#76-privacidad-y-rgpd) para el análisis completo de tratamiento de datos conforme al RGPD.
+
 ## Licencia
 
 Proyecto personal.

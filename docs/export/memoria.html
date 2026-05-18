@@ -212,7 +212,7 @@
   <li>§4 — Análisis de requisitos: requisitos funcionales y no funcionales.</li>
   <li>§5 — Diseño: arquitectura, esquema de base de datos y decisiones de diseño.</li>
   <li>§6 — Implementación: descripción módulo a módulo.</li>
-  <li>§7 — Pruebas: estrategia y suite de 132 tests.</li>
+  <li>§7 — Pruebas: estrategia y suite de 155 tests.</li>
   <li>§8 — Seguridad: medidas implementadas y limitaciones conocidas.</li>
   <li>§9 — Conclusiones y líneas futuras.</li>
 </ul>
@@ -620,7 +620,7 @@ Mujeres:  TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) − 161</p
   <tr><td>PesoHistorialServiceImplTest</td><td>7</td><td>registrar, obtenerHistorial, borrar</td></tr>
   <tr><td>GamificacionServiceTest</td><td>10</td><td>calcularRacha, obtenerPuntuacion</td></tr>
   <tr><td>BaseIntegrationTest</td><td>6</td><td>Infraestructura de tests de integración</td></tr>
-  <tr><td><strong>Total backend</strong></td><td><strong>91</strong></td><td></td></tr>
+  <tr><td><strong>Total backend</strong></td><td><strong>114</strong></td><td></td></tr>
 </table>
 
 <h2>7.3 Suite de tests del cliente JavaFX</h2>
@@ -641,7 +641,7 @@ Mujeres:  TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) − 161</p
 
 <table>
   <tr><th>Módulo</th><th>Tests</th><th>Framework</th></tr>
-  <tr><td>Backend</td><td>91</td><td>JUnit 5 + Mockito + AssertJ</td></tr>
+  <tr><td>Backend</td><td>114</td><td>JUnit 5 + Mockito + AssertJ</td></tr>
   <tr><td>Cliente JavaFX</td><td>24</td><td>JUnit 5 + Mockito + AssertJ</td></tr>
   <tr><td>Frontend React</td><td>3</td><td>Vitest</td></tr>
   <tr><td><strong>Total</strong></td><td><strong>118</strong></td><td></td></tr>
@@ -653,7 +653,7 @@ Mujeres:  TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) − 161</p
 
 <p>Los tests de <code>PerfilServiceImplTest</code> verifican la fórmula de Mifflin-St Jeor con valores calculados analíticamente para cada sexo. Para evitar dependencia de la fecha de ejecución, la fecha de nacimiento se construye como <code>LocalDate.now().minusYears(30)</code>.</p>
 
-<p>Los tests de <code>RegistroEjercicioServiceImplTest</code> verifican la fórmula MET con cuatro casos, incluyendo el redondeo: MET=5.0, 70 kg, 20 min produce 116,67 kcal (no 116,66). El resultado de la suite completa del backend es: <strong>Tests run: 91, Failures: 0, Errors: 0, Skipped: 0</strong>.</p>
+<p>Los tests de <code>RegistroEjercicioServiceImplTest</code> verifican la fórmula MET con cuatro casos, incluyendo el redondeo: MET=5.0, 70 kg, 20 min produce 116,67 kcal (no 116,66). El resultado de la suite completa del backend es: <strong>Tests run: 114, Failures: 0, Errors: 0, Skipped: 0</strong>.</p>
 
 <h2>7.6 Pruebas manuales de la API</h2>
 

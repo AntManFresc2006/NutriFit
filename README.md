@@ -143,12 +143,12 @@ docker-compose down -v
 
 | Módulo | Tests | Framework |
 |---|---|---|
-| Backend (Spring Boot) | 91 | JUnit 5 + Mockito + AssertJ |
+| Backend (Spring Boot) | 114 | JUnit 5 + Mockito + AssertJ |
 | Cliente JavaFX | 24 | JUnit 5 + Mockito + AssertJ |
 | Frontend (React) | 17 | Vitest |
-| **Total** | **132** | |
+| **Total** | **155** | |
 
-Los 91 tests del backend cubren la capa de servicio al completo. Los servicios con lógica de negocio propia (auth, comidas, perfil, hidratación, peso, gamificación) tienen el 100% de cobertura de líneas. Controladores y repositorios se verifican mediante pruebas manuales con archivos `.http` en `docs/api/`.
+Los 114 tests del backend cubren la capa de servicio al completo. Todos los servicios con lógica de negocio propia tienen cobertura ≥ 80%, incluyendo alimentos (escaneo IA con `limpiarJson`), ejercicios (4 ramas de filtrado) y resumen diario (TDEE, estado SUPERAVIT/DEFICIT/MANTENIMIENTO y cálculo de fecha objetivo). Controladores y repositorios se verifican mediante pruebas manuales con archivos `.http` en `docs/api/`.
 
 ```bash
 # Ejecutar tests backend

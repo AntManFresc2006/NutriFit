@@ -2,10 +2,10 @@ package com.nutrifit.backend.alimento.service;
 
 import com.nutrifit.backend.alimento.dto.AlimentoRequest;
 import com.nutrifit.backend.alimento.dto.AlimentoResponse;
+import com.nutrifit.backend.alimento.dto.EscanearFotoResponse;
 import com.nutrifit.backend.alimento.model.Alimento;
 import com.nutrifit.backend.alimento.repository.AlimentoRepository;
 import com.nutrifit.backend.common.exception.ResourceNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,8 +13,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 
@@ -254,6 +258,110 @@ class AlimentoServiceImplTest {
                     .hasMessage("No existe un alimento con id 99");
 
             verify(alimentoRepository, never()).deleteById(anyLong());
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // escanearFoto
+    // ---------------------------------------------------------------------------
+
+    @Nested
+    @DisplayName("escanearFoto")
+    class EscanearFoto {
+
+        @SuppressWarnings("unchecked")
+        private HttpResponse<String> mockResponse(int status, String body) throws Exception {
+            HttpResponse<String> resp = mock(HttpResponse.class);
+            when(resp.statusCode()).thenReturn(status);
+            when(resp.body()).thenReturn(body);
+            return resp;
+        }
+
+        private void injectHttpClient(HttpClient client) {
+            ReflectionTestUtils.setField(service, "httpClient", client);
+            ReflectionTestUtils.setField(service, "gemmaApiKey", "test-key");
+        }
+
+        @Test
+        @DisplayName("respuesta válida de OpenRouter devuelve DTO con los datos del producto")
+        @SuppressWarnings("unchecked")
+        void respuestaValida_devuelveDTO() throws Exception {
+            HttpClient mockClient = mock(HttpClient.class);
+            injectHttpClient(mockClient);
+
+            String body = """
+                    {"choices":[{"message":{"content":"{\\"nombre\\":\\"Arroz\\",\\"kcalPor100g\\":350,\\"proteinas\\":7,\\"grasas\\":1,\\"carbos\\":77,\\"porcion\\":100}"}}]}
+                    """;
+            HttpResponse<String> resp = mockResponse(200, body);
+            when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                    .thenReturn(resp);
+
+            EscanearFotoResponse resultado = service.escanearFoto("base64data", "image/jpeg");
+
+            assertThat(resultado.getNombre()).isEqualTo("Arroz");
+            assertThat(resultado.getKcalPor100g()).isEqualTo(350.0);
+            assertThat(resultado.getProteinas()).isEqualTo(7.0);
+            assertThat(resultado.getGrasas()).isEqualTo(1.0);
+            assertThat(resultado.getCarbos()).isEqualTo(77.0);
+            assertThat(resultado.getPorcion()).isEqualTo(100.0);
+        }
+
+        @Test
+        @DisplayName("JSON envuelto en bloque markdown se limpia y parsea correctamente")
+        @SuppressWarnings("unchecked")
+        void jsonEnMarkdown_seLimpiaYParsea() throws Exception {
+            HttpClient mockClient = mock(HttpClient.class);
+            injectHttpClient(mockClient);
+
+            String contenidoJson = "```json\n{\"nombre\":\"Leche\",\"kcalPor100g\":42,\"proteinas\":3,\"grasas\":1,\"carbos\":5,\"porcion\":250}\n```";
+            String body = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(
+                    java.util.Map.of("choices", java.util.List.of(
+                            java.util.Map.of("message", java.util.Map.of("content", contenidoJson))
+                    ))
+            );
+            HttpResponse<String> resp = mockResponse(200, body);
+            when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                    .thenReturn(resp);
+
+            EscanearFotoResponse resultado = service.escanearFoto("base64data", "image/png");
+
+            assertThat(resultado.getNombre()).isEqualTo("Leche");
+            assertThat(resultado.getKcalPor100g()).isEqualTo(42.0);
+        }
+
+        @Test
+        @DisplayName("respuesta HTTP con error lanza IOException")
+        @SuppressWarnings("unchecked")
+        void errorHttp_lanzaIOException() throws Exception {
+            HttpClient mockClient = mock(HttpClient.class);
+            injectHttpClient(mockClient);
+
+            HttpResponse<String> resp = mockResponse(401, "Unauthorized");
+            when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                    .thenReturn(resp);
+
+            assertThatThrownBy(() -> service.escanearFoto("base64data", "image/jpeg"))
+                    .isInstanceOf(Exception.class);
+        }
+
+        @Test
+        @DisplayName("JSON inválido en la respuesta: campos ausentes devuelven valores por defecto")
+        @SuppressWarnings("unchecked")
+        void jsonSinCamposEsperados_devuelveValoresPorDefecto() throws Exception {
+            HttpClient mockClient = mock(HttpClient.class);
+            injectHttpClient(mockClient);
+
+            String body = """
+                    {"choices":[{"message":{"content":"{\\"campo_desconocido\\":1}"}}]}
+                    """;
+            HttpResponse<String> resp = mockResponse(200, body);
+            when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                    .thenReturn(resp);
+
+            EscanearFotoResponse resultado = service.escanearFoto("base64data", "image/jpeg");
+
+            assertThat(resultado.getNombre()).isEqualTo("Producto desconocido");
+            assertThat(resultado.getKcalPor100g()).isEqualTo(0.0);
         }
     }
 }

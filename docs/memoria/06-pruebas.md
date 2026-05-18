@@ -36,28 +36,29 @@ Mockito instancia el servicio inyectando el repositorio simulado, sin intervenci
 
 ## 6.2 Pruebas unitarias del backend
 
-La suite está compuesta por 91 tests distribuidos en nueve clases, una por cada servicio con lógica de negocio relevante.
+La suite está compuesta por 114 tests distribuidos en diez clases, una por cada servicio con lógica de negocio relevante.
 
 **Tabla 6.1 — Distribución de la suite de pruebas unitarias del backend**
 
 | Clase de test                       | Tests | Operaciones cubiertas                                                                 |
 |-------------------------------------|-------|---------------------------------------------------------------------------------------|
-| `AlimentoServiceImplTest`           | 12    | findAll, findById, save, update, deleteById                                           |
+| `AlimentoServiceImplTest`           | 16    | findAll, findById, save, update, deleteById, escanearFoto                             |
 | `AuthServiceImplTest`               | 9     | register, login, logout                                                               |
 | `ComidaServiceImplTest`             | 17    | save, findByUsuarioAndFecha, deleteById, addAlimentoToComida, findDetalleItemsByComidaId, deleteItem |
-| `ResumenDiarioServiceImplTest`      | 4     | obtenerResumenDiario                                                                  |
+| `EjercicioServiceImplTest`          | 9     | findAll (4 ramas), findById, save                                                     |
+| `ResumenDiarioServiceImplTest`      | 14    | obtenerResumenDiario, enriquecerConTdee, estadoBalance, enriquecerConFechaObjetivo    |
 | `PerfilServiceImplTest`             | 5     | getPerfil, updatePerfil                                                               |
 | `RegistroEjercicioServiceImplTest`  | 14    | registrar, findByUsuarioAndFecha, deleteById, calcularKcal                            |
 | `HidratacionServiceImplTest`        | 8     | registrar, getDiario, eliminar                                                        |
 | `PesoHistorialServiceImplTest`      | 8     | upsert, findByUsuario, deleteByUsuarioAndFecha                                        |
 | `GamificacionServiceTest`           | 14    | calcular, calcularRacha, calcularNutriScore, verificarBalance, verificarProteina, verificarEjercicio, verificarVariedad |
-| **Total**                           | **91**|                                                                                       |
+| **Total**                           | **114**|                                                                                      |
 
-> **Nota:** Los 91 tests se ejecutan sin base de datos ni contexto de Spring. Cada test aislado se ejecuta en menos de 100 ms. La suite completa finaliza en menos de tres segundos.
+> **Nota:** Los 114 tests se ejecutan sin base de datos ni contexto de Spring. Cada test aislado se ejecuta en menos de 100 ms. La suite completa finaliza en menos de tres segundos.
 
-### AlimentoServiceImpl — 12 tests
+### AlimentoServiceImpl — 16 tests
 
-Esta clase cubre el servicio con mayor superficie de operaciones. Los tests se organizan en cinco clases anidadas: `FindAll`, `FindById`, `Save`, `Update` y `DeleteById`.
+Esta clase cubre el servicio con mayor superficie de operaciones. Los tests se organizan en seis clases anidadas: `FindAll`, `FindById`, `Save`, `Update`, `DeleteById` y `EscanearFoto`.
 
 **Enrutamiento en la búsqueda.** El servicio distingue entre tres situaciones al recibir una petición de listado: parámetro ausente, parámetro vacío o en blanco, y texto real. Los dos primeros invocan `findAll()`; el tercero delega en `searchByNombre()` con el texto recortado. Los tests verifican no solo el camino tomado, sino también que el alternativo no se invoca en ningún caso:
 
@@ -81,6 +82,26 @@ Este test sitúa la responsabilidad de normalizar la entrada en el servicio, no 
 ```java
 verify(alimentoRepository, never()).deleteById(anyLong());
 ```
+
+**Escaneo de foto con IA (4 tests).** La clase `EscanearFoto` verifica el camino completo del escáner visual: respuesta válida de OpenRouter, JSON envuelto en bloque markdown (que prueba `limpiarJson`), error HTTP del servicio externo, y respuesta con campos ausentes que activa los valores por defecto. El `HttpClient` no se puede inyectar por constructor porque se inicializa como campo final; se usa `ReflectionTestUtils.setField` para sustituirlo por un mock en los tests:
+
+```java
+ReflectionTestUtils.setField(service, "httpClient", mockClient);
+ReflectionTestUtils.setField(service, "gemmaApiKey", "test-key");
+```
+
+### EjercicioServiceImpl — 9 tests
+
+Esta clase verifica las cuatro ramas de filtrado de `findAll`, `findById` con caso de error, y `save` con normalización del nombre. El servicio delega en cuatro métodos distintos del repositorio según la combinación de parámetros recibidos:
+
+```java
+if (hasQuery && hasTipo)      → searchByNombreAndTipo
+else if (hasQuery)            → searchByNombre
+else if (hasTipo)             → findByTipo
+else                          → findAll
+```
+
+Los tests verifican que cada rama activa exactamente el método correcto del repositorio y que los demás no son invocados, usando `verify(repo, never())`.
 
 ### AuthServiceImpl — 9 tests
 
@@ -106,11 +127,21 @@ Esta comprobación confirma que la sesión se persiste con el token correcto y c
 
 **Validación de token en logout.** Los tests sobre token nulo y token en blanco verifican que el servicio rechaza la operación antes de consultar la base de datos. En ambos casos, `deleteByToken` no llega a invocarse.
 
-### ResumenDiarioServiceImpl — 3 tests
+### ResumenDiarioServiceImpl — 14 tests
 
-Este servicio delega directamente en el repositorio sin transformar el resultado. La suite refleja ese comportamiento: tres tests son suficientes porque no existe lógica propia que justifique más. Añadir tests adicionales sería cobertura sobre código que no hace nada.
+Este servicio combina delegación al repositorio con lógica de enriquecimiento propia: calcula el TDEE real del usuario, determina el estado de balance energético y proyecta la fecha en que alcanzará su peso objetivo. Los 14 tests se organizan en tres clases anidadas.
 
-Los tres casos cubren: delegación correcta con verificación del resultado devuelto, propagación de un resumen con todos los valores a cero (día sin comidas), y paso sin modificación de valores con decimales.
+**DelegacionRepositorio (4 tests).** Verifican que la llamada al repositorio se hace con los argumentos correctos y que el resultado se propaga sin modificar. Los colaboradores `PerfilService` y `JdbcTemplate` están mockeados: `perfilService` lanza una excepción simulada para forzar el camino sin perfil (tdee=0), de forma análoga a un usuario que no ha completado su perfil.
+
+**EstadoBalance (5 tests).** Verifican los tres estados posibles del balance energético según el umbral de ±100 kcal: SUPERAVIT (balance > 100), DEFICIT (balance < -100) y MANTENIMIENTO. Un test adicional comprueba que las kcal quemadas por ejercicio restan del balance real, y otro verifica el comportamiento cuando el usuario no tiene perfil (tdee=0):
+
+```java
+// kcal 2500, tdee 2000, quemadas 0 → balance = 500 → SUPERAVIT
+assertThat(resultado.getEstadoBalance()).isEqualTo("SUPERAVIT");
+assertThat(resultado.getBalanceReal()).isEqualTo(500.0);
+```
+
+**FechaObjetivo (5 tests).** Verifican el cálculo de proyección: sin peso objetivo no se calcula fecha, con déficit suficiente se calculan los días para perder peso, con superávit suficiente se calculan los días para ganar peso, con déficit insuficiente (< 50 kcal) no se genera fecha, y cuando el historial de 7 días tiene media no nula se usa esa media en lugar del balance del día actual.
 
 ### ComidaServiceImpl — 17 tests
 
@@ -305,11 +336,11 @@ La métrica relevante es la cobertura de los servicios probados, que son la úni
 | `HidratacionServiceImpl`    | 100 %               |
 | `PesoHistorialServiceImpl`  | 100 %               |
 | `GamificacionService`       | 91 %                |
-| `AlimentoServiceImpl`       | 34 %                |
-| `EjercicioServiceImpl`      | 32 %                |
-| `ResumenDiarioServiceImpl`  | 13 %                |
+| `EjercicioServiceImpl`      | ≥ 95 %              |
+| `ResumenDiarioServiceImpl`  | ≥ 85 %              |
+| `AlimentoServiceImpl`       | ≥ 80 %              |
 
-Los servicios con cobertura parcial (`AlimentoServiceImpl`, `EjercicioServiceImpl`, `ResumenDiarioServiceImpl`) tienen lógica cubierta en los casos de uso principales; las líneas no cubiertas corresponden a ramas de error secundarias o a métodos delegados directamente al repositorio sin transformación.
+Los servicios inicialmente con cobertura parcial (`AlimentoServiceImpl`, `EjercicioServiceImpl`, `ResumenDiarioServiceImpl`) han sido ampliados en esta versión con tests que cubren los métodos de enriquecimiento, las ramas de filtrado y la integración con servicios externos (IA). Las líneas restantes sin cubrir corresponden a rutas de error de bajo nivel en llamadas HTTP y a guardias defensivas en métodos privados.
 
 Los controladores, repositorios y capas de configuración quedan fuera de la cobertura automatizada porque su comportamiento se verifica mediante las pruebas manuales de la API descritas en la sección 6.4.
 
@@ -317,4 +348,4 @@ Los controladores, repositorios y capas de configuración quedan fuera de la cob
 
 ## Cierre de la sección
 
-La suite de pruebas suma 132 tests en total: 91 unitarios del backend, 24 del cliente JavaFX y 17 del frontend React. Los tests del backend se ejecutan sin base de datos ni contexto de Spring, lo que los hace rápidos y reproducibles en cualquier entorno. Los del cliente JavaFX verifican el comportamiento de la sesión, los modelos observables y la comunicación HTTP sin requerir un display ni el toolkit gráfico. Las pruebas manuales, respaldadas por los archivos `.http` y por Swagger UI, complementan la cobertura automatizada verificando el comportamiento extremo a extremo, incluyendo validación de entrada, manejo de errores y flujos de autenticación.
+La suite de pruebas suma 155 tests en total: 114 unitarios del backend, 24 del cliente JavaFX y 17 del frontend React. Los tests del backend se ejecutan sin base de datos ni contexto de Spring, lo que los hace rápidos y reproducibles en cualquier entorno. Los del cliente JavaFX verifican el comportamiento de la sesión, los modelos observables y la comunicación HTTP sin requerir un display ni el toolkit gráfico. Las pruebas manuales, respaldadas por los archivos `.http` y por Swagger UI, complementan la cobertura automatizada verificando el comportamiento extremo a extremo, incluyendo validación de entrada, manejo de errores y flujos de autenticación.

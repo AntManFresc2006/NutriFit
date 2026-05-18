@@ -4,7 +4,7 @@
 
 NutriFit es una aplicación web funcional que permite registrar alimentos, crear comidas, registrar ejercicio, hacer seguimiento de hidratación, recibir evaluaciones con IA, generar planes semanales, crear listas de compra, registrar peso y analizar tendencias nutricionales. Todo ello se sostiene sobre una arquitectura moderna de tres capas —frontend React, backend Spring Boot y base de datos PostgreSQL— con despliegue en la nube (Vercel + Render).
 
-El sistema no es un prototipo: los 18 módulos del backend están implementados, exponen endpoints REST verificados y responden a las peticiones del cliente con datos reales almacenados en base de datos. El esquema está gestionado por Flyway y es reproducible desde cero en cualquier entorno. Los 91 tests unitarios del backend cubren la lógica de negocio relevante y pasan sin base de datos ni contexto de Spring activo.
+El sistema no es un prototipo: los 18 módulos del backend están implementados, exponen endpoints REST verificados y responden a las peticiones del cliente con datos reales almacenados en base de datos. El esquema está gestionado por Flyway y es reproducible desde cero en cualquier entorno. Los 114 tests unitarios del backend cubren la lógica de negocio relevante y pasan sin base de datos ni contexto de Spring activo. Todos los servicios con lógica propia tienen cobertura ≥ 80%, incluyendo alimentos (escaneo IA), ejercicios y resumen diario.
 
 La integración con IA mediante OpenRouter (configurable por usuario o con valores por defecto del servidor) permite evaluaciones personalizadas. El escáner de código de barras integra OpenFoodFacts API para búsqueda rápida de alimentos.
 
@@ -61,6 +61,6 @@ Lo que no está en esta lista: aplicación móvil nativa, integración con senso
 
 ## 8.6 Resumen
 
-NutriFit funciona. Implementa 18 módulos con arquitectura clara, despliegue en la nube, integración con IA, y análisis nutritivo completo. Sus decisiones están documentadas, sus límites están claros. Los 132 tests pasan sin base de datos ni display. La interfaz es responsiva y fluida.
+NutriFit funciona. Implementa 18 módulos con arquitectura clara, despliegue en la nube, integración con IA, y análisis nutritivo completo. Sus decisiones están documentadas, sus límites están claros. Los 155 tests pasan sin base de datos ni display. La interfaz es responsiva y fluida.
 
 El punto no era construir una app de producción corporativa, sino demostrar decisiones técnicas coherentes, documentarlas sin adornos, e implementar funcionalidad real. Eso es lo que aquí aparece.

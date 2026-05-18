@@ -4,7 +4,7 @@
 
 NutriFit es una aplicación web funcional que permite registrar alimentos, crear comidas, registrar ejercicio, hacer seguimiento de hidratación, recibir evaluaciones con IA, generar planes semanales, crear listas de compra, registrar peso y analizar tendencias nutricionales. Todo ello se sostiene sobre una arquitectura moderna de tres capas —frontend React, backend Spring Boot y base de datos PostgreSQL— con despliegue en la nube (Vercel + Render).
 
-El sistema no es un prototipo: los 18 módulos del backend están implementados, exponen endpoints REST verificados y responden a las peticiones del cliente con datos reales almacenados en base de datos. El esquema está gestionado por Flyway y es reproducible desde cero en cualquier entorno. Los 60 tests unitarios del backend cubren la lógica de negocio relevante y pasan sin base de datos ni contexto de Spring activo.
+El sistema no es un prototipo: los 18 módulos del backend están implementados, exponen endpoints REST verificados y responden a las peticiones del cliente con datos reales almacenados en base de datos. El esquema está gestionado por Flyway y es reproducible desde cero en cualquier entorno. Los 91 tests unitarios del backend cubren la lógica de negocio relevante y pasan sin base de datos ni contexto de Spring activo.
 
 La integración con IA mediante OpenRouter (configurable por usuario o con valores por defecto del servidor) permite evaluaciones personalizadas. El escáner de código de barras integra OpenFoodFacts API para búsqueda rápida de alimentos.
 

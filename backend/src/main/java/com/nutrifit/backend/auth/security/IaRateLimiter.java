@@ -10,34 +10,32 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Limitador de intentos de login por IP usando ventana deslizante.
- * Máximo 10 intentos por minuto por dirección IP; previene ataques de fuerza bruta.
+ * Limitador de llamadas a endpoints de IA por usuario.
+ * Máximo 5 peticiones por minuto para evitar abuso de APIs externas de pago.
  */
 @Component
-public class LoginRateLimiter {
+public class IaRateLimiter {
 
-    private static final int MAX_INTENTOS = 10;
+    private static final int MAX_PETICIONES = 5;
     private static final long VENTANA_MS = 60_000;
 
-    private final Map<String, Deque<Long>> intentosPorIp = new ConcurrentHashMap<>();
+    private final Map<Long, Deque<Long>> intentosPorUsuario = new ConcurrentHashMap<>();
 
     /**
-     * Verifica si una IP puede hacer un intento. Usa ventana deslizante de 60 segundos:
-     * elimina intentos antiguos y rechaza si se superan 10 en la ventana actual.
+     * Verifica si un usuario puede llamar a un endpoint de IA.
      *
-     * @param ip dirección IP de la petición
-     * @return {@code true} si el intento es permitido, {@code false} si se excedió el límite
+     * @param usuarioId identificador del usuario autenticado
+     * @return {@code true} si la petición es permitida, {@code false} si se excedió el límite
      */
-    public boolean permitir(String ip) {
+    public boolean permitir(Long usuarioId) {
         long ahora = Instant.now().toEpochMilli();
-        Deque<Long> intentos = intentosPorIp.computeIfAbsent(ip, k -> new ArrayDeque<>());
+        Deque<Long> intentos = intentosPorUsuario.computeIfAbsent(usuarioId, k -> new ArrayDeque<>());
 
         synchronized (intentos) {
-            // Eliminar intentos fuera de la ventana
             while (!intentos.isEmpty() && ahora - intentos.peekFirst() > VENTANA_MS) {
                 intentos.pollFirst();
             }
-            if (intentos.size() >= MAX_INTENTOS) {
+            if (intentos.size() >= MAX_PETICIONES) {
                 return false;
             }
             intentos.addLast(ahora);
@@ -46,12 +44,12 @@ public class LoginRateLimiter {
     }
 
     /**
-     * Elimina cada hora las entradas de IPs cuya ventana ya expiró para evitar fuga de memoria.
+     * Limpia cada hora las entradas de usuarios cuya ventana ya expiró.
      */
     @Scheduled(fixedRate = 3_600_000)
-    public void limpiarIpsAntiguas() {
+    public void limpiarUsuariosAntiguos() {
         long ahora = Instant.now().toEpochMilli();
-        intentosPorIp.entrySet().removeIf(entry -> {
+        intentosPorUsuario.entrySet().removeIf(entry -> {
             synchronized (entry.getValue()) {
                 while (!entry.getValue().isEmpty() && ahora - entry.getValue().peekFirst() > VENTANA_MS) {
                     entry.getValue().pollFirst();

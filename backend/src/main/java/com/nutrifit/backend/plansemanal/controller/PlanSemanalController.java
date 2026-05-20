@@ -1,5 +1,7 @@
 package com.nutrifit.backend.plansemanal.controller;
 
+import com.nutrifit.backend.auth.security.IaRateLimiter;
+import com.nutrifit.backend.common.exception.TooManyRequestsException;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
 import com.nutrifit.backend.plansemanal.dto.PlanSemanalRequest;
 import com.nutrifit.backend.plansemanal.dto.PlanSemanalResponse;
@@ -24,9 +26,11 @@ import java.time.LocalDate;
 public class PlanSemanalController {
 
     private final PlanSemanalService planSemanalService;
+    private final IaRateLimiter iaRateLimiter;
 
-    public PlanSemanalController(PlanSemanalService planSemanalService) {
+    public PlanSemanalController(PlanSemanalService planSemanalService, IaRateLimiter iaRateLimiter) {
         this.planSemanalService = planSemanalService;
+        this.iaRateLimiter = iaRateLimiter;
     }
 
     @Operation(summary = "Generar o recuperar plan semanal")
@@ -34,6 +38,7 @@ public class PlanSemanalController {
         @ApiResponse(responseCode = "200", description = "Plan generado o recuperado"),
         @ApiResponse(responseCode = "400", description = "Datos inválidos"),
         @ApiResponse(responseCode = "401", description = "No autenticado"),
+        @ApiResponse(responseCode = "429", description = "Límite de generación de planes alcanzado"),
         @ApiResponse(responseCode = "500", description = "Error al generar el plan")
     })
     @PostMapping
@@ -45,6 +50,9 @@ public class PlanSemanalController {
         Long authId = (Long) httpRequest.getAttribute("authenticatedUserId");
         if (!usuarioId.equals(authId)) {
             throw new UnauthorizedException("Acceso denegado");
+        }
+        if (!iaRateLimiter.permitir(usuarioId)) {
+            throw new TooManyRequestsException("Límite de generación de planes alcanzado. Espera un minuto.");
         }
 
         try {

@@ -31,6 +31,8 @@ import java.util.List;
 @RequestMapping("/api/comidas")
 public class ComidaController {
 
+    private static final String AUTH_USER_ATTR = "authenticatedUserId";
+
     private final ComidaService comidaService;
 
     public ComidaController(ComidaService comidaService) {
@@ -61,7 +63,7 @@ public class ComidaController {
             @RequestParam LocalDate fecha,
             HttpServletRequest request
     ) {
-        Long authId = (Long) request.getAttribute("authenticatedUserId");
+        Long authId = (Long) request.getAttribute(AUTH_USER_ATTR);
         if (!usuarioId.equals(authId)) {
             throw new UnauthorizedException("Acceso denegado");
         }
@@ -92,7 +94,7 @@ public class ComidaController {
             @Valid @RequestBody ComidaRequest request,
             HttpServletRequest httpRequest
     ) {
-        Long authId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        Long authId = (Long) httpRequest.getAttribute(AUTH_USER_ATTR);
         if (!usuarioId.equals(authId)) {
             throw new UnauthorizedException("Acceso denegado");
         }
@@ -141,8 +143,10 @@ public class ComidaController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
             @Parameter(description = "ID de la comida a eliminar")
-            @PathVariable Long id) {
-        comidaService.deleteById(id);
+            @PathVariable Long id,
+            HttpServletRequest httpRequest) {
+        Long usuarioId = (Long) httpRequest.getAttribute(AUTH_USER_ATTR);
+        comidaService.deleteById(id, usuarioId);
     }
 
     /**

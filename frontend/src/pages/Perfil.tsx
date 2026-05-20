@@ -107,7 +107,7 @@ export default function Perfil() {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="flex-1 overflow-auto p-6">
         <div className="max-w-3xl mx-auto">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="card text-center py-12 space-y-4">
-            <p className="text-red-400 font-medium">{error}</p>
+            <p role="alert" className="text-red-400 font-medium">{error}</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

@@ -99,8 +99,9 @@ export default function Escaner() {
     try {
       const result = await escanearBarcode(code)
       setResultado(result)
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'No se encontró el producto')
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } }; message?: string }
+      setError(e.response?.data?.message || e.message || 'No se encontró el producto')
     } finally {
       setLoading(false)
     }
@@ -134,8 +135,9 @@ export default function Escaner() {
       }
       await addItemToComida(comida.id, alimento.id, gramos)
       setAddSuccess(`${resultado.nombre} añadido al registro (${gramos}g)`)
-    } catch (err: any) {
-      setAddError(err.response?.data?.message || 'Error al añadir a comida')
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } }
+      setAddError(e.response?.data?.message || 'Error al añadir a comida')
     } finally {
       setAddingToMeal(false)
     }
@@ -165,6 +167,7 @@ export default function Escaner() {
       <AnimatePresence>
         {error && (
           <motion.div
+            role="alert"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}

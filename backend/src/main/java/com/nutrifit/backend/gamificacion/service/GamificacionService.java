@@ -2,6 +2,8 @@ package com.nutrifit.backend.gamificacion.service;
 
 import com.nutrifit.backend.gamificacion.dto.GamificacionResponse;
 import com.nutrifit.backend.perfil.service.PerfilService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.Set;
  */
 @Service
 public class GamificacionService {
+
+    private static final Logger log = LoggerFactory.getLogger(GamificacionService.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final PerfilService perfilService;
@@ -47,6 +51,7 @@ public class GamificacionService {
                     cumpleEjercicio, cumpleVariedad
             );
         } catch (Exception e) {
+            log.error("Error calculando gamificación para usuario {} fecha {}: {}", usuarioId, fecha, e.getMessage(), e);
             return new GamificacionResponse(0, 0, "—", false, false, false, false);
         }
     }
@@ -125,6 +130,7 @@ public class GamificacionService {
         try {
             return perfilService.getPerfil(usuarioId).getPesoKgActual();
         } catch (Exception e) {
+            log.warn("No se pudo obtener peso para usuario {}, usando 70 kg por defecto", usuarioId);
             return 70.0;
         }
     }
@@ -146,6 +152,7 @@ public class GamificacionService {
             double tdee = perfilService.getPerfil(usuarioId).getTdee();
             return kcalConsumidas - tdee - kcalQuemadas;
         } catch (Exception e) {
+            log.warn("No se pudo calcular balance real para usuario {} fecha {}: {}", usuarioId, fecha, e.getMessage());
             return 0.0;
         }
     }

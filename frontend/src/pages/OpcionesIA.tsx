@@ -122,6 +122,7 @@ export default function OpcionesIA() {
 
         {error && (
           <motion.div
+            role="alert"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="card bg-red-500/10 border-red-500/30 text-red-400 mb-6"

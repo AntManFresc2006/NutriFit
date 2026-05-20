@@ -3,6 +3,8 @@ package com.nutrifit.backend.resumen.service;
 import com.nutrifit.backend.perfil.service.PerfilService;
 import com.nutrifit.backend.resumen.dto.ResumenDiarioResponse;
 import com.nutrifit.backend.resumen.repository.ResumenDiarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,8 @@ import java.time.format.DateTimeFormatter;
  */
 @Service
 public class ResumenDiarioServiceImpl implements ResumenDiarioService {
+
+    private static final Logger log = LoggerFactory.getLogger(ResumenDiarioServiceImpl.class);
 
     private final ResumenDiarioRepository resumenDiarioRepository;
     private final PerfilService perfilService;
@@ -52,7 +56,7 @@ public class ResumenDiarioServiceImpl implements ResumenDiarioService {
         try {
             tdee = perfilService.getPerfil(usuarioId).getTdee();
         } catch (Exception e) {
-            // usuario sin perfil: TDEE = 0, balance real = balance neto
+            log.debug("Usuario {} sin perfil configurado, TDEE = 0", usuarioId);
         }
         double balanceReal = resumen.getKcalTotales() - tdee - resumen.getKcalQuemadasTotales();
         resumen.setTdee(tdee);
@@ -96,7 +100,7 @@ public class ResumenDiarioServiceImpl implements ResumenDiarioService {
                 resumen.setFechaObjetivo(fechaObjetivo.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             }
         } catch (Exception e) {
-            // Si falla el cálculo, dejamos los campos null
+            log.warn("Error calculando fecha objetivo para usuario {}: {}", usuarioId, e.getMessage());
         }
     }
 
@@ -124,6 +128,7 @@ public class ResumenDiarioServiceImpl implements ResumenDiarioService {
             Double media = jdbcTemplate.queryForObject(sql, Double.class, tdee, usuarioId, haceDias, hoy);
             return media != null ? media : 0;
         } catch (Exception e) {
+            log.warn("Error calculando media de balance para usuario {}: {}", usuarioId, e.getMessage());
             return 0;
         }
     }

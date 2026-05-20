@@ -247,6 +247,7 @@ export default function ListaCompra() {
         <AnimatePresence>
           {error && (
             <motion.div
+              role="alert"
               className="mb-6 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center justify-between"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}

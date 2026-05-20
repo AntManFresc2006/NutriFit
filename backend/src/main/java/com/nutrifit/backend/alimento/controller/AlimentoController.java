@@ -7,11 +7,14 @@ import com.nutrifit.backend.alimento.dto.EscanearFotoRequest;
 import com.nutrifit.backend.alimento.dto.EscanearFotoResponse;
 import com.nutrifit.backend.alimento.service.AlimentoService;
 import com.nutrifit.backend.alimento.service.OpenFoodFactsService;
+import com.nutrifit.backend.auth.security.IaRateLimiter;
+import com.nutrifit.backend.common.exception.TooManyRequestsException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +33,13 @@ public class AlimentoController {
 
     private final AlimentoService alimentoService;
     private final OpenFoodFactsService openFoodFactsService;
+    private final IaRateLimiter iaRateLimiter;
 
-    public AlimentoController(AlimentoService alimentoService, OpenFoodFactsService openFoodFactsService) {
+    public AlimentoController(AlimentoService alimentoService, OpenFoodFactsService openFoodFactsService,
+                               IaRateLimiter iaRateLimiter) {
         this.alimentoService = alimentoService;
         this.openFoodFactsService = openFoodFactsService;
+        this.iaRateLimiter = iaRateLimiter;
     }
 
     /**
@@ -159,7 +165,12 @@ public class AlimentoController {
             @ApiResponse(responseCode = "500", description = "Error al procesar la imagen")
     })
     @PostMapping("/escanear-foto")
-    public EscanearFotoResponse escanearFoto(@Valid @RequestBody EscanearFotoRequest request) {
+    public EscanearFotoResponse escanearFoto(@Valid @RequestBody EscanearFotoRequest request,
+                                              HttpServletRequest httpRequest) {
+        Long usuarioId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        if (!iaRateLimiter.permitir(usuarioId)) {
+            throw new TooManyRequestsException("Límite de análisis IA alcanzado. Espera un minuto.");
+        }
         try {
             return alimentoService.escanearFoto(request.getImagenBase64(), request.getMimeType());
         } catch (Exception e) {

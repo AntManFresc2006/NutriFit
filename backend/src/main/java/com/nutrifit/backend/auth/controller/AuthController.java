@@ -141,7 +141,7 @@ public class AuthController {
 
     private void setAuthCookie(HttpServletResponse response, String token) {
         String cookie = "nf_session=" + token
-            + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=86400";
+            + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=604800";
         response.addHeader("Set-Cookie", cookie);
     }
 

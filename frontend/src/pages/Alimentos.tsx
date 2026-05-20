@@ -64,8 +64,9 @@ export default function Alimentos() {
 
   const field = (key: keyof AlimentoRequest, label: string, type = 'number') => (
     <div>
-      <label className="label">{label}</label>
+      <label htmlFor={key} className="label">{label}</label>
       <input
+        id={key}
         type={type}
         className="input"
         value={form[key]}
@@ -113,6 +114,7 @@ export default function Alimentos() {
             <h2 className="text-base font-semibold text-white mb-4">Añadir alimento</h2>
             {error && (
               <motion.p
+                role="alert"
                 className="text-red-400 text-sm mb-3"
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}

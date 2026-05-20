@@ -115,9 +115,12 @@ public class ComidaServiceImpl implements ComidaService {
      */
     @Override
     @Transactional
-    public void deleteById(Long id) {
-        comidaRepository.findById(id)
+    public void deleteById(Long id, Long usuarioId) {
+        Comida comida = comidaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + id));
+        if (!comida.getUsuarioId().equals(usuarioId)) {
+            throw new com.nutrifit.backend.common.exception.UnauthorizedException("Acceso denegado");
+        }
         comidaRepository.deleteById(id);
     }
 

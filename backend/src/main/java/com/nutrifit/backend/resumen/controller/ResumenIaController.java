@@ -1,10 +1,13 @@
 package com.nutrifit.backend.resumen.controller;
 
+import com.nutrifit.backend.auth.security.IaRateLimiter;
+import com.nutrifit.backend.common.exception.TooManyRequestsException;
 import com.nutrifit.backend.resumen.dto.EvaluacionIaRequest;
 import com.nutrifit.backend.resumen.service.EvaluacionIaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,16 +33,20 @@ public class ResumenIaController {
 
     private final EvaluacionIaService evaluacionIaService;
     private final JdbcTemplate jdbcTemplate;
+    private final IaRateLimiter iaRateLimiter;
 
-    public ResumenIaController(EvaluacionIaService evaluacionIaService, JdbcTemplate jdbcTemplate) {
+    public ResumenIaController(EvaluacionIaService evaluacionIaService, JdbcTemplate jdbcTemplate,
+                                IaRateLimiter iaRateLimiter) {
         this.evaluacionIaService = evaluacionIaService;
         this.jdbcTemplate = jdbcTemplate;
+        this.iaRateLimiter = iaRateLimiter;
     }
 
     @Operation(summary = "Generar evaluación nutricional con IA", description = "Analiza los últimos 7 días de ingesta y ejercicio y devuelve una evaluación personalizada")
     @ApiResponse(responseCode = "200", description = "Evaluación generada correctamente")
     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
     @ApiResponse(responseCode = "401", description = "No autenticado")
+    @ApiResponse(responseCode = "429", description = "Límite de evaluaciones IA alcanzado")
     @ApiResponse(responseCode = "500", description = "Error al contactar el modelo IA")
     /**
      * Genera una evaluación nutricional del día usando un modelo de IA.
@@ -51,10 +58,15 @@ public class ResumenIaController {
      * @return evaluación en texto plano generada por el modelo IA
      */
     @PostMapping("/evaluacion-ia")
-    public ResponseEntity<Map<String, String>> evaluar(@Valid @RequestBody EvaluacionIaRequest request) {
+    public ResponseEntity<Map<String, String>> evaluar(@Valid @RequestBody EvaluacionIaRequest request,
+                                                        HttpServletRequest httpRequest) {
+        Long usuarioId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        if (!iaRateLimiter.permitir(usuarioId)) {
+            throw new TooManyRequestsException("Límite de evaluaciones IA alcanzado. Espera un minuto.");
+        }
         try {
             LocalDate fechaFin = LocalDate.parse(request.getFecha());
-            Context7Dias context = calcular7DiasContext(request.getUsuarioId(), fechaFin, request.getTdee());
+            Context7Dias context = calcular7DiasContext(usuarioId, fechaFin, request.getTdee());
             request.setKcalMedia7d(context.kcalMedia7d);
             request.setProteinasMedia7d(context.proteinasMedia7d);
             request.setDiasConEjercicio7d(context.diasConEjercicio7d);

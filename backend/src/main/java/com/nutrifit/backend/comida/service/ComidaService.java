@@ -33,11 +33,12 @@ public interface ComidaService {
     ComidaResponse save(Long usuarioId, ComidaRequest request);
 
     /**
-     * Elimina una comida y todos sus items asociados.
+     * Elimina una comida y todos sus items asociados, verificando que pertenece al usuario.
      *
      * @param id identificador de la comida a eliminar
+     * @param usuarioId identificador del usuario propietario
      */
-    void deleteById(Long id);
+    void deleteById(Long id, Long usuarioId);
 
     /**
      * Añade un alimento a una comida con la cantidad especificada.

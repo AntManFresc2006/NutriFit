@@ -203,11 +203,11 @@ class ComidaServiceImplTest {
     class DeleteById {
 
         @Test
-        @DisplayName("id existente: elimina la comida llamando al repositorio")
+        @DisplayName("id existente y propietario correcto: elimina la comida")
         void idExistente_eliminaComida() {
             when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
 
-            service.deleteById(COMIDA_ID);
+            service.deleteById(COMIDA_ID, USUARIO_ID);
 
             verify(comidaRepository).deleteById(COMIDA_ID);
         }
@@ -217,9 +217,20 @@ class ComidaServiceImplTest {
         void idInexistente_lanzaExcepcionSinEliminar() {
             when(comidaRepository.findById(99L)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.deleteById(99L))
+            assertThatThrownBy(() -> service.deleteById(99L, USUARIO_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining("99");
+
+            verify(comidaRepository, never()).deleteById(anyLong());
+        }
+
+        @Test
+        @DisplayName("usuario distinto al propietario: lanza UnauthorizedException")
+        void usuarioDistinto_lanzaUnauthorized() {
+            when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
+
+            assertThatThrownBy(() -> service.deleteById(COMIDA_ID, 999L))
+                    .isInstanceOf(com.nutrifit.backend.common.exception.UnauthorizedException.class);
 
             verify(comidaRepository, never()).deleteById(anyLong());
         }

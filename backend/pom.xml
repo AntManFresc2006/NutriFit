@@ -116,17 +116,23 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <excludes>
+                        <exclude>com/nutrifit/backend/BackendApplication.class</exclude>
+                        <exclude>com/nutrifit/backend/**/*Controller.class</exclude>
+                        <exclude>com/nutrifit/backend/**/*Repository.class</exclude>
+                        <exclude>com/nutrifit/backend/**/dto/*.class</exclude>
+                        <exclude>com/nutrifit/backend/**/model/*.class</exclude>
+                        <exclude>com/nutrifit/backend/**/mapper/*.class</exclude>
+                        <exclude>com/nutrifit/backend/config/*.class</exclude>
+                    </excludes>
                     <rules>
                         <rule>
                             <element>BUNDLE</element>
-                            <excludes>
-                                <exclude>*Test</exclude>
-                            </excludes>
                             <limits>
                                 <limit>
                                     <counter>LINE</counter>
                                     <value>COVEREDRATIO</value>
-                                    <minimum>0%</minimum>
+                                    <minimum>0.70</minimum>
                                 </limit>
                             </limits>
                         </rule>

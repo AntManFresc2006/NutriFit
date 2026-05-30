@@ -80,45 +80,45 @@ class AlimentoServiceImplTest {
         @Test
         @DisplayName("sin query devuelve todos los alimentos")
         void sinQuery_devuelveTodos() {
-            when(alimentoRepository.findAll()).thenReturn(List.of(alimentoMock()));
+            when(alimentoRepository.findAll(1L)).thenReturn(List.of(alimentoMock()));
 
-            List<AlimentoResponse> resultado = service.findAll(null);
+            List<AlimentoResponse> resultado = service.findAll(null, 1L);
 
             assertThat(resultado).hasSize(1);
             assertThat(resultado.get(0).getNombre()).isEqualTo("Pollo a la plancha");
-            verify(alimentoRepository).findAll();
+            verify(alimentoRepository).findAll(1L);
             verifyNoMoreInteractions(alimentoRepository);
         }
 
         @Test
         @DisplayName("query en blanco trata igual que sin query")
         void queryEnBlanco_devuelveTodos() {
-            when(alimentoRepository.findAll()).thenReturn(List.of());
+            when(alimentoRepository.findAll(1L)).thenReturn(List.of());
 
-            service.findAll("   ");
+            service.findAll("   ", 1L);
 
-            verify(alimentoRepository).findAll();
-            verify(alimentoRepository, never()).searchByNombre(anyString());
+            verify(alimentoRepository).findAll(1L);
+            verify(alimentoRepository, never()).searchByNombre(anyString(), anyLong());
         }
 
         @Test
         @DisplayName("query con texto delega en searchByNombre con texto recortado")
         void conQuery_delegaEnSearchByNombre() {
-            when(alimentoRepository.searchByNombre("pollo")).thenReturn(List.of(alimentoMock()));
+            when(alimentoRepository.searchByNombre("pollo", 1L)).thenReturn(List.of(alimentoMock()));
 
-            List<AlimentoResponse> resultado = service.findAll("  pollo  ");
+            List<AlimentoResponse> resultado = service.findAll("  pollo  ", 1L);
 
             assertThat(resultado).hasSize(1);
-            verify(alimentoRepository).searchByNombre("pollo");
-            verify(alimentoRepository, never()).findAll();
+            verify(alimentoRepository).searchByNombre("pollo", 1L);
+            verify(alimentoRepository, never()).findAll(anyLong());
         }
 
         @Test
         @DisplayName("repositorio vacío devuelve lista vacía sin errores")
         void repositorioVacio_devuelveListaVacia() {
-            when(alimentoRepository.findAll()).thenReturn(List.of());
+            when(alimentoRepository.findAll(1L)).thenReturn(List.of());
 
-            List<AlimentoResponse> resultado = service.findAll(null);
+            List<AlimentoResponse> resultado = service.findAll(null, 1L);
 
             assertThat(resultado).isEmpty();
         }
@@ -187,6 +187,18 @@ class AlimentoServiceImplTest {
 
             verify(alimentoRepository).save(argThat(a -> "Pollo a la plancha".equals(a.getNombre())));
         }
+
+        @Test
+        @DisplayName("nombre duplicado devuelve el existente sin insertar")
+        void nombreDuplicado_devuelveExistenteSinInsertar() {
+            when(alimentoRepository.findByNombreExacto("Pollo a la plancha"))
+                    .thenReturn(Optional.of(alimentoMock()));
+
+            AlimentoResponse resultado = service.save(requestMock());
+
+            assertThat(resultado.getId()).isEqualTo(1L);
+            verify(alimentoRepository, never()).save(any());
+        }
     }
 
     // ---------------------------------------------------------------------------
@@ -237,27 +249,27 @@ class AlimentoServiceImplTest {
     class DeleteById {
 
         @Test
-        @DisplayName("id existente elimina y devuelve true")
-        void idExistente_eliminaYDevuelveTrue() {
+        @DisplayName("id existente oculta para el usuario y devuelve true")
+        void idExistente_ocultaYDevuelveTrue() {
             when(alimentoRepository.findById(1L)).thenReturn(Optional.of(alimentoMock()));
-            when(alimentoRepository.deleteById(1L)).thenReturn(true);
+            doNothing().when(alimentoRepository).ocultarParaUsuario(1L, 1L);
 
-            boolean resultado = service.deleteById(1L);
+            boolean resultado = service.deleteById(1L, 1L);
 
             assertThat(resultado).isTrue();
-            verify(alimentoRepository).deleteById(1L);
+            verify(alimentoRepository).ocultarParaUsuario(1L, 1L);
         }
 
         @Test
-        @DisplayName("id inexistente lanza ResourceNotFoundException sin llamar a deleteById")
+        @DisplayName("id inexistente lanza ResourceNotFoundException sin ocultar")
         void idInexistente_lanzaExcepcionSinEliminar() {
             when(alimentoRepository.findById(99L)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.deleteById(99L))
+            assertThatThrownBy(() -> service.deleteById(99L, 1L))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessage("No existe un alimento con id 99");
 
-            verify(alimentoRepository, never()).deleteById(anyLong());
+            verify(alimentoRepository, never()).ocultarParaUsuario(anyLong(), anyLong());
         }
     }
 

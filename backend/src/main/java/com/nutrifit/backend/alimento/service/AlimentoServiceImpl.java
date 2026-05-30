@@ -9,6 +9,7 @@ import com.nutrifit.backend.alimento.model.Alimento;
 import com.nutrifit.backend.alimento.repository.AlimentoRepository;
 import com.nutrifit.backend.common.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,13 +58,13 @@ public class AlimentoServiceImpl implements AlimentoService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<AlimentoResponse> findAll(String query) {
+    public List<AlimentoResponse> findAll(String query, Long usuarioId) {
         List<Alimento> alimentos;
 
         if (query == null || query.isBlank()) {
-            alimentos = alimentoRepository.findAll();
+            alimentos = alimentoRepository.findAll(usuarioId);
         } else {
-            alimentos = alimentoRepository.searchByNombre(query.trim());
+            alimentos = alimentoRepository.searchByNombre(query.trim(), usuarioId);
         }
 
         return alimentos.stream()
@@ -99,7 +100,16 @@ public class AlimentoServiceImpl implements AlimentoService {
         String nombre = request.getNombre().trim();
         return alimentoRepository.findByNombreExacto(nombre)
                 .map(this::toResponse)
-                .orElseGet(() -> toResponse(alimentoRepository.save(toModel(request))));
+                .orElseGet(() -> {
+                    try {
+                        return toResponse(alimentoRepository.save(toModel(request)));
+                    } catch (DataIntegrityViolationException e) {
+                        // Carrera entre dos inserciones concurrentes con el mismo nombre
+                        return alimentoRepository.findByNombreExacto(nombre)
+                                .map(this::toResponse)
+                                .orElseThrow(() -> e);
+                    }
+                });
     }
 
     /**
@@ -130,11 +140,12 @@ public class AlimentoServiceImpl implements AlimentoService {
      */
     @Override
     @Transactional
-    public boolean deleteById(Long id) {
+    public boolean deleteById(Long id, Long usuarioId) {
         alimentoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + id));
 
-        return alimentoRepository.deleteById(id);
+        alimentoRepository.ocultarParaUsuario(usuarioId, id);
+        return true;
     }
 
     /**

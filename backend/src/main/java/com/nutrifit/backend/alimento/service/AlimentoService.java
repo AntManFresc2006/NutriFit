@@ -18,7 +18,7 @@ public interface AlimentoService {
      * @param query texto opcional para filtrar alimentos por nombre
      * @return lista de alimentos en formato de respuesta
      */
-    List<AlimentoResponse> findAll(String query);
+    List<AlimentoResponse> findAll(String query, Long usuarioId);
 
     /**
      * Obtiene un alimento específico por su identificador.
@@ -51,7 +51,7 @@ public interface AlimentoService {
      * @param id identificador del alimento a eliminar
      * @return true si la eliminación fue exitosa
      */
-    boolean deleteById(Long id);
+    boolean deleteById(Long id, Long usuarioId);
 
     /**
      * Analiza una foto de un alimento codificada en Base64 para extraer información nutricional.

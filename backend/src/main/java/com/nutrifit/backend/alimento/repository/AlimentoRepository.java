@@ -18,6 +18,8 @@ public interface AlimentoRepository {
      */
     List<Alimento> findAll();
 
+    List<Alimento> findAll(Long usuarioId);
+
     /**
      * Busca alimentos por nombre.
      *
@@ -25,6 +27,8 @@ public interface AlimentoRepository {
      * @return lista de alimentos coincidentes
      */
     List<Alimento> searchByNombre(String query);
+
+    List<Alimento> searchByNombre(String query, Long usuarioId);
 
     /**
      * Busca un alimento por su id.
@@ -66,4 +70,6 @@ public interface AlimentoRepository {
      * @return true si la eliminación fue correcta
      */
     boolean deleteById(Long id);
+
+    void ocultarParaUsuario(Long usuarioId, Long alimentoId);
 }

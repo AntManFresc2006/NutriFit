@@ -52,6 +52,18 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
      * @return lista de alimentos coincidentes
      */
     @Override
+    public List<Alimento> findAll(Long usuarioId) {
+        String sql = """
+                SELECT a.id, a.nombre, a.porcion_g, a.kcal_por_100g, a.proteinas_g, a.grasas_g, a.carbos_g, a.fuente
+                FROM alimentos a
+                LEFT JOIN alimentos_ocultos ao ON ao.alimento_id = a.id AND ao.usuario_id = ?
+                WHERE ao.alimento_id IS NULL
+                ORDER BY a.nombre ASC
+                """;
+        return jdbcTemplate.query(sql, rowMapper, usuarioId);
+    }
+
+    @Override
     public List<Alimento> searchByNombre(String query) {
         String sql = """
                 SELECT id, nombre, porcion_g, kcal_por_100g, proteinas_g, grasas_g, carbos_g, fuente
@@ -68,6 +80,19 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
      * @param id identificador del alimento
      * @return Optional con el alimento si existe, o vacío si no existe
      */
+    @Override
+    public List<Alimento> searchByNombre(String query, Long usuarioId) {
+        String sql = """
+                SELECT a.id, a.nombre, a.porcion_g, a.kcal_por_100g, a.proteinas_g, a.grasas_g, a.carbos_g, a.fuente
+                FROM alimentos a
+                LEFT JOIN alimentos_ocultos ao ON ao.alimento_id = a.id AND ao.usuario_id = ?
+                WHERE ao.alimento_id IS NULL
+                  AND LOWER(a.nombre) LIKE LOWER(?)
+                ORDER BY a.nombre ASC
+                """;
+        return jdbcTemplate.query(sql, rowMapper, usuarioId, "%" + query + "%");
+    }
+
     @Override
     public Optional<Alimento> findById(Long id) {
         String sql = """
@@ -172,5 +197,15 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
         String sql = "DELETE FROM alimentos WHERE id = ?";
         int filasAfectadas = jdbcTemplate.update(sql, id);
         return filasAfectadas > 0;
+    }
+
+    @Override
+    public void ocultarParaUsuario(Long usuarioId, Long alimentoId) {
+        String sql = """
+                INSERT INTO alimentos_ocultos (usuario_id, alimento_id)
+                VALUES (?, ?)
+                ON CONFLICT (usuario_id, alimento_id) DO NOTHING
+                """;
+        jdbcTemplate.update(sql, usuarioId, alimentoId);
     }
 }

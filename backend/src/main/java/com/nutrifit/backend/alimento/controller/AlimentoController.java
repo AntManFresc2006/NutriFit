@@ -55,8 +55,10 @@ public class AlimentoController {
     @GetMapping
     public List<AlimentoResponse> getAll(
             @Parameter(description = "Texto para filtrar alimentos por nombre (opcional)")
-            @RequestParam(required = false) String q) {
-        return alimentoService.findAll(q);
+            @RequestParam(required = false) String q,
+            HttpServletRequest httpRequest) {
+        Long usuarioId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        return alimentoService.findAll(q, usuarioId);
     }
 
     /**
@@ -129,8 +131,10 @@ public class AlimentoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
             @Parameter(description = "ID del alimento")
-            @PathVariable Long id) {
-        alimentoService.deleteById(id);
+            @PathVariable Long id,
+            HttpServletRequest httpRequest) {
+        Long usuarioId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        alimentoService.deleteById(id, usuarioId);
     }
 
     /**

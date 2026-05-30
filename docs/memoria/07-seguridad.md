@@ -58,7 +58,7 @@ El DTO de registro `RegisterRequest` declara las restricciones mínimas mediante
 private String email;
 
 @NotBlank(message = "La contraseña es obligatoria")
-@Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
+@Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
 private String password;
 ```
 
@@ -183,21 +183,166 @@ Los preflight (`OPTIONS`) no requieren token de autenticación. Todos los otros 
 
 ---
 
-## 7.4 Almacenamiento de claves API de IA
+## 7.4 Almacenamiento y exposición de claves API de IA
 
 Las claves API personalizadas para configuración de IA se almacenan en texto plano en la tabla `ia_config`. Esta es una limitación conocida del MVP: en producción, deberían cifrarse con una clave derivada del usuario o almacenarse en un servicio externo de gestión de secretos (ej., AWS Secrets Manager).
 
+Para mitigar la exposición en tránsito, el endpoint `GET /api/ia-config` nunca devuelve la clave completa. El getter de `UsuarioIaConfigResponse` enmascara el valor mostrando solo los últimos cuatro caracteres:
+
+```java
+public String getApiKey() {
+    if (apiKey == null || apiKey.length() <= 4) return apiKey;
+    return "••••" + apiKey.substring(apiKey.length() - 4);
+}
+```
+
+De este modo, aunque la respuesta sea interceptada por un proxy o quede registrada en logs de red, la clave real no queda expuesta. El frontend muestra el valor enmascarado y permite al usuario reemplazarlo escribiendo uno nuevo.
+
 ---
 
-## 7.5 Contraseña mínima de seis caracteres
+## 7.5 Cabeceras de seguridad HTTP
 
-La restricción `@Size(min = 6)` en `RegisterRequest` establece el umbral mínimo de longitud. Seis caracteres es un límite bajo para una contraseña; lo habitual en aplicaciones en producción es exigir al menos ocho, con requisitos adicionales de complejidad. La limitación es conocida y deliberada para simplificar las pruebas durante el desarrollo.
+`SecurityHeadersFilter`, un `OncePerRequestFilter` de Spring, añade en cada respuesta un conjunto de cabeceras que el navegador usa para reforzar el aislamiento de la aplicación:
+
+```java
+response.setHeader("X-Content-Type-Options", "nosniff");
+response.setHeader("X-Frame-Options", "DENY");
+response.setHeader("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'");
+response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+response.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+```
+
+| Cabecera | Protección |
+|----------|-----------|
+| `X-Content-Type-Options: nosniff` | Impide que el navegador infiera el MIME type, bloqueando ataques de content sniffing |
+| `X-Frame-Options: DENY` | Impide que la aplicación sea embebida en un `<iframe>`, bloqueando clickjacking |
+| `Content-Security-Policy` | Restringe los orígenes de scripts, estilos y recursos; `frame-ancestors 'none'` duplica la protección anti-clickjacking |
+| `Strict-Transport-Security` | Fuerza HTTPS durante un año e incluye subdominos en la preload list (evita SSL stripping en la primera visita) |
+| `Referrer-Policy` | Limita la información de referencia enviada a otros dominios |
+| `Permissions-Policy` | Declara explícitamente que la app no usa cámara, micrófono ni geolocalización |
+
+El frontend también incluye una meta CSP en `index.html` que restringe los orígenes desde los que el navegador puede cargar recursos:
+
+```html
+<meta http-equiv="Content-Security-Policy"
+  content="default-src 'self';
+           connect-src 'self' https://nutrifit-backend-ndoj.onrender.com https://world.openfoodfacts.org;
+           img-src 'self' data: https:;
+           style-src 'self' 'unsafe-inline';
+           font-src 'self';" />
+```
+
+---
+
+## 7.6 Protección contra SSRF
+
+El módulo de configuración de IA permite al usuario especificar una URL de proxy arbitraria. Sin validación, un atacante podría suministrar URLs internas (`http://localhost:8080/admin`, `http://169.254.169.254/`) para que el backend acceda a recursos de red interna — ataque conocido como SSRF (Server-Side Request Forgery).
+
+La protección se implementa en dos capas:
+
+**Capa 1 — Bean Validation en DTO:** `@Pattern` en el campo `proxyUrl` de `UsuarioIaConfigRequest` garantiza que la URL tenga el formato `https://dominio/...` antes de llegar al servicio:
+
+```java
+@NotBlank
+@Pattern(
+    regexp = "^https://[a-zA-Z0-9][a-zA-Z0-9\\-.]+(:\\d+)?(/.*)?$",
+    message = "proxyUrl debe ser una URL HTTPS con dominio público"
+)
+private String proxyUrl;
+```
+
+**Capa 2 — Validación programática en servicio:** `validateProxyUrl()` en `UsuarioIaConfigServiceImpl` verifica el esquema y bloquea todos los rangos de IP privada conocidos:
+
+```java
+private static final Set<String> BLOCKED_HOST_PREFIXES = Set.of(
+        "localhost", "127.", "10.", "172.16.", ..., "192.168.", "169.254.", "::1", "0."
+);
+
+private void validateProxyUrl(String rawUrl) {
+    URI uri = URI.create(rawUrl.trim());
+    if (!"https".equalsIgnoreCase(uri.getScheme()))
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "proxyUrl debe usar HTTPS");
+    String host = uri.getHost().toLowerCase();
+    if (BLOCKED_HOST_PREFIXES.stream().anyMatch(host::startsWith))
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "proxyUrl apunta a una dirección no permitida");
+}
+```
+
+Este método se invoca tanto en `saveConfig()` como en `testConfig()`, por lo que ningún path puede eludirlo.
+
+---
+
+## 7.7 Rate limiting
+
+NutriFit implementa dos mecanismos de rate limiting independientes:
+
+**`LoginRateLimiter`** — por dirección IP. Protege los endpoints de autenticación (`/api/auth/login`, `/api/auth/register`) limitando a 10 peticiones por minuto. Impide ataques de fuerza bruta sobre credenciales.
+
+**`IaRateLimiter`** — por usuario autenticado. Limita a 5 peticiones por minuto a todos los endpoints que generan llamadas a IA. Se aplica en:
+- `POST /api/resumen/evaluacion-ia` — evaluación nutricional
+- `POST /api/plan-semanal` — generación de plan semanal
+- `POST /api/alimentos/escanear-foto` — análisis IA de foto de producto
+- `POST /api/ia-config/test` — prueba de configuración de proxy IA
+- `POST /api/detective` — análisis forense nutricional
+
+Sin este límite, un usuario podría generar miles de llamadas a APIs externas de pago en segundos.
+
+---
+
+## 7.8 Validación de entrada en uploads
+
+El endpoint `POST /api/alimentos/escanear-foto` acepta una imagen codificada en Base64. Sin validación, un atacante podría enviar archivos de tipo arbitrario o de tamaño excesivo para causar DoS de memoria.
+
+`EscanearFotoRequest` declara dos restricciones mediante Bean Validation:
+
+```java
+@NotBlank
+@Size(max = 7_340_032, message = "La imagen no puede superar 5 MB")
+private String imagenBase64;
+
+@NotBlank
+@Pattern(regexp = "^image/(jpeg|png|webp|gif)$",
+         message = "Tipo de imagen no permitido. Use JPEG, PNG, WebP o GIF")
+private String mimeType;
+```
+
+El límite de 7 340 032 caracteres corresponde a 5 MB en Base64 (factor ×1,33). La whitelist de MIME types impide enviar PDFs, ejecutables u otros formatos no esperados.
+
+---
+
+## 7.9 Manejo seguro de errores
+
+Un manejo de errores descuidado puede filtrar al cliente detalles de implementación interna: rutas de clase Java, nombres de tablas, stack traces, versiones de librerías. NutriFit aplica tres defensas:
+
+**`GlobalExceptionHandler`** (`@RestControllerAdvice`) intercepta todas las excepciones antes de que Spring genere la respuesta. El handler genérico devuelve siempre el mismo mensaje neutro:
+
+```java
+@ExceptionHandler(Exception.class)
+public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest request) {
+    return ResponseEntity.status(500).body(
+        buildError(INTERNAL_SERVER_ERROR, "Ha ocurrido un error interno en el servidor", ...)
+    );
+}
+```
+
+Para `HttpMessageNotReadableException` e `IllegalArgumentException` (que pueden contener detalles de parsing interno), se devuelve igualmente un mensaje genérico: `"Solicitud inválida"`. `ConstraintViolationException` devuelve solo el mensaje de la violación, sin el path interno `método.parámetro.campo`.
+
+**`application.properties`** deshabilita cualquier mecanismo residual de Spring Boot que pudiera incluir stack traces en respuestas:
+
+```properties
+server.error.include-stacktrace=never
+server.error.include-message=never
+server.error.include-binding-errors=never
+```
+
+**Puntos concretos corregidos:** cuatro lugares del código original exponían `e.getMessage()` directamente al cliente (`ResumenIaController`, `AlimentoController`, `EscanerServiceImpl`, `GlobalExceptionHandler`). Todos fueron reemplazados por mensajes genéricos.
 
 ---
 
 ---
 
-## 7.6 Privacidad y RGPD
+## 7.10 Privacidad y RGPD
 
 NutriFit almacena datos de salud de sus usuarios: peso corporal, objetivo de peso, ingesta calórica diaria, registros de ejercicio e hidratación. Bajo el Reglamento General de Protección de Datos (RGPD, Reglamento UE 2016/679), los datos relativos a la salud son una categoría especial que requiere base jurídica explícita y medidas técnicas reforzadas (artículo 9).
 
@@ -255,6 +400,18 @@ Estas carencias son conocidas y forman parte de las limitaciones documentadas en
 
 ## Cierre de la sección
 
-NutriFit implementa las medidas de seguridad más relevantes para su alcance actual: las contraseñas se almacenan con BCrypt, de modo que un volcado de la base de datos no expone credenciales en texto plano; el mecanismo de sesión con token opaco permite un logout real e inmediato; todos los endpoints protegidos exigen un token válido y no expirado mediante `AuthInterceptor`; HTTPS está habilitado en producción; CORS está configurado para permitir únicamente orígenes autorizados; y el cliente incluye el token en cada llamada autenticada.
+NutriFit cubre los vectores de ataque más relevantes del OWASP Top 10 para su arquitectura:
 
-La sección 7.6 documenta el tratamiento de datos personales de salud conforme al RGPD, identificando las medidas técnicas implementadas —cifrado en tránsito, eliminación en cascada, caducidad de sesiones— y las limitaciones del MVP que deberían resolverse antes de un despliegue en producción real.
+- **Contraseñas**: BCrypt con sal aleatoria, mínimo 8 caracteres; el volcado de la BD no expone credenciales.
+- **Autenticación**: token opaco UUID con expiración de 7 días, logout real por eliminación de la fila en BD, mismo mensaje de error para email inexistente y contraseña incorrecta (anti-enumeración).
+- **Autorización**: todos los endpoints protegidos verifican que el recurso pertenece al usuario autenticado (IDOR mitigado); `AuthInterceptor` aplica esta comprobación globalmente.
+- **Inyección SQL**: 100% de consultas parametrizadas mediante `JdbcTemplate`; sin concatenación de cadenas en SQL.
+- **SSRF**: validación en dos capas (Bean Validation + blocklist de IPs privadas) en el proxy de IA.
+- **Cabeceras de seguridad**: HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy.
+- **Rate limiting**: por IP en auth (10 req/min), por usuario en todos los endpoints IA (5 req/min).
+- **Validación de uploads**: whitelist de MIME types y límite de 5 MB en imágenes.
+- **Exposición de errores**: `GlobalExceptionHandler` centraliza todas las excepciones con mensajes genéricos; `server.error.include-stacktrace=never` como defensa en profundidad.
+- **API key en respuesta**: enmascarada (solo últimos 4 caracteres) en `GET /api/ia-config`.
+- **CSP en frontend**: meta tag en `index.html` restringe orígenes permitidos en el navegador.
+
+La sección 7.10 documenta el tratamiento de datos personales de salud conforme al RGPD.

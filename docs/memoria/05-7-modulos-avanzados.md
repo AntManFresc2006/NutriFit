@@ -140,46 +140,43 @@ Se calcula diariamente como:
 
 ---
 
-## 5.7.4 Lista de compra: manual + sugerencias con IA
+## 5.7.4 Detective Nutricional IA: análisis forense del historial
 
 ### Problema que resuelve
 
-Facilitar la planificación de compras. El usuario puede crear una lista manual, marcar items completados y recibir sugerencias automáticas basadas en su patrón de consumo.
+El usuario registra datos durante semanas pero no tiene una visión global de sus patrones. El Detective Nutricional analiza el historial de los últimos N días y genera un informe detallado: tendencias, déficits recurrentes, días problemáticos y recomendaciones priorizadas.
+
+### Arquitectura
+
+`DetectiveService` coordina:
+
+1. **Agregación de datos históricos:** `DetectiveRepository` ejecuta una consulta con JOIN sobre `comidas`, `comida_alimentos`, `alimentos` y `ejercicios_registro` para los últimos N días del usuario.
+2. **Construcción del prompt:** resume los promedios diarios (kcal, proteínas, grasas, carbos, ejercicio) y los compara con el TDEE del usuario.
+3. **Llamada asíncrona a OpenRouter:** `DetectiveIaAsync` gestiona la llamada en un hilo aparte para no bloquear la petición HTTP. El estado del análisis se persiste en `detective_analisis`.
+4. **Polling del cliente:** el frontend hace `GET /api/detective` periódicamente hasta que el campo `estado` pasa de `PROCESANDO` a `COMPLETADO`.
 
 ### Modelo de datos
 
-**Tabla `lista_compra`:**
+**Tabla `detective_analisis`:**
 
 | Columna | Tipo SQL | Descripción |
 |---------|----------|-------------|
 | `id` | `BIGSERIAL PK` | Clave primaria |
-| `usuario_id` | `BIGINT FK` | Usuario propietario |
-| `nombre` | `VARCHAR(200)` | Nombre del artículo (ej., «Atún en lata») |
-| `cantidad` | `NUMERIC(10,2)` | Cantidad |
-| `unidad` | `VARCHAR(20)` | Unidad (kg, litros, unidades, latas) |
-| `categoria` | `VARCHAR(50)` | Categoría (FRUTAS, VERDURAS, PROTEÍNAS, CONSERVAS) |
-| `completado` | `BOOLEAN` | Marca de compra |
-| `sugerido_por_ia` | `BOOLEAN` | Flag: fue sugerido por IA |
-| `fecha_creacion` | `TIMESTAMP` | Timestamp de creación |
+| `usuario_id` | `BIGINT FK UNIQUE` | Un análisis activo por usuario |
+| `estado` | `VARCHAR(20)` | `PROCESANDO`, `COMPLETADO`, `ERROR` |
+| `dias_analizados` | `INTEGER` | Período del análisis |
+| `resultado_json` | `TEXT` | Informe completo generado por IA |
+| `creado_en` | `TIMESTAMP` | Timestamp de inicio |
+| `completado_en` | `TIMESTAMP` | Timestamp de fin (null si pendiente) |
 
 ### API
 
-- `GET /api/lista-compra?usuarioId=<id>`: devuelve items agrupados por categoría.
-- `POST /api/lista-compra?usuarioId=<id>` con body `{ nombre, cantidad, unidad, categoria }`: añade ítem.
-- `PATCH /api/lista-compra/{id}/toggle?usuarioId=<id>`: marca/desmarca como completado.
-- `DELETE /api/lista-compra/{id}?usuarioId=<id>`: elimina ítem.
-- `DELETE /api/lista-compra/completados?usuarioId=<id>`: limpia todos los items completados.
-- `GET /api/lista-compra/sugerencias?usuarioId=<id>`: genera sugerencias.
+- `POST /api/detective?usuarioId=<id>&dias=30`: inicia un análisis forense. Requiere rate limiting (5 req/min/usuario). Devuelve inmediatamente con `estado: PROCESANDO`.
+- `GET /api/detective?usuarioId=<id>`: obtiene el análisis actual. 404 si nunca se ha iniciado.
 
-### Generación de sugerencias
+### Interfaz del cliente
 
-`SugerenciasListaService` analiza:
-1. Los últimos 30 días de comidas del usuario.
-2. Déficits nutricionales (ej., si consume poco hierro, sugiere espinaca).
-3. Alimentos frecuentes (si come mucho pollo, sugiere variantes).
-4. Patrones estacionales (ej., frutas de la temporada).
-
-Construye un prompt y llama a OpenRouter. La respuesta es una lista de recomendaciones en texto libre que se inserta en la tabla `lista_compra` con `sugerido_por_ia = true`.
+React muestra un estado de carga mientras el análisis está en curso. Al completarse, renderiza el informe en secciones (fortalezas, déficits, patrones, recomendaciones). Si la IA falla, muestra un mensaje de error sin exponer detalles internos.
 
 ---
 
@@ -333,11 +330,17 @@ public String evaluarConIA(EvaluacionIaRequest request) {
 }
 ```
 
+### Medidas de seguridad
+
+**Protección SSRF:** `proxyUrl` se valida en dos capas antes de usarse. El DTO exige formato `https://dominio/...` mediante `@Pattern`. El servicio bloquea programáticamente todos los rangos de IP privada (localhost, 127.x, 10.x, 172.16-31.x, 192.168.x, 169.254.x). Una URL como `http://localhost:8080/admin` o `http://169.254.169.254/` es rechazada con HTTP 400 antes de que se realice ninguna petición HTTP saliente.
+
+**Rate limiting en prueba de configuración:** el endpoint `POST /api/ia-config/test` está sujeto al mismo `IaRateLimiter` (5 req/min/usuario) que el resto de endpoints IA, para evitar que se use como herramienta de escaneo de servicios externos.
+
+**Enmascaramiento de API key:** `GET /api/ia-config` devuelve la clave con los primeros caracteres reemplazados por `••••`, mostrando solo los últimos cuatro. La clave real nunca se expone en respuestas HTTP.
+
 ### Limitaciones conocidas
 
-- Las claves API se almacenan en texto plano (MVP). En producción deberían cifrarse.
-- No hay validación de que la clave es válida sin intentar usarla.
-- No hay rate limiting ni quota por usuario.
+- Las claves API se almacenan en texto plano en la BD (MVP). En producción deberían cifrarse.
 
 ---
 
@@ -346,12 +349,12 @@ public String evaluarConIA(EvaluacionIaRequest request) {
 React expone todas estas funcionalidades a través de un dashboard que:
 
 1. **Resumen:** muestra calorías, macros, hidratación, peso, puntos del día.
-2. **Plan semanal:** botón para generar plan, desplegable con el menú.
+2. **Plan semanal:** botón para generar plan (asíncrono), desplegable con el menú.
 3. **Retos:** panel de retos activos, botón para aceptar nuevos.
-4. **Lista de compra:** lista editable, botón para obtener sugerencias.
+4. **Detective Nutricional:** botón para iniciar análisis forense IA, indicador de progreso y renderizado del informe por secciones.
 5. **Escáner:** permite capturar código de barras (ej., via cámara web si está disponible, o ingreso manual).
 6. **Historial de peso:** gráfico de peso a lo largo del tiempo, tendencia actual.
-7. **Configuración:** formulario para personalizar modelo y clave API de IA.
+7. **Configuración:** formulario para personalizar modelo y clave API de IA, con botón de prueba de conexión.
 
 La interfaz integra Framer Motion para transiciones suaves. Los datos se cargan con hooks personalizados que manejan estado y errores de forma elegante.
 
@@ -359,5 +362,5 @@ La interfaz integra Framer Motion para transiciones suaves. Los datos se cargan 
 
 ## Cierre de la sección
 
-Los módulos avanzados (5.7.1–5.7.7) transforman NutriFit de una herramienta de registro en una plataforma de análisis y engagement. La integración con IA mediante OpenRouter permite generación de planes, evaluaciones personalizadas y sugerencias. La gamificación incentiva el uso consistente. El escáner reduce fricción en el registro. El historial y las tendencias proporcionan perspectiva longitudinal. Cada módulo se construyó con fallback explícito (si IA falla, devuelve default; si OpenFoodFacts no responde, devuelve 404) para garantizar robustez incluso con dependencias externas frágiles.
+Los módulos avanzados (5.7.1–5.7.7) transforman NutriFit de una herramienta de registro en una plataforma de análisis y engagement. La integración con IA mediante OpenRouter permite generación de planes, evaluaciones personalizadas y análisis forense nutricional. La gamificación incentiva el uso consistente. El escáner reduce fricción en el registro. El historial y las tendencias proporcionan perspectiva longitudinal. Cada módulo se construyó con fallback explícito (si IA falla, devuelve default; si OpenFoodFacts no responde, devuelve 404) para garantizar robustez incluso con dependencias externas frágiles.
 

@@ -22,8 +22,8 @@ Aplicación web de seguimiento nutricional y deportivo, inspirada en MyFitnessPa
 | *Seguimiento de hidratación* | *Historial de peso* |
 | ![Retos](docs/screenshots/11-retos.png) | ![Gamificación](docs/screenshots/14-gamificacion.png) |
 | *Retos de fitness* | *Estadísticas y gamificación* |
-| ![Plan semanal IA](docs/screenshots/10-plan-semanal.png) | ![Lista de la compra IA](docs/screenshots/12-lista-compra.png) |
-| *Plan semanal generado por IA* | *Lista de la compra con sugerencias IA* |
+| ![Plan semanal IA](docs/screenshots/10-plan-semanal.png) | ![Escáner de código de barras](docs/screenshots/13-escaner.png) |
+| *Plan semanal generado por IA* | *Escáner de código de barras (OpenFoodFacts)* |
 | ![Tendencias](docs/screenshots/15-tendencias.png) | ![Perfil](docs/screenshots/08-perfil.png) |
 | *Tendencias nutricionales (90 días)* | *Perfil y configuración biométrica* |
 
@@ -31,7 +31,7 @@ Aplicación web de seguimiento nutricional y deportivo, inspirada en MyFitnessPa
 
 - **Backend**: Spring Boot 3 + JDBC (JdbcTemplate) + PostgreSQL
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + Framer Motion
-- **Base de datos**: PostgreSQL (migraciones Flyway V1–V22)
+- **Base de datos**: PostgreSQL (migraciones Flyway V1–V27)
 - **Despliegue**: Backend en Render, frontend en Vercel
 
 ![Arquitectura del sistema](docs/diagrams/arquitectura.png)
@@ -131,7 +131,7 @@ docker-compose down -v
 - `/api/hidratacion` — seguimiento de hidratación
 - `/api/plan-semanal` — plan de comidas generado por IA
 - `/api/retos` — desafíos de fitness
-- `/api/lista-compra` — lista de la compra + sugerencias IA
+- `/api/detective` — análisis forense nutricional con IA
 - `/api/escaner/{barcode}` — escáner de códigos de barras (OpenFoodFacts)
 - `/api/gamificacion` — estadísticas (racha, puntuación)
 - `/api/peso-historial` — historial de peso
@@ -230,7 +230,7 @@ El frontend usa HTML semántico (`<nav>`, `<main>`, `<aside>`) y `<label htmlFor
 
 ## Privacidad
 
-NutriFit almacena datos de salud (peso, calorías, ejercicio, hidratación). La aplicación aplica BCrypt para contraseñas, eliminación en cascada de todos los datos del usuario y caducidad de sesiones a 7 días. Ver [docs/memoria/07-seguridad.md](docs/memoria/07-seguridad.md#76-privacidad-y-rgpd) para el análisis completo de tratamiento de datos conforme al RGPD.
+NutriFit almacena datos de salud (peso, calorías, ejercicio, hidratación). La aplicación aplica BCrypt para contraseñas, eliminación en cascada de todos los datos del usuario y caducidad de sesiones a 7 días. Ver [docs/memoria/07-seguridad.md](docs/memoria/07-seguridad.md#710-privacidad-y-rgpd) para el análisis completo de tratamiento de datos conforme al RGPD.
 
 ## Licencia
 

@@ -41,7 +41,7 @@ Documentación interactiva: https://nutrifit-backend.onrender.com/swagger-ui.htm
 **Validaciones:**
 - `nombre`: obligatorio, no vacío
 - `email`: obligatorio, formato válido, no puede existir duplicado
-- `password`: obligatorio, mínimo 6 caracteres
+- `password`: obligatorio, mínimo 8 caracteres
 
 **Respuesta 201:**
 ```json
@@ -54,7 +54,7 @@ Documentación interactiva: https://nutrifit-backend.onrender.com/swagger-ui.htm
 ```
 
 **Errores:**
-- 400: email duplicado, campo obligatorio ausente, formato email inválido, contraseña muy corta
+- 400: email duplicado (mensaje genérico sin indicar el motivo exacto), campo obligatorio ausente, formato email inválido, contraseña menor de 8 caracteres
 - Se devuelve siempre status 400 sin diferenciar entre "email duplicado" y "email inválido" (por seguridad)
 
 ### `POST /api/auth/login`
@@ -715,88 +715,62 @@ Recalcula el progreso de todos los retos activos del usuario para esa fecha.
 
 ---
 
-## B.12 Lista de compra — `/api/lista-compra`
+## B.12 Detective Nutricional IA — `/api/detective`
 
 | Método | Ruta | Descripción | Éxito | Errores |
 |---|---|---|---|---|
-| GET | `/api/lista-compra` | Lista agrupada por categoría | 200 | — |
-| POST | `/api/lista-compra` | Añade ítem | 201 | 400 |
-| PATCH | `/api/lista-compra/{id}/toggle` | Marca/desmarca como completado | 200 | 404 |
-| DELETE | `/api/lista-compra/{id}` | Elimina ítem | 204 | 404 |
-| DELETE | `/api/lista-compra/completados` | Elimina ítems completados | 204 | — |
-| GET | `/api/lista-compra/sugerencias` | Genera sugerencias con IA | 200 | — |
+| POST | `/api/detective` | Inicia análisis forense | 200 | 401, 429 |
+| GET | `/api/detective` | Obtiene análisis en curso o completado | 200 | 401, 404 |
 
 **Cabecera requerida:** `Authorization: Bearer <token>`
 
-### `GET /api/lista-compra`
+**Rate limiting:** 5 peticiones por minuto por usuario (compartido con el resto de endpoints IA).
+
+### `POST /api/detective`
+
+**Query params:**
+- `usuarioId` (long, obligatorio)
+- `dias` (int, opcional, default 30, rango 7–90): período de análisis
+
+Inicia un análisis asíncrono del historial nutricional del usuario. La llamada a IA se procesa en segundo plano; la respuesta se devuelve inmediatamente con `estado: PROCESANDO`.
+
+**Respuesta 200:**
+```json
+{
+  "usuarioId": 1,
+  "estado": "PROCESANDO",
+  "diasAnalizados": 30,
+  "resultado": null,
+  "creadoEn": "2026-05-31T10:30:00",
+  "completadoEn": null
+}
+```
+
+**Errores:**
+- 401: token inválido o usuario no coincide
+- 429: rate limit alcanzado (espera 60 segundos)
+
+### `GET /api/detective`
 
 **Query param:** `usuarioId` (long)
 
-**Respuesta 200:**
+Obtiene el estado actual del análisis. El cliente hace polling hasta que `estado` es `COMPLETADO` o `ERROR`.
+
+**Respuesta 200 (completado):**
 ```json
 {
-  "FRUTAS": [
-    { "id": 1, "nombre": "Manzana", "cantidad": 2, "unidad": "kg", "completado": false }
-  ],
-  "VERDURAS": [
-    { "id": 2, "nombre": "Lechuga", "cantidad": 1, "unidad": "ud", "completado": true }
-  ]
+  "usuarioId": 1,
+  "estado": "COMPLETADO",
+  "diasAnalizados": 30,
+  "resultado": "## Análisis nutricional forense\n\n**Fortalezas:**...",
+  "creadoEn": "2026-05-31T10:30:00",
+  "completadoEn": "2026-05-31T10:30:08"
 }
 ```
 
-### `POST /api/lista-compra`
-
-**Query param:** `usuarioId`
-
-**Cuerpo:**
-```json
-{
-  "nombre": "Atún",
-  "cantidad": 3,
-  "unidad": "latas",
-  "categoria": "CONSERVAS"
-}
-```
-
-**Respuesta 201:** objeto ítem con `id`
-
-### `PATCH /api/lista-compra/{id}/toggle`
-
-**Query param:** `usuarioId`
-
-Invierte el estado `completado`.
-
-**Respuesta 200:** objeto ítem actualizado
-
-**Errores:** 404 si ítem no existe
-
-### `DELETE /api/lista-compra/{id}`
-
-**Query param:** `usuarioId`
-
-**Respuesta 204:** sin contenido
-
-### `DELETE /api/lista-compra/completados`
-
-**Query param:** `usuarioId`
-
-Elimina todos los ítems con `completado = true`.
-
-**Respuesta 204:** sin contenido
-
-### `GET /api/lista-compra/sugerencias`
-
-**Query param:** `usuarioId`
-
-Genera sugerencias de compra basadas en el análisis nutritivo y patrones del usuario usando IA.
-
-**Respuesta 200:**
-```json
-{
-  "sugerencias": "Basándome en tu consumo diario, te sugiero...",
-  "generadoEn": "2026-05-17T10:30:00"
-}
-```
+**Errores:**
+- 401: token inválido o usuario no coincide
+- 404: no existe ningún análisis para este usuario
 
 ---
 
@@ -941,21 +915,25 @@ Si ya existe registro para esa fecha, se actualiza (upsert).
 |---|---|---|---|---|
 | GET | `/api/ia-config` | Obtiene configuración | 200 | 404 |
 | PUT | `/api/ia-config` | Actualiza configuración | 200 | 400 |
+| POST | `/api/ia-config/test` | Prueba la configuración contra el proxy | 200 | 400, 429 |
 | DELETE | `/api/ia-config` | Elimina configuración | 204 | 404 |
 
 **Cabecera requerida:** `Authorization: Bearer <token>`
+
+**Validación de seguridad en `proxyUrl`:** el campo debe usar `https://` y no puede apuntar a rangos de IP privada (localhost, 127.x, 10.x, 172.16–31.x, 192.168.x, 169.254.x). Cualquier intento de SSRF devuelve HTTP 400.
 
 ### `GET /api/ia-config`
 
 **Query param:** `usuarioId` (long)
 
+La `apiKey` se devuelve **enmascarada** — solo los últimos 4 caracteres son visibles:
+
 **Respuesta 200:**
 ```json
 {
-  "usuarioId": 1,
   "proxyUrl": "https://api.openrouter.ai/api/v1",
   "model": "meta-llama/llama-3-70b-instruct",
-  "apiKey": "sk-or-v1-xxx..."
+  "apiKey": "••••4a2f"
 }
 ```
 
@@ -976,7 +954,30 @@ Si ya existe registro para esa fecha, se actualiza (upsert).
 
 Todos los campos son obligatorios. Sobrescribe configuración previa.
 
-**Respuesta 200:** objeto configuración actualizado
+**Respuesta 200:** objeto configuración actualizado (apiKey enmascarada)
+
+**Errores:** 400 si `proxyUrl` no es HTTPS o apunta a IP privada
+
+### `POST /api/ia-config/test`
+
+**Query param:** `usuarioId`
+
+**Cuerpo:** mismo formato que PUT
+
+Realiza una petición real al proxy con el modelo y clave indicados para verificar que la configuración funciona. Sujeto a rate limiting (5 req/min/usuario).
+
+**Respuesta 200:**
+```json
+{ "ok": true, "error": null }
+```
+o en caso de fallo:
+```json
+{ "ok": false, "error": "API Key incorrecta o sin permisos (HTTP 401)" }
+```
+
+**Errores:**
+- 400: `proxyUrl` inválida o apunta a dirección no permitida
+- 429: rate limit alcanzado
 
 ### `DELETE /api/ia-config`
 
@@ -1022,12 +1023,12 @@ Elimina configuración personalizada; futuras evaluaciones usarán valores por d
 | Hidratación | 3 | SÍ |
 | Plan semanal | 3 | SÍ |
 | Retos | 4 | SÍ |
-| Lista de compra | 6 | SÍ |
+| Detective Nutricional IA | 2 | SÍ |
 | Escáner | 1 | NO |
 | Gamificación | 1 | SÍ |
 | Peso historial | 3 | SÍ |
 | Tendencias | 1 | SÍ |
-| IA config | 3 | SÍ |
+| IA config | 4 | SÍ |
 | Health | 1 | NO |
-| **Total** | **54** | |
+| **Total** | **51** | |
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useFechaPersistente } from '../hooks/useFechaPersistente'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Wind, Dumbbell, Trash2, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -15,9 +16,6 @@ type TipoFlujo = 'AEROBICO' | 'ANAEROBICO'
 type Intensidad = 'BAJA' | 'MEDIA' | 'ALTA'
 type Paso = 'tipo' | 'ejercicio' | 'detalle'
 
-function today() {
-  return new Date().toISOString().split('T')[0]
-}
 
 const INTENSIDADES: { value: Intensidad; label: string; desc: string; color: string }[] = [
   { value: 'BAJA',  label: 'Baja',  desc: 'Muchas reps · poco peso',    color: 'bg-green-500' },
@@ -27,7 +25,7 @@ const INTENSIDADES: { value: Intensidad; label: string; desc: string; color: str
 
 export default function Ejercicios() {
   const { user } = useAuth()
-  const [fecha, setFecha] = useState(today())
+  const [fecha, setFecha] = useFechaPersistente('nutrifit_fecha_ejercicios')
   const [registros, setRegistros] = useState<RegistroEjercicio[]>([])
   const [loading, setLoading] = useState(true)
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)

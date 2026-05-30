@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useFechaPersistente } from '../hooks/useFechaPersistente'
 import { Droplets, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
@@ -6,7 +7,7 @@ import { getHidratacionDiaria, registrarAgua, eliminarAgua, type HidratacionDiar
 
 export default function Hidratacion() {
   const { user } = useAuth()
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0])
+  const [fecha, setFecha] = useFechaPersistente('nutrifit_fecha_hidratacion')
   const [diario, setDiario] = useState<HidratacionDiaria | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

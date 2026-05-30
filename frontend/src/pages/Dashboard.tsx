@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useFechaPersistente } from '../hooks/useFechaPersistente'
 import type { ReactNode } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { Flame, Dumbbell, Scale, TrendingDown, Target } from 'lucide-react'
@@ -10,9 +11,6 @@ import type { ResumenDiario } from '../types'
 import type { Gamificacion } from '../api/resumen'
 import type { RecuperacionData } from '../api/ejercicios'
 
-function today() {
-  return new Date().toISOString().split('T')[0]
-}
 
 function formatDate(date: string) {
   const d = new Date(date + 'T00:00:00')
@@ -34,7 +32,7 @@ export default function Dashboard() {
   const [loadingResumen, setLoadingResumen] = useState(true)
   const [ia, setIa] = useState('')
   const [loadingIa, setLoadingIa] = useState(false)
-  const [fecha, setFecha] = useState(today())
+  const [fecha, setFecha] = useFechaPersistente('nutrifit_fecha_dashboard')
   const [gamificacion, setGamificacion] = useState<Gamificacion | null>(null)
   const [recuperacion, setRecuperacion] = useState<RecuperacionData | null>(null)
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useFechaPersistente } from '../hooks/useFechaPersistente'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Html5Qrcode } from 'html5-qrcode'
 import { escanearBarcode, type EscanerResult } from '../api/escaner'
@@ -24,7 +25,7 @@ export default function Escaner() {
 
   const [gramos, setGramos] = useState(100)
   const [tipoComida, setTipoComida] = useState('ALMUERZO')
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0])
+  const [fecha, setFecha] = useFechaPersistente('nutrifit_fecha_escaner')
   const [comidas, setComidas] = useState<Comida[]>([])
   const [addingToMeal, setAddingToMeal] = useState(false)
   const [addError, setAddError] = useState('')

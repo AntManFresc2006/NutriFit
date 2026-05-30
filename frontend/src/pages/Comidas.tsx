@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useFechaPersistente } from '../hooks/useFechaPersistente'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Trash2, Globe, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -8,13 +9,10 @@ import type { Comida, ComidaItem, Alimento, AlimentoExterno } from '../types'
 
 const TIPOS = ['DESAYUNO', 'COMIDA', 'MERIENDA', 'CENA', 'SNACK']
 
-function today() {
-  return new Date().toISOString().split('T')[0]
-}
 
 export default function Comidas() {
   const { user } = useAuth()
-  const [fecha, setFecha] = useState(today())
+  const [fecha, setFecha] = useFechaPersistente('nutrifit_fecha_comidas')
   const [comidas, setComidas] = useState<Comida[]>([])
   const [items, setItems] = useState<Record<number, ComidaItem[]>>({})
   const [loading, setLoading] = useState(true)

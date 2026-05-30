@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useFechaPersistente } from '../hooks/useFechaPersistente'
 import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { Flame, Zap, Scale, Target, Pencil } from 'lucide-react'
@@ -29,7 +30,7 @@ export default function Perfil() {
   const [error, setError] = useState<string | null>(null)
   const [pesoHistorial, setPesoHistorial] = useState<PesoHistorial[]>([])
   const [pesoHoy, setPesoHoy] = useState('')
-  const [pesoFecha, setPesoFecha] = useState<string>(new Date().toISOString().split('T')[0])
+  const [pesoFecha, setPesoFecha] = useFechaPersistente('nutrifit_fecha_perfil')
   const [savingPeso, setSavingPeso] = useState(false)
 
   useEffect(() => {

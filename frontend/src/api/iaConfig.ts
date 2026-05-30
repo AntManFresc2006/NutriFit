@@ -17,3 +17,12 @@ export const saveIaConfig = (usuarioId: number, data: IaConfigData) =>
 
 export const deleteIaConfig = (usuarioId: number) =>
   client.delete('/api/ia-config', { params: { usuarioId } })
+
+export interface IaTestResult {
+  ok: boolean
+  error: string | null
+}
+
+export const testIaConfig = (usuarioId: number, data: IaConfigData) =>
+  client.post<IaTestResult>('/api/ia-config/test', data, { params: { usuarioId } })
+    .then(r => r.data)

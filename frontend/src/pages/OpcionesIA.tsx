@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Bot, Eye, EyeOff, BookOpen, Check } from 'lucide-react'
+import { Bot, Eye, EyeOff, BookOpen, Check, CheckCircle, XCircle, FlaskConical } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { getIaConfig, saveIaConfig, deleteIaConfig, type IaConfigData } from '../api/iaConfig'
+import { getIaConfig, saveIaConfig, deleteIaConfig, testIaConfig, type IaConfigData, type IaTestResult } from '../api/iaConfig'
 
 const CANVA_GUIDE_URL = 'https://canva.link/v000yy54v9tn2oq'
 const MODELOS_RECOMENDADOS = [
@@ -26,6 +26,8 @@ export default function OpcionesIA() {
     apiKey: ''
   })
   const [showApiKey, setShowApiKey] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<IaTestResult | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -56,6 +58,26 @@ export default function OpcionesIA() {
       setError('No se pudo guardar la configuración. Intenta de nuevo.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const updateForm = (field: keyof IaConfigData, value: string) => {
+    setForm(f => ({ ...f, [field]: value }))
+    setTestResult(null)
+  }
+
+  const handleTest = async () => {
+    if (!user) return
+    setTesting(true)
+    setTestResult(null)
+    try {
+      const result = await testIaConfig(user.usuarioId, form)
+      setTestResult(result)
+      if (result.ok) setTimeout(() => setTestResult(null), 4000)
+    } catch {
+      setTestResult({ ok: false, error: 'No se pudo conectar con el servidor.' })
+    } finally {
+      setTesting(false)
     }
   }
 
@@ -176,7 +198,7 @@ export default function OpcionesIA() {
                   className="input"
                   placeholder="https://openrouter.ai/api/v1"
                   value={form.proxyUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, proxyUrl: e.target.value }))}
+                  onChange={(e) => updateForm('proxyUrl', e.target.value)}
                 />
               </div>
 
@@ -187,7 +209,7 @@ export default function OpcionesIA() {
                   className="input"
                   placeholder="google/gemma-3-27b-it:free"
                   value={form.model}
-                  onChange={(e) => setForm((f) => ({ ...f, model: e.target.value }))}
+                  onChange={(e) => updateForm('model', e.target.value)}
                 />
               </div>
 
@@ -199,7 +221,7 @@ export default function OpcionesIA() {
                     className="input pr-12"
                     placeholder="sk-or-..."
                     value={form.apiKey}
-                    onChange={(e) => setForm((f) => ({ ...f, apiKey: e.target.value }))}
+                    onChange={(e) => updateForm('apiKey', e.target.value)}
                   />
                   <button
                     type="button"
@@ -217,9 +239,20 @@ export default function OpcionesIA() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="btn-primary flex-1"
-                  disabled={saving}
+                  disabled={saving || testing}
                 >
                   {saving ? 'Guardando...' : 'Guardar configuración'}
+                </motion.button>
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn-secondary flex items-center gap-2"
+                  onClick={handleTest}
+                  disabled={saving || testing || !form.proxyUrl || !form.model || !form.apiKey}
+                >
+                  <FlaskConical className="w-4 h-4" />
+                  {testing ? 'Probando...' : 'Probar'}
                 </motion.button>
                 {config && (
                   <motion.button
@@ -228,12 +261,27 @@ export default function OpcionesIA() {
                     whileTap={{ scale: 0.95 }}
                     className="btn-danger"
                     onClick={handleReset}
-                    disabled={saving}
+                    disabled={saving || testing}
                   >
                     Restablecer
                   </motion.button>
                 )}
               </div>
+
+              {testResult !== null && (
+                <motion.div
+                  role="alert"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex items-start gap-3 p-3 rounded-lg border text-sm ${testResult.ok ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}
+                >
+                  {testResult.ok
+                    ? <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    : <XCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  }
+                  <span>{testResult.ok ? 'Configuración correcta. La IA responde sin errores.' : testResult.error}</span>
+                </motion.div>
+              )}
             </form>
           </motion.div>
 

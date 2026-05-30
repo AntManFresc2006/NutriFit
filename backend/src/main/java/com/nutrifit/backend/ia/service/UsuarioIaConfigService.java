@@ -1,5 +1,6 @@
 package com.nutrifit.backend.ia.service;
 
+import com.nutrifit.backend.ia.dto.IaTestResponse;
 import com.nutrifit.backend.ia.dto.UsuarioIaConfigRequest;
 import com.nutrifit.backend.ia.dto.UsuarioIaConfigResponse;
 
@@ -30,4 +31,11 @@ public interface UsuarioIaConfigService {
      * @param usuarioId ID del usuario.
      */
     void deleteConfig(Long usuarioId);
+
+    /**
+     * Prueba la configuración de IA haciendo una petición real al proxy.
+     * @param request Datos de configuración a probar.
+     * @return Resultado del test con ok=true o mensaje de error.
+     */
+    IaTestResponse testConfig(UsuarioIaConfigRequest request);
 }

@@ -1,6 +1,7 @@
 package com.nutrifit.backend.ia.controller;
 
 import com.nutrifit.backend.common.exception.UnauthorizedException;
+import com.nutrifit.backend.ia.dto.IaTestResponse;
 import com.nutrifit.backend.ia.dto.UsuarioIaConfigRequest;
 import com.nutrifit.backend.ia.dto.UsuarioIaConfigResponse;
 import com.nutrifit.backend.ia.service.UsuarioIaConfigService;
@@ -67,6 +68,24 @@ public class UsuarioIaConfigController {
         }
         UsuarioIaConfigResponse response = service.saveConfig(usuarioId, request);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Probar configuración de IA del usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Resultado del test"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @PostMapping("/test")
+    public ResponseEntity<IaTestResponse> testConfig(
+            @Parameter(description = "ID del usuario")
+            @RequestParam Long usuarioId,
+            @Valid @RequestBody UsuarioIaConfigRequest request,
+            HttpServletRequest httpRequest) {
+        Long authId = (Long) httpRequest.getAttribute(AUTH_USER_ATTR);
+        if (!usuarioId.equals(authId)) {
+            throw new UnauthorizedException("Acceso denegado");
+        }
+        return ResponseEntity.ok(service.testConfig(request));
     }
 
     @Operation(summary = "Eliminar configuración de IA del usuario")

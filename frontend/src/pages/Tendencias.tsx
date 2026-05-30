@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { Activity, Star, TrendingDown, Flame } from 'lucide-react'
+import { Activity, Star, TrendingDown, Flame, Utensils, Scale, Dumbbell } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getTendencias, type TendenciasData } from '../api/tendencias'
 import PesoChart from '../components/PesoChart'
@@ -85,8 +85,25 @@ export default function Tendencias() {
         </div>
 
         {!data ? (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card text-center py-16 text-white/50">
-            <p>Sin datos disponibles. Registra comidas, pesajes y ejercicios primero.</p>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card py-10 px-6">
+            <p className="text-white/70 font-medium text-center mb-6">Para ver tu análisis necesitas tener datos en al menos una de estas secciones:</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col items-center gap-3">
+                <Utensils className="w-8 h-8 text-emerald-400" />
+                <p className="text-white font-semibold">Comidas</p>
+                <p className="text-white/50 text-sm text-center">Registra lo que comes cada día desde la sección <span className="text-emerald-400 font-medium">Comidas</span>. Se usará para calcular tus macros y NutriScore.</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col items-center gap-3">
+                <Scale className="w-8 h-8 text-blue-400" />
+                <p className="text-white font-semibold">Pesajes</p>
+                <p className="text-white/50 text-sm text-center">Registra tu peso desde la sección <span className="text-blue-400 font-medium">Perfil</span>. Se mostrará tu evolución y progreso hacia tu objetivo.</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col items-center gap-3">
+                <Dumbbell className="w-8 h-8 text-orange-400" />
+                <p className="text-white font-semibold">Ejercicios</p>
+                <p className="text-white/50 text-sm text-center">Registra tus entrenamientos en <span className="text-orange-400 font-medium">Ejercicios</span>. Verás un mapa de calor con tu actividad diaria.</p>
+              </div>
+            </div>
           </motion.div>
         ) : (
           <>

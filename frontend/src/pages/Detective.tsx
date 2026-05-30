@@ -166,8 +166,8 @@ export default function Detective() {
             </motion.div>
           )}
 
-          {/* Analizando — stats inmediatos + spinner IA */}
-          {(estado === 'analizando' || estado === 'listo') && analisis && (
+          {/* Resultados: stats + hallazgos siempre visibles; informe o error debajo */}
+          {estado !== 'idle' && analisis && (
             <motion.div key="resultados" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {analisis.estadisticas && (
                 <EstadisticasGrid stats={analisis.estadisticas} tdee={0} />
@@ -177,14 +177,35 @@ export default function Detective() {
                 <HallazgosSection hallazgos={analisis.hallazgos} />
               )}
 
-              <InformeSection estado={estado} analisisIa={analisis.analisisIa} />
+              {estado === 'error' ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 flex items-center justify-between"
+                >
+                  <div>
+                    <h3 className="text-red-400 font-semibold">Informe IA no disponible</h3>
+                    <p className="text-red-300 text-sm mt-1">{errorMsg}</p>
+                  </div>
+                  <motion.button
+                    onClick={handleIniciar}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors shrink-0 ml-4"
+                  >
+                    Reintentar IA
+                  </motion.button>
+                </motion.div>
+              ) : (
+                <InformeSection estado={estado} analisisIa={analisis.analisisIa} />
+              )}
             </motion.div>
           )}
 
-          {/* Error */}
-          {estado === 'error' && (
+          {/* Error sin datos previos (falló antes de computar stats) */}
+          {estado === 'error' && !analisis && (
             <motion.div
-              key="error"
+              key="error-solo"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}

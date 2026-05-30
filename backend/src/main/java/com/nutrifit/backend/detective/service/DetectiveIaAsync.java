@@ -76,8 +76,11 @@ public class DetectiveIaAsync {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
+        if (response.statusCode() == 429) {
+            throw new IOException("El modelo de IA está saturado en este momento. Inténtalo de nuevo en unos minutos o configura tu propia API key en Opciones IA.");
+        }
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new IOException("IA error " + response.statusCode() + ": " + response.body());
+            throw new IOException("La IA respondió con error " + response.statusCode() + ". Inténtalo de nuevo.");
         }
 
         JsonNode json = objectMapper.readTree(response.body());

@@ -11,26 +11,22 @@ import java.util.Optional;
 public interface PlanSemanalRepository {
 
     /**
-     * Guarda o actualiza un plan semanal.
-     * @param usuarioId ID del usuario propietario del plan.
-     * @param semanaInicio Fecha de inicio de la semana.
-     * @param planJson Plan en formato JSON.
-     * @return Plan guardado.
+     * Crea un registro con estado GENERANDO y devuelve el id asignado.
      */
-    PlanSemanalResponse save(Long usuarioId, LocalDate semanaInicio, String planJson);
+    Long createGenerando(Long usuarioId, LocalDate semanaInicio);
+
+    /**
+     * Actualiza el plan tras la generación asíncrona (LISTO o ERROR).
+     */
+    void updateFinalizado(Long id, String planJson, String estado, String errorMsg);
 
     /**
      * Busca un plan semanal por usuario y semana.
-     * @param usuarioId ID del usuario.
-     * @param semanaInicio Fecha de inicio de la semana.
-     * @return Plan si existe.
      */
     Optional<PlanSemanalResponse> findByUsuarioAndSemana(Long usuarioId, LocalDate semanaInicio);
 
     /**
      * Elimina un plan semanal.
-     * @param usuarioId ID del usuario.
-     * @param semanaInicio Fecha de inicio de la semana.
      */
     void deleteByUsuarioAndSemana(Long usuarioId, LocalDate semanaInicio);
 }

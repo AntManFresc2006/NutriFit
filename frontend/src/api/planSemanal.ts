@@ -30,8 +30,10 @@ export interface PlanSemanal {
 export interface PlanSemanalResponse {
   id: number
   semanaInicio: string
-  planJson: string
+  planJson: string | null
   createdAt: string
+  estado: 'GENERANDO' | 'LISTO' | 'ERROR'
+  errorMsg: string | null
 }
 
 export const generarPlan = (usuarioId: number, semanaInicio: string) =>
@@ -52,5 +54,5 @@ export const getPlan = (usuarioId: number, semanaInicio: string) =>
 
 export const regenerarPlan = async (usuarioId: number, semanaInicio: string) => {
   await client.delete('/api/plan-semanal', { params: { usuarioId, semanaInicio } })
-  return generarPlan(usuarioId, semanaInicio)
+  await generarPlan(usuarioId, semanaInicio)
 }

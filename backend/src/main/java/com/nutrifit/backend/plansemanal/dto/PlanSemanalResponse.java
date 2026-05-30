@@ -12,46 +12,37 @@ public class PlanSemanalResponse {
     private LocalDate semanaInicio;
     private String planJson;
     private LocalDateTime createdAt;
+    private String estado;
+    private String errorMsg;
 
     public PlanSemanalResponse() {
     }
 
-    public PlanSemanalResponse(Long id, LocalDate semanaInicio, String planJson, LocalDateTime createdAt) {
+    public PlanSemanalResponse(Long id, LocalDate semanaInicio, String planJson,
+                               LocalDateTime createdAt, String estado, String errorMsg) {
         this.id = id;
         this.semanaInicio = semanaInicio;
         this.planJson = planJson;
         this.createdAt = createdAt;
+        this.estado = estado;
+        this.errorMsg = errorMsg;
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public LocalDate getSemanaInicio() { return semanaInicio; }
+    public void setSemanaInicio(LocalDate semanaInicio) { this.semanaInicio = semanaInicio; }
 
-    public LocalDate getSemanaInicio() {
-        return semanaInicio;
-    }
+    public String getPlanJson() { return planJson; }
+    public void setPlanJson(String planJson) { this.planJson = planJson; }
 
-    public void setSemanaInicio(LocalDate semanaInicio) {
-        this.semanaInicio = semanaInicio;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public String getPlanJson() {
-        return planJson;
-    }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
-    public void setPlanJson(String planJson) {
-        this.planJson = planJson;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    public String getErrorMsg() { return errorMsg; }
+    public void setErrorMsg(String errorMsg) { this.errorMsg = errorMsg; }
 }

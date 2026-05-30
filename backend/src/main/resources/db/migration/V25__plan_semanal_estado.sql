@@ -1,0 +1,5 @@
+ALTER TABLE plan_semanal
+    ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT 'LISTO',
+    ADD COLUMN error_msg TEXT;
+
+ALTER TABLE plan_semanal ALTER COLUMN plan_json DROP NOT NULL;

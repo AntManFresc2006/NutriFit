@@ -1,7 +1,7 @@
 package com.nutrifit.backend.plansemanal.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nutrifit.backend.ia.dto.UsuarioIaConfigResponse;
+import com.nutrifit.backend.ia.service.UsuarioIaConfigService;
 import com.nutrifit.backend.perfil.dto.PerfilResponse;
 import com.nutrifit.backend.perfil.service.PerfilService;
 import com.nutrifit.backend.plansemanal.dto.PlanSemanalResponse;
@@ -10,24 +10,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementación del servicio de plan semanal.
- * Genera planes mediante IA (OpenRouter) y gestiona persistencia.
+ * Registra el plan como GENERANDO de forma inmediata y delega la generación IA
+ * en {@link PlanGeneradorAsync} para que se ejecute en segundo plano.
  */
 @Service
 public class PlanSemanalServiceImpl implements PlanSemanalService {
 
-    private static final String OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String MODEL_PRIMARY = "google/gemma-4-31b-it:free";
+    private static final String MODEL_PRIMARY  = "google/gemma-4-31b-it:free";
     private static final String MODEL_FALLBACK = "deepseek/deepseek-v4-flash:free";
 
     @Value("${openrouter.gemma.api.key}")
@@ -38,42 +32,48 @@ public class PlanSemanalServiceImpl implements PlanSemanalService {
 
     private final PlanSemanalRepository repository;
     private final PerfilService perfilService;
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(java.time.Duration.ofSeconds(10))
-            .build();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final UsuarioIaConfigService usuarioIaConfigService;
+    private final PlanGeneradorAsync planGeneradorAsync;
 
-    public PlanSemanalServiceImpl(PlanSemanalRepository repository, PerfilService perfilService) {
+    public PlanSemanalServiceImpl(PlanSemanalRepository repository,
+                                  PerfilService perfilService,
+                                  UsuarioIaConfigService usuarioIaConfigService,
+                                  PlanGeneradorAsync planGeneradorAsync) {
         this.repository = repository;
         this.perfilService = perfilService;
+        this.usuarioIaConfigService = usuarioIaConfigService;
+        this.planGeneradorAsync = planGeneradorAsync;
     }
 
     @Override
     @Transactional
-    public PlanSemanalResponse generarORecuperarPlan(Long usuarioId, LocalDate semanaInicio) throws RuntimeException {
-        var existente = repository.findByUsuarioAndSemana(usuarioId, semanaInicio);
-        if (existente.isPresent()) {
+    public PlanSemanalResponse generarORecuperarPlan(Long usuarioId, LocalDate semanaInicio) {
+        Optional<PlanSemanalResponse> existente = repository.findByUsuarioAndSemana(usuarioId, semanaInicio);
+
+        // Si ya está listo o generándose, devolver el estado actual
+        if (existente.isPresent() && !"ERROR".equals(existente.get().getEstado())) {
             return existente.get();
         }
 
-        try {
-            PerfilResponse perfil = perfilService.getPerfil(usuarioId);
-            String prompt = buildPrompt(semanaInicio, perfil);
-            String planJson = generarPlanConIA(prompt);
-            return repository.save(usuarioId, semanaInicio, planJson);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Error al generar plan con IA (interrumpido): " + e.getMessage(), e);
-        } catch (IOException e) {
-            throw new RuntimeException("Error al generar plan con IA: " + e.getMessage(), e);
-        }
+        PerfilResponse perfil = perfilService.getPerfil(usuarioId);
+        String prompt = buildPrompt(semanaInicio, perfil);
+        Optional<UsuarioIaConfigResponse> userIaConfig = usuarioIaConfigService.getConfig(usuarioId);
+
+        Long planId = repository.createGenerando(usuarioId, semanaInicio);
+
+        planGeneradorAsync.generar(
+                planId, prompt, userIaConfig.orElse(null),
+                MODEL_PRIMARY, gemmaApiKey,
+                MODEL_FALLBACK, deepseekApiKey
+        );
+
+        return repository.findByUsuarioAndSemana(usuarioId, semanaInicio).orElseThrow();
     }
 
     @Override
     @Transactional(readOnly = true)
     public PlanSemanalResponse getPlan(Long usuarioId, LocalDate semanaInicio) {
-        return repository.findByUsuarioAndSemana(usuarioId, semanaInicio)
-                .orElse(null);
+        return repository.findByUsuarioAndSemana(usuarioId, semanaInicio).orElse(null);
     }
 
     @Override
@@ -85,83 +85,30 @@ public class PlanSemanalServiceImpl implements PlanSemanalService {
     private String buildPrompt(LocalDate semanaInicio, PerfilResponse perfil) {
         double proteinasDiarias = perfil.getPesoKgActual() * 0.8;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Eres un nutricionista experto. Genera un plan de alimentación semanal para 7 días (lunes a domingo) comenzando el ").append(semanaInicio).append(".\n\n");
-
-        sb.append("Datos del usuario:\n");
-        sb.append("- TDEE: ").append(Math.round(perfil.getTdee())).append(" kcal/día\n");
-        sb.append("- Objetivo calórico diario: ").append(Math.round(perfil.getTdee())).append(" kcal\n");
-        sb.append("- Proteínas objetivo: ").append(String.format("%.1f", proteinasDiarias)).append("g/día (aprox)\n\n");
-
-        sb.append("Genera el plan en formato JSON estrictamente así (sin markdown, sin explicaciones, solo el JSON):\n");
-        sb.append("{\n");
-        sb.append("  \"dias\": [\n");
-        sb.append("    {\n");
-        sb.append("      \"dia\": \"Lunes\",\n");
-        sb.append("      \"fecha\": \"YYYY-MM-DD\",\n");
-        sb.append("      \"comidas\": {\n");
-        sb.append("        \"desayuno\": { \"descripcion\": \"...\", \"kcal\": 400, \"proteinas\": 20, \"carbos\": 45, \"grasas\": 15 },\n");
-        sb.append("        \"almuerzo\": { \"descripcion\": \"...\", \"kcal\": 600, \"proteinas\": 35, \"carbos\": 60, \"grasas\": 20 },\n");
-        sb.append("        \"merienda\": { \"descripcion\": \"...\", \"kcal\": 200, \"proteinas\": 10, \"carbos\": 25, \"grasas\": 5 },\n");
-        sb.append("        \"cena\": { \"descripcion\": \"...\", \"kcal\": 500, \"proteinas\": 30, \"carbos\": 45, \"grasas\": 18 }\n");
-        sb.append("      },\n");
-        sb.append("      \"totalKcal\": 1700,\n");
-        sb.append("      \"totalProteinas\": 95,\n");
-        sb.append("      \"totalCarbos\": 175,\n");
-        sb.append("      \"totalGrasas\": 58\n");
-        sb.append("    }\n");
-        sb.append("  ]\n");
-        sb.append("}\n\n");
-
-        sb.append("Varía los alimentos cada día. Usa alimentos mediterráneos típicos. Las fechas de cada día deben ser correlativos comenzando en ").append(semanaInicio).append(".");
-
-        return sb.toString();
-    }
-
-    private String generarPlanConIA(String prompt) throws IOException, InterruptedException {
-        try {
-            return callOpenRouter(prompt, MODEL_PRIMARY, gemmaApiKey);
-        } catch (IOException primary) {
-            return callOpenRouter(prompt, MODEL_FALLBACK, deepseekApiKey);
-        }
-    }
-
-    private String callOpenRouter(String userPrompt, String model, String key) throws IOException, InterruptedException {
-        String requestBody = objectMapper.writeValueAsString(Map.of(
-                "model", model,
-                "messages", List.of(Map.of("role", "user", "content", userPrompt)),
-                "max_tokens", 4000
-        ));
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(OPENROUTER_URL))
-                .header("Authorization", "Bearer " + key)
-                .header("Content-Type", "application/json")
-                .timeout(java.time.Duration.ofSeconds(60))
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new IOException("OpenRouter error " + response.statusCode() + ": " + response.body());
-        }
-
-        JsonNode json = objectMapper.readTree(response.body());
-        String content = json.path("choices").get(0).path("message").path("content").asText();
-        return limpiarJson(content);
-    }
-
-    private String limpiarJson(String raw) {
-        if (raw == null) return raw;
-        String s = raw.strip();
-        if (s.startsWith("```")) {
-            int first = s.indexOf('\n');
-            int last  = s.lastIndexOf("```");
-            if (first != -1 && last > first) {
-                s = s.substring(first + 1, last).strip();
-            }
-        }
-        return s;
+        return "Eres un nutricionista experto. Genera un plan de alimentación semanal para 7 días (lunes a domingo) comenzando el " + semanaInicio + ".\n\n" +
+                "Datos del usuario:\n" +
+                "- TDEE: " + Math.round(perfil.getTdee()) + " kcal/día\n" +
+                "- Objetivo calórico diario: " + Math.round(perfil.getTdee()) + " kcal\n" +
+                "- Proteínas objetivo: " + String.format("%.1f", proteinasDiarias) + "g/día (aprox)\n\n" +
+                "Genera el plan en formato JSON estrictamente así (sin markdown, sin explicaciones, solo el JSON):\n" +
+                "{\n" +
+                "  \"dias\": [\n" +
+                "    {\n" +
+                "      \"dia\": \"Lunes\",\n" +
+                "      \"fecha\": \"YYYY-MM-DD\",\n" +
+                "      \"comidas\": {\n" +
+                "        \"desayuno\": { \"descripcion\": \"...\", \"kcal\": 400, \"proteinas\": 20, \"carbos\": 45, \"grasas\": 15 },\n" +
+                "        \"almuerzo\": { \"descripcion\": \"...\", \"kcal\": 600, \"proteinas\": 35, \"carbos\": 60, \"grasas\": 20 },\n" +
+                "        \"merienda\": { \"descripcion\": \"...\", \"kcal\": 200, \"proteinas\": 10, \"carbos\": 25, \"grasas\": 5 },\n" +
+                "        \"cena\": { \"descripcion\": \"...\", \"kcal\": 500, \"proteinas\": 30, \"carbos\": 45, \"grasas\": 18 }\n" +
+                "      },\n" +
+                "      \"totalKcal\": 1700,\n" +
+                "      \"totalProteinas\": 95,\n" +
+                "      \"totalCarbos\": 175,\n" +
+                "      \"totalGrasas\": 58\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}\n\n" +
+                "Varía los alimentos cada día. Usa alimentos mediterráneos típicos. Las fechas de cada día deben ser correlativos comenzando en " + semanaInicio + ".";
     }
 }

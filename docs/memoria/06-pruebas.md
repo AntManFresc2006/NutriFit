@@ -2,7 +2,7 @@
 
 ## 6.1 Estrategia de pruebas
 
-La estrategia de pruebas de NutriFit combina dos enfoques complementarios: pruebas unitarias automatizadas sobre la capa de servicio del backend, y pruebas manuales sobre la API REST mediante peticiones HTTP reales contra el servidor en ejecución.
+La estrategia de pruebas de NutriFit combina tres enfoques complementarios: pruebas unitarias automatizadas sobre la capa de servicio del backend, pruebas de integración que levantan un contenedor PostgreSQL real mediante Testcontainers, y pruebas manuales sobre la API REST mediante peticiones HTTP reales contra el servidor en ejecución.
 
 La cobertura automatizada se centra en la capa de servicio porque es ahí donde reside la lógica de negocio: validación de reglas de dominio, manejo de casos de error, transformación de datos y, en el módulo de perfil, el cálculo de valores nutricionales. Los repositorios son envolturas directas sobre SQL y su comportamiento queda cubierto por las pruebas manuales de la API.
 
@@ -36,15 +36,15 @@ Mockito instancia el servicio inyectando el repositorio simulado, sin intervenci
 
 ## 6.2 Pruebas unitarias del backend
 
-La suite está compuesta por 114 tests distribuidos en diez clases, una por cada servicio con lógica de negocio relevante.
+La suite está compuesta por 116 tests distribuidos en diez clases, una por cada servicio con lógica de negocio relevante.
 
 **Tabla 6.1 — Distribución de la suite de pruebas unitarias del backend**
 
 | Clase de test                       | Tests | Operaciones cubiertas                                                                 |
 |-------------------------------------|-------|---------------------------------------------------------------------------------------|
-| `AlimentoServiceImplTest`           | 16    | findAll, findById, save, update, deleteById, escanearFoto                             |
+| `AlimentoServiceImplTest`           | 17    | findAll, findById, save, update, deleteById, escanearFoto                             |
 | `AuthServiceImplTest`               | 9     | register, login, logout                                                               |
-| `ComidaServiceImplTest`             | 17    | save, findByUsuarioAndFecha, deleteById, addAlimentoToComida, findDetalleItemsByComidaId, deleteItem |
+| `ComidaServiceImplTest`             | 18    | save, findByUsuarioAndFecha, deleteById, addAlimentoToComida, findDetalleItemsByComidaId, deleteItem |
 | `EjercicioServiceImplTest`          | 9     | findAll (4 ramas), findById, save                                                     |
 | `ResumenDiarioServiceImplTest`      | 14    | obtenerResumenDiario, enriquecerConTdee, estadoBalance, enriquecerConFechaObjetivo    |
 | `PerfilServiceImplTest`             | 5     | getPerfil, updatePerfil                                                               |
@@ -52,9 +52,9 @@ La suite está compuesta por 114 tests distribuidos en diez clases, una por cada
 | `HidratacionServiceImplTest`        | 8     | registrar, getDiario, eliminar                                                        |
 | `PesoHistorialServiceImplTest`      | 8     | upsert, findByUsuario, deleteByUsuarioAndFecha                                        |
 | `GamificacionServiceTest`           | 14    | calcular, calcularRacha, calcularNutriScore, verificarBalance, verificarProteina, verificarEjercicio, verificarVariedad |
-| **Total**                           | **114**|                                                                                      |
+| **Total**                           | **116**|                                                                                      |
 
-> **Nota:** Los 114 tests se ejecutan sin base de datos ni contexto de Spring. Cada test aislado se ejecuta en menos de 100 ms. La suite completa finaliza en menos de tres segundos.
+> **Nota:** Los 116 tests se ejecutan sin base de datos ni contexto de Spring. Cada test aislado se ejecuta en menos de 100 ms. La suite completa finaliza en menos de tres segundos.
 
 ### AlimentoServiceImpl — 16 tests
 
@@ -222,20 +222,62 @@ verify(registroRepository, never()).deleteById(anyLong());
 
 ---
 
-## 6.3 Pruebas unitarias del cliente JavaFX
+## 6.3 Pruebas de integración del backend
 
-El módulo `client/` es un cliente de escritorio JavaFX que consume la misma API REST del backend. Cuenta con su propia suite de 24 tests unitarios, ejecutados con Maven Surefire sobre JUnit 5.
+Las pruebas de integración verifican los flujos completos desde el controlador REST hasta la base de datos real, sin mocks. Se implementan con **Testcontainers**, que levanta un contenedor Docker de PostgreSQL antes de ejecutar los tests y lo destruye al finalizar. Esto garantiza que las consultas SQL, las migraciones Flyway y la lógica de servicio se comportan correctamente juntas.
 
-**Tabla 6.2 — Suite de pruebas del cliente JavaFX**
+**Configuración base**
 
-| Clase de test          | Tests | Qué verifica                                                                 |
-|------------------------|-------|------------------------------------------------------------------------------|
-| `SessionManagerTest`   | 9     | Almacenamiento, sobreescritura, `isLoggedIn`, `clear`, TDEE                  |
-| `AlimentoFxTest`       | 5     | Getters/setters, macros, notificación de `ObservableProperty`                |
-| `ResumenDiarioDtoTest` | 3     | Deserialización Jackson completa, valores por defecto, campos desconocidos   |
-| `PerfilDtoTest`        | 3     | Deserialización completa, `pesoObjetivo` nullable y ausente                  |
-| `BaseApiClientTest`    | 5     | `validarRespuesta`: sin excepción en 2xx, `IOException` en 401/404/500      |
-| **Total**              | **24**|                                                                              |
+Todas las clases de integración extienden `BaseIntegrationTest`, que gestiona el ciclo de vida del contenedor y registra las propiedades de conexión dinámicamente:
+
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Testcontainers
+@Tag("integration")
+abstract class BaseIntegrationTest {
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        // ...
+    }
+}
+```
+
+**Tabla 6.2 — Suite de pruebas de integración**
+
+| Clase de test              | Tests | Flujos verificados                                                            |
+|----------------------------|-------|-------------------------------------------------------------------------------|
+| `AuthControllerIT`         | 4     | Registro, login, logout, token inválido (401)                                 |
+| `ComidaControllerIT`       | 2     | Crear comida y listar, eliminar comida                                        |
+| `PerfilControllerIT`       | 2     | Obtener perfil inicial, actualizar datos biométricos y verificar BMR > 0      |
+| `HidratacionControllerIT`  | 1     | Registrar agua y verificar totalMl acumulado                                  |
+| `GamificacionControllerIT` | 2     | Obtener gamificación con token válido (200), sin token (401)                  |
+| **Total**                  | **11**|                                                                               |
+
+Los tests de integración se ejecutan en la misma fase `test` de Maven pero están etiquetados con `@Tag("integration")`. La suite completa de integración tarda entre 20 y 40 segundos, dominada por el arranque del contenedor PostgreSQL y la aplicación de las migraciones Flyway.
+
+---
+
+## 6.4 Pruebas unitarias del cliente JavaFX
+
+El módulo `client/` es un cliente de escritorio JavaFX que consume la misma API REST del backend. Cuenta con su propia suite de 31 tests unitarios, ejecutados con Maven Surefire sobre JUnit 5.
+
+**Tabla 6.3 — Suite de pruebas del cliente JavaFX**
+
+| Clase de test                  | Tests | Qué verifica                                                                 |
+|--------------------------------|-------|------------------------------------------------------------------------------|
+| `SessionManagerTest`           | 8     | Almacenamiento, sobreescritura, `isLoggedIn`, `clear`, TDEE                  |
+| `AlimentoFxTest`               | 5     | Getters/setters, macros, notificación de `ObservableProperty`                |
+| `BaseApiClientTest`            | 5     | `validarRespuesta`: sin excepción en 2xx, `IOException` en 401/404/500       |
+| `ResumenDiarioDtoTest`         | 3     | Deserialización Jackson completa, valores por defecto, campos desconocidos   |
+| `PerfilDtoTest`                | 3     | Deserialización completa, `pesoObjetivo` nullable y ausente                  |
+| `PesoHistorialControllerTest`  | 3     | Carga de registros, añadir entrada, eliminar entrada                         |
+| `GamificacionControllerTest`   | 2     | Carga de datos de gamificación, pantalla vacía sin sesión                    |
+| `RetosControllerTest`          | 2     | Listado de retos disponibles, aceptar reto activo                            |
+| **Total**                      | **31**|                                                                              |
 
 Los tests de `AlimentoFxTest` verifican que las propiedades JavaFX observables (`SimpleStringProperty`, `SimpleDoubleProperty`, etc.) notifican correctamente a sus listeners. Dado que estas clases son pure Java sin dependencia del toolkit gráfico, no requieren contexto de JavaFX Platform ni configuración de display headless.
 
@@ -247,11 +289,11 @@ private static class StubApiClient extends BaseApiClient {}
 
 ---
 
-## 6.4 Pruebas unitarias del frontend React
+## 6.5 Pruebas unitarias del frontend React
 
 El frontend React cuenta con 17 tests unitarios ejecutados con Vitest y React Testing Library sobre jsdom. Los tests están organizados en cinco clases agrupadas en `frontend/src/test/components/`.
 
-**Tabla 6.3 — Suite de pruebas del frontend React**
+**Tabla 6.4 — Suite de pruebas del frontend React**
 
 | Archivo de test            | Tests | Qué verifica                                                                       |
 |----------------------------|-------|------------------------------------------------------------------------------------|
@@ -277,7 +319,7 @@ const ThrowingComponent = ({ shouldThrow }: { shouldThrow: boolean }) => {
 
 ---
 
-## 6.5 Pruebas manuales de la API
+## 6.6 Pruebas manuales de la API
 
 Todos los endpoints han sido verificados mediante peticiones HTTP reales contra el servidor en ejecución, siguiendo el plan de pruebas recogido en `docs/tests/food-crud-test-plan.md`.
 
@@ -322,7 +364,7 @@ El campo `message` corresponde al mensaje definido en la anotación de validaci�
 
 ---
 
-## 6.6 Cobertura de la capa de servicio
+## 6.7 Cobertura de la capa de servicio
 
 JaCoCo mide la cobertura durante la fase `verify` de Maven y genera un informe HTML en `backend/target/site/jacoco/`. La cobertura global de líneas del backend es del 23 %, una cifra baja porque incluye controladores, repositorios y configuración de infraestructura que no ejecutan lógica de negocio propia.
 
@@ -342,10 +384,10 @@ La métrica relevante es la cobertura de los servicios probados, que son la úni
 
 Los servicios inicialmente con cobertura parcial (`AlimentoServiceImpl`, `EjercicioServiceImpl`, `ResumenDiarioServiceImpl`) han sido ampliados en esta versión con tests que cubren los métodos de enriquecimiento, las ramas de filtrado y la integración con servicios externos (IA). Las líneas restantes sin cubrir corresponden a rutas de error de bajo nivel en llamadas HTTP y a guardias defensivas en métodos privados.
 
-Los controladores, repositorios y capas de configuración quedan fuera de la cobertura automatizada porque su comportamiento se verifica mediante las pruebas manuales de la API descritas en la sección 6.4.
+Los controladores quedan fuera de la cobertura de JaCoCo porque no contienen lógica de negocio propia; su comportamiento correcto se verifica mediante las pruebas de integración de la sección 6.3 y las pruebas manuales de la API de la sección 6.6.
 
 ---
 
 ## Cierre de la sección
 
-La suite de pruebas suma 155 tests en total: 114 unitarios del backend, 24 del cliente JavaFX y 17 del frontend React. Los tests del backend se ejecutan sin base de datos ni contexto de Spring, lo que los hace rápidos y reproducibles en cualquier entorno. Los del cliente JavaFX verifican el comportamiento de la sesión, los modelos observables y la comunicación HTTP sin requerir un display ni el toolkit gráfico. Las pruebas manuales, respaldadas por los archivos `.http` y por Swagger UI, complementan la cobertura automatizada verificando el comportamiento extremo a extremo, incluyendo validación de entrada, manejo de errores y flujos de autenticación.
+La suite de pruebas suma 175 tests en total: 116 unitarios del backend, 11 de integración con Testcontainers, 31 del cliente JavaFX y 17 del frontend React. Los tests unitarios del backend se ejecutan sin base de datos ni contexto de Spring, finalizando en menos de tres segundos. Los de integración levantan un contenedor PostgreSQL real y verifican los flujos completos contra la base de datos. Los del cliente JavaFX verifican el comportamiento de la sesión, los modelos observables y la comunicación HTTP sin requerir un display ni el toolkit gráfico. Las pruebas manuales, respaldadas por los archivos `.http` y por Swagger UI, complementan la cobertura automatizada verificando el comportamiento extremo a extremo.

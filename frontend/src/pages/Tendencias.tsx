@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { Activity, Star, TrendingDown, Flame, Utensils, Scale, Dumbbell } from 'lucide-react'
+import { Activity, Star, TrendingDown, Flame, Utensils, Scale, Dumbbell, Info } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getTendencias, type TendenciasData } from '../api/tendencias'
 import PesoChart from '../components/PesoChart'
@@ -83,6 +83,30 @@ export default function Tendencias() {
             ))}
           </div>
         </div>
+
+        {(() => {
+          const diasConDatos = data ? new Set([
+            ...data.peso.map(p => p.fecha.split('T')[0]),
+            ...data.nutriScore.map(n => n.fecha.split('T')[0]),
+            ...data.ejercicio.map(e => e.fecha.split('T')[0]),
+          ]).size : 0
+          return data && diasConDatos < dias ? (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3"
+            >
+              <Info className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" />
+              <p className="text-amber-300/80 text-sm">
+                Solo tienes datos en{' '}
+                <span className="font-semibold text-amber-300">
+                  {diasConDatos} {diasConDatos === 1 ? 'día' : 'días'}
+                </span>{' '}
+                de los últimos {dias} días seleccionados. Registra más comidas, pesajes o ejercicios para un análisis más completo.
+              </p>
+            </motion.div>
+          ) : null
+        })()}
 
         {!data ? (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="card py-10 px-6">

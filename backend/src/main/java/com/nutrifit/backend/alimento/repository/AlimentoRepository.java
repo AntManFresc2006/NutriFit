@@ -35,6 +35,14 @@ public interface AlimentoRepository {
     Optional<Alimento> findById(Long id);
 
     /**
+     * Busca un alimento por nombre exacto (sin distinguir mayúsculas).
+     *
+     * @param nombre nombre exacto del alimento
+     * @return Optional con el alimento si existe
+     */
+    Optional<Alimento> findByNombreExacto(String nombre);
+
+    /**
      * Guarda un nuevo alimento.
      *
      * @param alimento alimento a persistir

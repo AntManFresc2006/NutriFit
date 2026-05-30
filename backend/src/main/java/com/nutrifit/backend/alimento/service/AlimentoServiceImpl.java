@@ -96,9 +96,10 @@ public class AlimentoServiceImpl implements AlimentoService {
     @Override
     @Transactional
     public AlimentoResponse save(AlimentoRequest request) {
-        Alimento alimento = toModel(request);
-        Alimento guardado = alimentoRepository.save(alimento);
-        return toResponse(guardado);
+        String nombre = request.getNombre().trim();
+        return alimentoRepository.findByNombreExacto(nombre)
+                .map(this::toResponse)
+                .orElseGet(() -> toResponse(alimentoRepository.save(toModel(request))));
     }
 
     /**

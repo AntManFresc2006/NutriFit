@@ -81,6 +81,21 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
     }
 
     /**
+     * Busca un alimento por nombre exacto (sin distinguir mayúsculas/minúsculas).
+     */
+    @Override
+    public Optional<Alimento> findByNombreExacto(String nombre) {
+        String sql = """
+                SELECT id, nombre, porcion_g, kcal_por_100g, proteinas_g, grasas_g, carbos_g, fuente
+                FROM alimentos
+                WHERE LOWER(nombre) = LOWER(?)
+                LIMIT 1
+                """;
+        List<Alimento> resultados = jdbcTemplate.query(sql, rowMapper, nombre);
+        return resultados.stream().findFirst();
+    }
+
+    /**
      * Inserta un nuevo alimento en base de datos y recupera la clave primaria generada.
      *
      * @param alimento alimento a guardar

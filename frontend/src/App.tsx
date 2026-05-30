@@ -14,6 +14,7 @@ import Perfil from './pages/Perfil'
 import Escaner from './pages/Escaner'
 import PlanSemanal from './pages/PlanSemanal'
 import ListaCompra from './pages/ListaCompra'
+import Detective from './pages/Detective'
 import Retos from './pages/Retos'
 import Tendencias from './pages/Tendencias'
 import OpcionesIA from './pages/OpcionesIA'
@@ -41,6 +42,7 @@ export default function App() {
             <Route path="/ejercicios" element={<Ejercicios />} />
             <Route path="/hidratacion" element={<Hidratacion />} />
             <Route path="/lista-compra" element={<ListaCompra />} />
+            <Route path="/detective" element={<Detective />} />
             <Route path="/retos" element={<Retos />} />
             <Route path="/plan-semanal" element={<PlanSemanal />} />
             <Route path="/perfil" element={<Perfil />} />

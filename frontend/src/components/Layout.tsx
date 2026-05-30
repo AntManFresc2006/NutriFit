@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Utensils, Salad, QrCode, Activity, Trophy,
-  Droplets, ShoppingCart, CalendarDays, TrendingUp, User, Settings,
+  Droplets, Search, CalendarDays, TrendingUp, User, Settings,
   LogOut, Leaf, type LucideIcon,
 } from 'lucide-react'
 
@@ -18,7 +18,7 @@ const navItems: { to: string; icon: LucideIcon; label: string }[] = [
   { to: '/ejercicios', icon: Activity, label: 'Ejercicios' },
   { to: '/retos', icon: Trophy, label: 'Retos' },
   { to: '/hidratacion', icon: Droplets, label: 'Hidratación' },
-  { to: '/lista-compra', icon: ShoppingCart, label: 'Lista' },
+  { to: '/detective', icon: Search, label: 'Detective' },
   { to: '/plan-semanal', icon: CalendarDays, label: 'Plan' },
   { to: '/tendencias', icon: TrendingUp, label: 'Tendencias' },
   { to: '/perfil', icon: User, label: 'Perfil' },

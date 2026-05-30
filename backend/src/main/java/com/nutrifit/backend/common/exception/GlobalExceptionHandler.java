@@ -51,16 +51,26 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja excepciones generales de validación y formato.
-     * Devuelve 400 Bad Request por argumentos inválidos o formato de JSON incorrecto.
+     * Maneja ConstraintViolationException (validación en @RequestParam, @PathVariable, etc.).
+     * Devuelve solo el mensaje de la violación, sin el path interno del método.
      */
-    @ExceptionHandler({
-            IllegalArgumentException.class,
-            ConstraintViolationException.class,
-            HttpMessageNotReadableException.class
-    })
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiError> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
+        String message = ex.getConstraintViolations().stream()
+                .findFirst()
+                .map(cv -> cv.getMessage())
+                .orElse("Error de validación");
+        ApiError error = buildError(HttpStatus.BAD_REQUEST, message, request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    /**
+     * Maneja excepciones generales de validación y formato.
+     * Devuelve mensaje genérico para evitar filtrar detalles internos.
+     */
+    @ExceptionHandler({IllegalArgumentException.class, HttpMessageNotReadableException.class})
     public ResponseEntity<ApiError> handleBadRequest(Exception ex, HttpServletRequest request) {
-        ApiError error = buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+        ApiError error = buildError(HttpStatus.BAD_REQUEST, "Solicitud inválida", request.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 

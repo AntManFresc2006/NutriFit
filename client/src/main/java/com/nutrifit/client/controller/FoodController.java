@@ -434,18 +434,50 @@ public class FoodController {
     }
 
     @FXML
-    private void onAbrirListaCompra() {
+    private void onAbrirGamificacion() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    NutriFitClientApplication.class.getResource("/com/nutrifit/client/lista-compra-view.fxml")
+                    NutriFitClientApplication.class.getResource("/com/nutrifit/client/gamificacion-view.fxml")
             );
-            Scene scene = new Scene(loader.load(), 900, 620);
+            Scene scene = new Scene(loader.load(), 700, 520);
             Stage stage = (Stage) foodTable.getScene().getWindow();
-            stage.setTitle("NutriFit - Lista de la Compra");
+            stage.setTitle("NutriFit - Gamificación");
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
-            mostrarEstado("No se pudo abrir la lista de compra: " + e.getMessage(), TipoEstado.ERROR);
+            mostrarEstado("No se pudo abrir gamificación: " + e.getMessage(), TipoEstado.ERROR);
+        }
+    }
+
+    @FXML
+    private void onAbrirPesoHistorial() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    NutriFitClientApplication.class.getResource("/com/nutrifit/client/peso-historial-view.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 700, 580);
+            Stage stage = (Stage) foodTable.getScene().getWindow();
+            stage.setTitle("NutriFit - Historial de Peso");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            mostrarEstado("No se pudo abrir historial de peso: " + e.getMessage(), TipoEstado.ERROR);
+        }
+    }
+
+    @FXML
+    private void onAbrirRetos() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    NutriFitClientApplication.class.getResource("/com/nutrifit/client/retos-view.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 800, 580);
+            Stage stage = (Stage) foodTable.getScene().getWindow();
+            stage.setTitle("NutriFit - Retos");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            mostrarEstado("No se pudo abrir retos: " + e.getMessage(), TipoEstado.ERROR);
         }
     }
 

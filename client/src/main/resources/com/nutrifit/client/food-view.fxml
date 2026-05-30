@@ -191,15 +191,25 @@
                                 onAction="#onAbrirPerfil"
                                 style="-fx-background-color: #7c3aed; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
 
-                        <Button fx:id="listaCompraButton"
-                                text="Lista Compra"
-                                onAction="#onAbrirListaCompra"
-                                style="-fx-background-color: #0d9488; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
-
                         <Button fx:id="hidratacionButton"
                                 text="Hidratación"
                                 onAction="#onAbrirHidratacion"
                                 style="-fx-background-color: #0369a1; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+                        <Button fx:id="gamificacionButton"
+                                text="Gamificación"
+                                onAction="#onAbrirGamificacion"
+                                style="-fx-background-color: #7c3aed; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+                        <Button fx:id="pesoHistorialButton"
+                                text="Peso"
+                                onAction="#onAbrirPesoHistorial"
+                                style="-fx-background-color: #0d9488; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+
+                        <Button fx:id="retosButton"
+                                text="Retos"
+                                onAction="#onAbrirRetos"
+                                style="-fx-background-color: #b45309; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
                     </HBox>
                 </VBox>
 

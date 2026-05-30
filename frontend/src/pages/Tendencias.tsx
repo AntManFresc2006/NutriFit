@@ -34,7 +34,7 @@ export default function Tendencias() {
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-slate-100 mb-4">Análisis de Tendencias</h1>
             <div className="flex gap-2">
-              {[30, 60, 90].map(d => (
+              {[2, 3, 5, 30, 60, 90].map(d => (
                 <button
                   key={d}
                   onClick={() => setDias(d)}
@@ -66,7 +66,7 @@ export default function Tendencias() {
           <h1 className="gradient-text text-3xl font-bold mb-2">Análisis de Tendencias</h1>
           <p className="text-white/50 text-sm mb-4">Visualiza tu progreso en los últimos días</p>
           <div className="flex gap-2 flex-wrap">
-            {[30, 60, 90].map(d => (
+            {[2, 3, 5, 30, 60, 90].map(d => (
               <motion.button
                 key={d}
                 onClick={() => setDias(d)}

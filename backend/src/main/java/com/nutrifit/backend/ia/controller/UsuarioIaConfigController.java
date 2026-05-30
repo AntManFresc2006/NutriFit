@@ -1,5 +1,7 @@
 package com.nutrifit.backend.ia.controller;
 
+import com.nutrifit.backend.auth.security.IaRateLimiter;
+import com.nutrifit.backend.common.exception.TooManyRequestsException;
 import com.nutrifit.backend.common.exception.UnauthorizedException;
 import com.nutrifit.backend.ia.dto.IaTestResponse;
 import com.nutrifit.backend.ia.dto.UsuarioIaConfigRequest;
@@ -26,9 +28,11 @@ public class UsuarioIaConfigController {
     private static final String AUTH_USER_ATTR = "authenticatedUserId";
 
     private final UsuarioIaConfigService service;
+    private final IaRateLimiter iaRateLimiter;
 
-    public UsuarioIaConfigController(UsuarioIaConfigService service) {
+    public UsuarioIaConfigController(UsuarioIaConfigService service, IaRateLimiter iaRateLimiter) {
         this.service = service;
+        this.iaRateLimiter = iaRateLimiter;
     }
 
     @Operation(summary = "Obtener configuración de IA del usuario")
@@ -84,6 +88,9 @@ public class UsuarioIaConfigController {
         Long authId = (Long) httpRequest.getAttribute(AUTH_USER_ATTR);
         if (!usuarioId.equals(authId)) {
             throw new UnauthorizedException("Acceso denegado");
+        }
+        if (!iaRateLimiter.permitir(authId)) {
+            throw new TooManyRequestsException("Demasiadas pruebas. Espera un minuto.");
         }
         return ResponseEntity.ok(service.testConfig(request));
     }

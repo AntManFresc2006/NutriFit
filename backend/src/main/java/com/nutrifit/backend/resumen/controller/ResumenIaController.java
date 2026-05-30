@@ -76,7 +76,7 @@ public class ResumenIaController {
             return ResponseEntity.ok(Map.of("evaluacion", evaluacion));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "Error al generar evaluación: " + e.getMessage()));
+                    .body(Map.of("error", "No se pudo generar la evaluación. Inténtalo de nuevo."));
         }
     }
 

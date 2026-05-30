@@ -48,7 +48,8 @@ public class EscanerServiceImpl implements EscanerService {
         }
 
         try {
-            String url = String.format(OFF_BARCODE_URL, barcode.trim());
+            String url = String.format(OFF_BARCODE_URL,
+                    java.net.URLEncoder.encode(barcode.trim(), java.nio.charset.StandardCharsets.UTF_8));
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .timeout(Duration.ofSeconds(8))
@@ -78,7 +79,7 @@ public class EscanerServiceImpl implements EscanerService {
             throw new ResourceNotFoundException("La búsqueda fue interrumpida");
         } catch (Exception e) {
             log.error("[OpenFoodFacts-Barcode] error para barcode={}: {}", barcode, e.getMessage(), e);
-            throw new ResourceNotFoundException("Error al buscar el producto: " + e.getMessage());
+            throw new ResourceNotFoundException("No se pudo consultar la base de datos de alimentos.");
         }
     }
 

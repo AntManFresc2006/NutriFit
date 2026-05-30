@@ -1,6 +1,8 @@
 package com.nutrifit.backend.alimento.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 /**
  * DTO de entrada para enviar una foto codificada en Base64 para análisis con IA.
@@ -8,9 +10,12 @@ import jakarta.validation.constraints.NotBlank;
 public class EscanearFotoRequest {
 
     @NotBlank(message = "La imagen en base64 es obligatoria")
+    @Size(max = 7340032, message = "La imagen no puede superar 5 MB")
     private String imagenBase64;
 
     @NotBlank(message = "El tipo MIME es obligatorio")
+    @Pattern(regexp = "^image/(jpeg|png|webp|gif)$",
+             message = "Tipo de imagen no permitido. Use JPEG, PNG, WebP o GIF")
     private String mimeType;
 
     public EscanearFotoRequest() {

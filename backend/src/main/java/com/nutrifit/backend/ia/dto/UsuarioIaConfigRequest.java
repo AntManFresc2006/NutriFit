@@ -1,6 +1,7 @@
 package com.nutrifit.backend.ia.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * DTO para actualizar la configuración de IA personalizada.
@@ -8,6 +9,8 @@ import jakarta.validation.constraints.NotBlank;
 public class UsuarioIaConfigRequest {
 
     @NotBlank(message = "proxyUrl es obligatorio")
+    @Pattern(regexp = "^https://[a-zA-Z0-9][a-zA-Z0-9\\-.]+(:\\d+)?(/.*)?$",
+             message = "proxyUrl debe ser una URL HTTPS con dominio público")
     private String proxyUrl;
 
     @NotBlank(message = "model es obligatorio")

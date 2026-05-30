@@ -5,8 +5,10 @@ import com.nutrifit.backend.ia.dto.UsuarioIaConfigRequest;
 import com.nutrifit.backend.ia.dto.UsuarioIaConfigResponse;
 import com.nutrifit.backend.ia.model.UsuarioIaConfig;
 import com.nutrifit.backend.ia.repository.UsuarioIaConfigRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -14,6 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Implementación del servicio de configuración de IA.
@@ -40,6 +43,7 @@ public class UsuarioIaConfigServiceImpl implements UsuarioIaConfigService {
     @Override
     @Transactional
     public UsuarioIaConfigResponse saveConfig(Long usuarioId, UsuarioIaConfigRequest request) {
+        validateProxyUrl(request.getProxyUrl());
         UsuarioIaConfig config = toModel(usuarioId, request);
         repository.save(usuarioId, config);
         return toResponse(config);
@@ -53,6 +57,7 @@ public class UsuarioIaConfigServiceImpl implements UsuarioIaConfigService {
 
     @Override
     public IaTestResponse testConfig(UsuarioIaConfigRequest request) {
+        validateProxyUrl(request.getProxyUrl());
         String baseUrl = request.getProxyUrl().trim().replaceAll("/+$", "");
         String url = baseUrl + "/chat/completions";
         String body = "{\"model\":\"%s\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}],\"max_tokens\":1}"
@@ -91,7 +96,7 @@ public class UsuarioIaConfigServiceImpl implements UsuarioIaConfigService {
             Thread.currentThread().interrupt();
             return new IaTestResponse(false, "La petición fue interrumpida.");
         } catch (Exception e) {
-            return new IaTestResponse(false, "Error inesperado: " + e.getMessage());
+            return new IaTestResponse(false, "Error inesperado al probar la conexión.");
         }
     }
 
@@ -110,5 +115,33 @@ public class UsuarioIaConfigServiceImpl implements UsuarioIaConfigService {
                 config.getModel(),
                 config.getApiKey()
         );
+    }
+
+    private static final Set<String> BLOCKED_HOST_PREFIXES = Set.of(
+            "localhost", "127.", "10.", "172.16.", "172.17.", "172.18.", "172.19.",
+            "172.20.", "172.21.", "172.22.", "172.23.", "172.24.", "172.25.", "172.26.",
+            "172.27.", "172.28.", "172.29.", "172.30.", "172.31.",
+            "192.168.", "169.254.", "::1", "0."
+    );
+
+    private void validateProxyUrl(String rawUrl) {
+        if (rawUrl == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "proxyUrl es obligatoria");
+        }
+        URI uri;
+        try {
+            uri = URI.create(rawUrl.trim());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "proxyUrl tiene un formato inválido");
+        }
+        if (!"https".equalsIgnoreCase(uri.getScheme())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "proxyUrl debe usar HTTPS");
+        }
+        String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase();
+        boolean blocked = BLOCKED_HOST_PREFIXES.stream().anyMatch(host::startsWith)
+                || host.equals("::1");
+        if (blocked) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "proxyUrl apunta a una dirección no permitida");
+        }
     }
 }

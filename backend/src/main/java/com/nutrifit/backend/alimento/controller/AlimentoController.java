@@ -178,7 +178,7 @@ public class AlimentoController {
         try {
             return alimentoService.escanearFoto(request.getImagenBase64(), request.getMimeType());
         } catch (Exception e) {
-            throw new RuntimeException("Error al escanear foto: " + e.getMessage(), e);
+            throw new RuntimeException("Error al procesar la imagen.", e);
         }
     }
 }

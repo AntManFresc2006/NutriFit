@@ -35,7 +35,8 @@ public class UsuarioIaConfigResponse {
     }
 
     public String getApiKey() {
-        return apiKey;
+        if (apiKey == null || apiKey.length() <= 4) return apiKey;
+        return "••••" + apiKey.substring(apiKey.length() - 4);
     }
 
     public void setApiKey(String apiKey) {

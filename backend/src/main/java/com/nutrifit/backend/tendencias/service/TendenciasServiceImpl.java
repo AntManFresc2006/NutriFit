@@ -82,8 +82,8 @@ public class TendenciasServiceImpl implements TendenciasService {
     private List<MacrosTendenciaPoint> obtenerMacros(Long usuarioId, LocalDate desde, LocalDate hasta) {
         String sql = """
                 SELECT
-                  DATE_TRUNC('week', c.fecha) as semana_inicio,
-                  to_char(DATE_TRUNC('week', c.fecha), 'IW') as numero_semana,
+                  DATE_TRUNC('week', sub.fecha) as semana_inicio,
+                  to_char(DATE_TRUNC('week', sub.fecha), 'IW') as numero_semana,
                   AVG(sub.kcal_dia) as kcal_promedio,
                   AVG(sub.proteinas_dia) as proteinas_promedio,
                   AVG(sub.carbos_dia) as carbos_promedio,

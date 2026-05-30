@@ -48,9 +48,9 @@ export default function Tendencias() {
   }, [user, dias, fechaFin])
 
   const dateRange = Array.from({ length: dias }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (dias - 1 - i))
-    return d.toISOString().split('T')[0]
+    const fin = new Date(fechaFin + 'T00:00:00')
+    fin.setDate(fin.getDate() - (dias - 1 - i))
+    return fin.toISOString().split('T')[0]
   })
 
   const nutriScoreDates = new Set(data?.nutriScore.map(n => n.fecha.split('T')[0]) ?? [])

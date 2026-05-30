@@ -35,5 +35,7 @@ export interface TendenciasData {
   pesoObjetivo: number | null
 }
 
-export const getTendencias = (usuarioId: number, dias: number = 30) =>
-  client.get<TendenciasData>('/api/tendencias', { params: { usuarioId, dias } }).then(r => r.data)
+export const getTendencias = (usuarioId: number, dias: number = 30, fechaFin?: string) =>
+  client.get<TendenciasData>('/api/tendencias', {
+    params: { usuarioId, dias, ...(fechaFin ? { fechaFin } : {}) },
+  }).then(r => r.data)

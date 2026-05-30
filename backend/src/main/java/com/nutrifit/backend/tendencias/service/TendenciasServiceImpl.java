@@ -35,14 +35,14 @@ public class TendenciasServiceImpl implements TendenciasService {
 
     @Override
     @Transactional(readOnly = true)
-    public TendenciasResponse getTendencias(Long usuarioId, int dias) {
-        LocalDate hoy = LocalDate.now();
-        LocalDate desdeHace = hoy.minusDays(Math.max(1, dias - 1));
+    public TendenciasResponse getTendencias(Long usuarioId, int dias, LocalDate fechaFin) {
+        LocalDate hasta = fechaFin != null ? fechaFin : LocalDate.now();
+        LocalDate desde = hasta.minusDays(Math.max(1, dias - 1));
 
-        List<PesoTendenciaPoint> peso = obtenerPeso(usuarioId, desdeHace, hoy);
-        List<NutriScoreTendenciaPoint> nutriScore = obtenerNutriScore(usuarioId, desdeHace, hoy);
-        List<MacrosTendenciaPoint> macros = obtenerMacros(usuarioId, desdeHace, hoy);
-        List<EjercicioTendenciaPoint> ejercicio = obtenerEjercicio(usuarioId, desdeHace, hoy);
+        List<PesoTendenciaPoint> peso = obtenerPeso(usuarioId, desde, hasta);
+        List<NutriScoreTendenciaPoint> nutriScore = obtenerNutriScore(usuarioId, desde, hasta);
+        List<MacrosTendenciaPoint> macros = obtenerMacros(usuarioId, desde, hasta);
+        List<EjercicioTendenciaPoint> ejercicio = obtenerEjercicio(usuarioId, desde, hasta);
         Double pesoObjetivo = obtenerPesoObjetivo(usuarioId);
 
         return new TendenciasResponse(peso, nutriScore, macros, ejercicio, pesoObjetivo);

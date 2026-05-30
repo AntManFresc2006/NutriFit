@@ -123,6 +123,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              aria-required="true"
             />
           </motion.div>
 
@@ -141,6 +142,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              aria-required="true"
             />
           </motion.div>
 
@@ -153,6 +155,8 @@ export default function Login() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
+            aria-busy={loading}
+            aria-disabled={loading}
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">

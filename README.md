@@ -31,7 +31,7 @@ Aplicación web de seguimiento nutricional y deportivo, inspirada en MyFitnessPa
 
 - **Backend**: Spring Boot 3 + JDBC (JdbcTemplate) + PostgreSQL
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS + Framer Motion
-- **Base de datos**: PostgreSQL (migraciones Flyway V1–V27)
+- **Base de datos**: PostgreSQL (migraciones Flyway V1–V28)
 - **Despliegue**: Backend en Render, frontend en Vercel
 
 ![Arquitectura del sistema](docs/diagrams/arquitectura.png)
@@ -144,11 +144,12 @@ docker-compose down -v
 | Módulo | Tests | Framework |
 |---|---|---|
 | Backend (Spring Boot) | 116 | JUnit 5 + Mockito + AssertJ |
-| Cliente JavaFX | 24 | JUnit 5 + Mockito + AssertJ |
+| Backend (Integración) | 11 | JUnit 5 + Testcontainers + PostgreSQL real |
+| Cliente JavaFX | 31 | JUnit 5 + Mockito + AssertJ |
 | Frontend (React) | 17 | Vitest |
-| **Total** | **157** | |
+| **Total** | **175** | |
 
-Los 116 tests del backend cubren la capa de servicio al completo. Todos los servicios con lógica de negocio propia tienen cobertura ≥ 80%, incluyendo alimentos (escaneo IA con `limpiarJson`), ejercicios (4 ramas de filtrado) y resumen diario (TDEE, estado SUPERAVIT/DEFICIT/MANTENIMIENTO y cálculo de fecha objetivo). Controladores y repositorios se verifican mediante pruebas manuales con archivos `.http` en `docs/api/`.
+Los 116 tests unitarios del backend cubren la capa de servicio al completo con cobertura ≥ 80% en todos los módulos con lógica de negocio propia. Los 11 tests de integración levantan un contenedor PostgreSQL real (Testcontainers) y verifican los flujos completos de auth, comidas, perfil, hidratación y gamificación contra la base de datos. El cliente JavaFX cubre 31 tests de modelos, servicios y controllers (incluyendo Gamificación, Historial de Peso y Retos). Controladores REST se verifican adicionalmente con archivos `.http` en `docs/api/`.
 
 ```bash
 # Ejecutar tests backend

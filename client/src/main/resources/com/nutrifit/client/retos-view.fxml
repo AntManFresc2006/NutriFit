@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.nutrifit.client.controller.RetosController"
+            style="-fx-background-color: linear-gradient(to right, #0f172a, #111827);">
+
+    <top>
+        <VBox spacing="4" style="-fx-padding: 20 20 10 20;">
+            <Label text="NutriFit"
+                   style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
+            <Label text="Mis retos"
+                   style="-fx-text-fill: #cbd5e1; -fx-font-size: 14px;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="16" style="-fx-padding: 24;">
+
+            <HBox spacing="12">
+                <Button text="Volver"
+                        onAction="#onVolver"
+                        style="-fx-background-color: #475569; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 16;"/>
+            </HBox>
+
+            <TableView fx:id="retosTable" VBox.vgrow="ALWAYS"
+                       style="-fx-background-color: #1e293b; -fx-border-color: #334155; -fx-border-radius: 8;">
+                <columns>
+                    <TableColumn text="Título" prefWidth="150.0">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="titulo"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Descripción" prefWidth="250.0">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="descripcion"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Tipo" prefWidth="80.0">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="tipo"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Puntos" prefWidth="80.0">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="puntos"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Progreso %" prefWidth="100.0">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="progreso"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Estado" prefWidth="100.0">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="aceptado"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <bottom>
+        <Label fx:id="statusLabel"
+               text="Cargando retos..."
+               maxWidth="Infinity"
+               style="-fx-background-color: #020617; -fx-text-fill: #93c5fd; -fx-padding: 12; -fx-font-size: 13px;"/>
+    </bottom>
+</BorderPane>

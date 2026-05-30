@@ -281,6 +281,7 @@ export default function Hidratacion() {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleEliminar(registro.id)}
                         className="text-red-400 hover:text-red-300 hover:bg-red-900/30 p-2 rounded-lg transition-colors text-lg"
+                        aria-label="Eliminar registro de hidratación"
                       >
                         <Trash2 className="w-4 h-4" />
                       </motion.button>

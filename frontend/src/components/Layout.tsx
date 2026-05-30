@@ -58,7 +58,7 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar — solo en md+ */}
-      <aside className="hidden md:flex w-16 lg:w-60 bg-[#080c15] border-r border-white/8 flex-col shrink-0 backdrop-blur-xl">
+      <aside className="hidden md:flex w-16 lg:w-60 bg-[#080c15] border-r border-white/8 flex-col shrink-0 backdrop-blur-xl" aria-label="Navegación principal">
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -123,6 +123,7 @@ export default function Layout() {
         >
           <button
             onClick={handleLogout}
+            aria-label="Cerrar sesión"
             className="flex items-center gap-3 px-3 py-2 rounded-xl text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 w-full text-sm font-medium"
           >
             <LogOut className="w-5 h-5" />
@@ -160,7 +161,7 @@ export default function Layout() {
       </main>
 
       {/* Bottom nav — solo en móvil (< md) */}
-      <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-[#080c15]/95 backdrop-blur-xl border-t border-white/10 z-50 flex overflow-x-auto">
+      <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-[#080c15]/95 backdrop-blur-xl border-t border-white/10 z-50 flex overflow-x-auto" aria-label="Navegación principal móvil">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
@@ -179,6 +180,7 @@ export default function Layout() {
         ))}
         <button
           onClick={handleLogout}
+          aria-label="Cerrar sesión"
           className="flex flex-col items-center justify-center gap-0.5 px-3 py-2 shrink-0 min-w-[64px] text-white/40 active:text-red-400 transition-all duration-200"
         >
           <LogOut className="w-6 h-6" />

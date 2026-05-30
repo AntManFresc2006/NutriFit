@@ -141,3 +141,9 @@
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
+
+/* Accessibility: Visible focus styles */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}

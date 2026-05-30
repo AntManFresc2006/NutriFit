@@ -128,6 +128,7 @@ export default function Register() {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               required
+              aria-required="true"
             />
           </motion.div>
 
@@ -146,6 +147,7 @@ export default function Register() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              aria-required="true"
             />
           </motion.div>
 
@@ -164,6 +166,7 @@ export default function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              aria-required="true"
             />
           </motion.div>
 
@@ -176,6 +179,8 @@ export default function Register() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
+            aria-busy={loading}
+            aria-disabled={loading}
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">

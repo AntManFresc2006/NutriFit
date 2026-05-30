@@ -276,6 +276,7 @@ export default function Alimentos() {
                               className="btn-danger"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
+                              aria-label={`Eliminar alimento ${a.nombre}`}
                             >
                               <Trash2 className="w-4 h-4" />
                             </motion.button>

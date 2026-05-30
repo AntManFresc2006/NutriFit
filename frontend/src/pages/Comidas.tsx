@@ -230,6 +230,7 @@ export default function Comidas() {
                           className="btn-danger"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
+                          aria-label={`Eliminar comida ${c.tipo}`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </motion.button>
@@ -370,7 +371,7 @@ export default function Comidas() {
                     Sin alimentos registrados.
                   </motion.p>
                 ) : (
-                  <motion.div className="space-y-1">
+                  <motion.div className="space-y-1" aria-live="polite" aria-label={`Alimentos en ${c.tipo}`}>
                     <AnimatePresence>
                       {(items[c.id] ?? []).map((item) => (
                         <motion.div
@@ -404,6 +405,7 @@ export default function Comidas() {
                               className="text-white/40 hover:text-red-400 ml-1 transition-colors"
                               whileHover={{ scale: 1.2 }}
                               whileTap={{ scale: 0.9 }}
+                              aria-label={`Eliminar ${item.nombre}`}
                             >
                               <X className="w-4 h-4" />
                             </motion.button>

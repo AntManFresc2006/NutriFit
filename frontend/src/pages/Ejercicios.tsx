@@ -213,7 +213,7 @@ export default function Ejercicios() {
               <span className="text-white font-semibold flex-1">
                 {tipoFlujo === 'AEROBICO' ? 'Aeróbico' : 'Anaeróbico'} · Elige ejercicio
               </span>
-              <button onClick={cancelar} className="text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
+              <button onClick={cancelar} className="text-slate-500 hover:text-white" aria-label="Cerrar"><X className="w-4 h-4" /></button>
             </div>
             <input
               type="text"
@@ -255,7 +255,7 @@ export default function Ejercicios() {
             <div className="flex items-center gap-2">
               <button onClick={() => setPaso('ejercicio')} className="text-slate-500 hover:text-white text-sm">← Volver</button>
               <span className="text-white font-semibold flex-1">{selected.nombre}</span>
-              <button onClick={cancelar} className="text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
+              <button onClick={cancelar} className="text-slate-500 hover:text-white" aria-label="Cerrar"><X className="w-4 h-4" /></button>
             </div>
 
             {tipoFlujo === 'AEROBICO' ? (
@@ -395,6 +395,7 @@ export default function Ejercicios() {
                             <button
                               onClick={() => setConfirmDeleteId(r.id)}
                               className="btn-danger"
+                              aria-label={`Eliminar ejercicio ${r.nombreEjercicio}`}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

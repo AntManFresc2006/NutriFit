@@ -12,7 +12,7 @@ El modelo de datos de NutriFit es relacional y se gestiona íntegramente a trav�
 
 El esquema no se define manualmente ni se recrea en cada arranque. Flyway aplica las migraciones en orden al iniciar el backend y registra cada ejecución en la tabla interna `flyway_schema_history`. Si el esquema ya está al día, Flyway lo valida y no ejecuta ninguna migración.
 
-El directorio `backend/src/main/resources/db/migration/` contiene veintidós scripts organizados por dominio funcional:
+El directorio `backend/src/main/resources/db/migration/` contiene veintiocho scripts organizados por dominio funcional:
 
 | Rango | Propósito |
 |-------|-----------|
@@ -23,6 +23,8 @@ El directorio `backend/src/main/resources/db/migration/` contiene veintidós scr
 | V14–V15 | Planes semanales (IA), retos y gamificación |
 | V16–V19 | Lista de compra, tipos de ejercicios adicionales, sugerencias |
 | V20–V22 | Intensidad anaeróbica, constraint fixes, configuración de IA |
+| V23–V27 | Alimentos ocultos, constraint de unicidad, estado de planes, detective, limpieza |
+| V28 | Trigger automático para limpieza de sesiones expiradas |
 
 Este enfoque garantiza que cualquier entorno arrancado desde cero queda con el mismo esquema que el entorno de desarrollo, sin pasos manuales adicionales. PostgreSQL es compatible con todas las características utilizadas: tipos `NUMERIC`, `TIMESTAMP`, restricciones de clave foránea con borrado en cascada, e índices.
 
@@ -384,3 +386,15 @@ Estos índices aceleran las operaciones más frecuentes sin sacrificar el rendim
 Cada usuario tiene a lo sumo una configuración de OpenRouter. Se usa una relación 1:1 mediante `UNIQUE (usuario_id)` en lugar de crear una tabla separada de configuración genérica. Esto es más simple que una tabla de configuración key-value y refleja la realidad del dominio: los parámetros de IA (proxy_url, modelo, api_key) son específicos de OpenRouter.
 
 Si en el futuro se requiere soporte para otros proveedores de IA, se puede evolucionar el esquema sin romper la funcionalidad existente.
+
+---
+
+## 4.2.5 Funciones y triggers
+
+### Resumen diario: `sp_resumen_diario()`
+
+Función PL/pgSQL que calcula la ingesta nutricional agregada de un usuario para una fecha concreta. Suma calorías, proteínas, grasas y carbohidratos de todas las comidas registradas ese día, aplicando la proporción de gramos. Implementada en V8–V9.
+
+### Limpieza de sesiones: `trg_limpiar_sesiones`
+
+Trigger automático (V28) que se dispara tras cada inserción en la tabla `sesiones` y elimina todos los registros cuya `expires_at` ha pasado. Evita que la tabla acumule tokens expirados y mantiene el esquema limpio sin intervención manual.

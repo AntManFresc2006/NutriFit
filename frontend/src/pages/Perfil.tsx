@@ -215,7 +215,6 @@ export default function Perfil() {
               <input
                 type="date"
                 value={pesoFecha}
-                max={new Date().toISOString().split('T')[0]}
                 onChange={e => setPesoFecha(e.target.value)}
                 className="input w-32 py-1 text-sm"
               />

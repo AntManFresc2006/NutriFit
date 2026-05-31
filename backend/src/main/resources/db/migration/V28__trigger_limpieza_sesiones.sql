@@ -5,9 +5,12 @@
 -- evitando que se acumulen tokens expirados en la base de datos.
 
 CREATE OR REPLACE FUNCTION fn_limpiar_sesiones_expiradas()
-RETURNS void
-LANGUAGE sql AS $$
+RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
   DELETE FROM sesiones WHERE expires_at < NOW();
+  RETURN NULL;
+END;
 $$;
 
 -- Trigger que ejecuta la función de limpieza

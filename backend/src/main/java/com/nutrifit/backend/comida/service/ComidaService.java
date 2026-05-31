@@ -41,26 +41,32 @@ public interface ComidaService {
     void deleteById(Long id, Long usuarioId);
 
     /**
-     * Añade un alimento a una comida con la cantidad especificada.
+     * Añade un alimento a una comida con la cantidad especificada, verificando
+     * que la comida pertenece al usuario.
      *
      * @param comidaId identificador de la comida
      * @param request datos del alimento y cantidad
+     * @param usuarioId identificador del usuario propietario
      */
-    void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request);
+    void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request, Long usuarioId);
 
     /**
-     * Obtiene los alimentos de una comida con sus macros calculados.
+     * Obtiene los alimentos de una comida con sus macros calculados, verificando
+     * que la comida pertenece al usuario.
      *
      * @param comidaId identificador de la comida
+     * @param usuarioId identificador del usuario propietario
      * @return lista de items con información nutricional estimada
      */
-    List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId);
+    List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId, Long usuarioId);
 
     /**
-     * Elimina un alimento específico de una comida.
+     * Elimina un alimento específico de una comida, verificando que la comida
+     * pertenece al usuario.
      *
      * @param comidaId identificador de la comida
      * @param itemId identificador del item a eliminar
+     * @param usuarioId identificador del usuario propietario
      */
-    void deleteItem(Long comidaId, Long itemId);
+    void deleteItem(Long comidaId, Long itemId, Long usuarioId);
 }

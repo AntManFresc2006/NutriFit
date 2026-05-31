@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nutrifit.backend.comida.dto.ComidaAlimentoRequest;
 import com.nutrifit.backend.comida.model.ComidaAlimento;
 import com.nutrifit.backend.common.exception.ResourceNotFoundException;
+import com.nutrifit.backend.common.exception.UnauthorizedException;
 import com.nutrifit.backend.alimento.repository.AlimentoRepository;
 import com.nutrifit.backend.comida.dto.ComidaItemDetalleResponse;
 
@@ -40,14 +41,14 @@ public class ComidaServiceImpl implements ComidaService {
      *
      * @param comidaId identificador de la comida
      * @param request datos del alimento y cantidad
+     * @param usuarioId identificador del usuario propietario
      * @throws ResourceNotFoundException si la comida o el alimento no existen
      */
     @Override
     @Transactional
-    public void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request) {
-        // Validar existencia antes de insertar para devolver 404 claro en lugar de error SQL
-        comidaRepository.findById(comidaId)
-                .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + comidaId));
+    public void addAlimentoToComida(Long comidaId, ComidaAlimentoRequest request, Long usuarioId) {
+        // Verificar existencia y propiedad antes de insertar
+        verificarPropiedad(comidaId, usuarioId);
 
         alimentoRepository.findById(request.getAlimentoId())
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un alimento con id " + request.getAlimentoId()));
@@ -59,14 +60,14 @@ public class ComidaServiceImpl implements ComidaService {
      * Obtiene los items de una comida con sus macros calculados.
      *
      * @param comidaId identificador de la comida
+     * @param usuarioId identificador del usuario propietario
      * @return lista de items con información nutricional estimada
      * @throws ResourceNotFoundException si la comida no existe
      */
     @Override
     @Transactional(readOnly = true)
-    public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId) {
-        comidaRepository.findById(comidaId)
-                .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + comidaId));
+    public List<ComidaItemDetalleResponse> findDetalleItemsByComidaId(Long comidaId, Long usuarioId) {
+        verificarPropiedad(comidaId, usuarioId);
 
         return comidaRepository.findDetalleItemsByComidaId(comidaId);
     }
@@ -116,24 +117,24 @@ public class ComidaServiceImpl implements ComidaService {
     @Override
     @Transactional
     public void deleteById(Long id, Long usuarioId) {
-        Comida comida = comidaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + id));
-        if (!comida.getUsuarioId().equals(usuarioId)) {
-            throw new com.nutrifit.backend.common.exception.UnauthorizedException("Acceso denegado");
-        }
+        verificarPropiedad(id, usuarioId);
         comidaRepository.deleteById(id);
     }
 
     /**
-     * Elimina un item de comida-alimento validando que pertenece a la comida especificada.
+     * Elimina un item de comida-alimento validando que la comida pertenece al
+     * usuario y que el item pertenece a esa comida.
      *
      * @param comidaId identificador de la comida
      * @param itemId identificador del item a eliminar
+     * @param usuarioId identificador del usuario propietario
      * @throws ResourceNotFoundException si el item no existe o no pertenece a la comida
      */
     @Override
     @Transactional
-    public void deleteItem(Long comidaId, Long itemId) {
+    public void deleteItem(Long comidaId, Long itemId, Long usuarioId) {
+        verificarPropiedad(comidaId, usuarioId);
+
         ComidaAlimento item = comidaRepository.findItemById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un item con id " + itemId));
 
@@ -143,6 +144,20 @@ public class ComidaServiceImpl implements ComidaService {
         }
 
         comidaRepository.deleteItemById(itemId);
+    }
+
+    /**
+     * Carga una comida y verifica que pertenece al usuario indicado.
+     *
+     * @throws ResourceNotFoundException si la comida no existe
+     * @throws UnauthorizedException     si la comida pertenece a otro usuario
+     */
+    private void verificarPropiedad(Long comidaId, Long usuarioId) {
+        Comida comida = comidaRepository.findById(comidaId)
+                .orElseThrow(() -> new ResourceNotFoundException(COMIDA_NO_ENCONTRADA + comidaId));
+        if (!comida.getUsuarioId().equals(usuarioId)) {
+            throw new UnauthorizedException("Acceso denegado");
+        }
     }
 
     private ComidaResponse toResponse(Comida comida) {

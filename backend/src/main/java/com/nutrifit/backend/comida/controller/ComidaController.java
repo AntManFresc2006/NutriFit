@@ -121,9 +121,11 @@ public class ComidaController {
     public void addAlimento(
             @Parameter(description = "ID de la comida")
             @PathVariable Long comidaId,
-            @Valid @RequestBody ComidaAlimentoRequest request
+            @Valid @RequestBody ComidaAlimentoRequest request,
+            HttpServletRequest httpRequest
     ) {
-        comidaService.addAlimentoToComida(comidaId, request);
+        Long usuarioId = (Long) httpRequest.getAttribute(AUTH_USER_ATTR);
+        comidaService.addAlimentoToComida(comidaId, request, usuarioId);
     }
 
     /**
@@ -166,8 +168,10 @@ public class ComidaController {
     @GetMapping("/{comidaId}/items")
     public List<ComidaItemDetalleResponse> getItems(
             @Parameter(description = "ID de la comida")
-            @PathVariable Long comidaId) {
-        return comidaService.findDetalleItemsByComidaId(comidaId);
+            @PathVariable Long comidaId,
+            HttpServletRequest httpRequest) {
+        Long usuarioId = (Long) httpRequest.getAttribute(AUTH_USER_ATTR);
+        return comidaService.findDetalleItemsByComidaId(comidaId, usuarioId);
     }
 
     /**
@@ -190,7 +194,9 @@ public class ComidaController {
             @Parameter(description = "ID de la comida")
             @PathVariable Long comidaId,
             @Parameter(description = "ID del item a eliminar")
-            @PathVariable Long itemId) {
-        comidaService.deleteItem(comidaId, itemId);
+            @PathVariable Long itemId,
+            HttpServletRequest httpRequest) {
+        Long usuarioId = (Long) httpRequest.getAttribute(AUTH_USER_ATTR);
+        comidaService.deleteItem(comidaId, itemId, usuarioId);
     }
 }

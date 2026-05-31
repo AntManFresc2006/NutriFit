@@ -250,9 +250,21 @@ class ComidaServiceImplTest {
             when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
             when(alimentoRepository.findById(ALIMENTO_ID)).thenReturn(Optional.of(alimentoMock()));
 
-            service.addAlimentoToComida(COMIDA_ID, alimentoRequestMock());
+            service.addAlimentoToComida(COMIDA_ID, alimentoRequestMock(), USUARIO_ID);
 
             verify(comidaRepository).addAlimentoToComida(COMIDA_ID, ALIMENTO_ID, 150.0);
+        }
+
+        @Test
+        @DisplayName("comida de otro usuario: lanza UnauthorizedException sin añadir el item")
+        void comidaDeOtroUsuario_lanzaUnauthorized() {
+            when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
+
+            assertThatThrownBy(() -> service.addAlimentoToComida(COMIDA_ID, alimentoRequestMock(), 999L))
+                    .isInstanceOf(com.nutrifit.backend.common.exception.UnauthorizedException.class);
+
+            verify(alimentoRepository, never()).findById(anyLong());
+            verify(comidaRepository, never()).addAlimentoToComida(anyLong(), anyLong(), anyDouble());
         }
 
         @Test
@@ -260,7 +272,7 @@ class ComidaServiceImplTest {
         void comidaInexistente_lanzaExcepcionSinConsultarAlimento() {
             when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.addAlimentoToComida(COMIDA_ID, alimentoRequestMock()))
+            assertThatThrownBy(() -> service.addAlimentoToComida(COMIDA_ID, alimentoRequestMock(), USUARIO_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining(String.valueOf(COMIDA_ID));
 
@@ -274,7 +286,7 @@ class ComidaServiceImplTest {
             when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
             when(alimentoRepository.findById(ALIMENTO_ID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.addAlimentoToComida(COMIDA_ID, alimentoRequestMock()))
+            assertThatThrownBy(() -> service.addAlimentoToComida(COMIDA_ID, alimentoRequestMock(), USUARIO_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining(String.valueOf(ALIMENTO_ID));
 
@@ -298,7 +310,7 @@ class ComidaServiceImplTest {
                     .thenReturn(List.of(detalleMock()));
 
             List<ComidaItemDetalleResponse> resultado =
-                    service.findDetalleItemsByComidaId(COMIDA_ID);
+                    service.findDetalleItemsByComidaId(COMIDA_ID, USUARIO_ID);
 
             assertThat(resultado).hasSize(1);
             assertThat(resultado.get(0).getItemId()).isEqualTo(ITEM_ID);
@@ -314,9 +326,20 @@ class ComidaServiceImplTest {
             when(comidaRepository.findDetalleItemsByComidaId(COMIDA_ID)).thenReturn(List.of());
 
             List<ComidaItemDetalleResponse> resultado =
-                    service.findDetalleItemsByComidaId(COMIDA_ID);
+                    service.findDetalleItemsByComidaId(COMIDA_ID, USUARIO_ID);
 
             assertThat(resultado).isEmpty();
+        }
+
+        @Test
+        @DisplayName("comida de otro usuario: lanza UnauthorizedException sin consultar items")
+        void comidaDeOtroUsuario_lanzaUnauthorized() {
+            when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
+
+            assertThatThrownBy(() -> service.findDetalleItemsByComidaId(COMIDA_ID, 999L))
+                    .isInstanceOf(com.nutrifit.backend.common.exception.UnauthorizedException.class);
+
+            verify(comidaRepository, never()).findDetalleItemsByComidaId(anyLong());
         }
 
         @Test
@@ -324,7 +347,7 @@ class ComidaServiceImplTest {
         void comidaInexistente_lanzaExcepcionSinConsultarItems() {
             when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.findDetalleItemsByComidaId(COMIDA_ID))
+            assertThatThrownBy(() -> service.findDetalleItemsByComidaId(COMIDA_ID, USUARIO_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining(String.valueOf(COMIDA_ID));
 
@@ -343,20 +366,34 @@ class ComidaServiceImplTest {
         @Test
         @DisplayName("item existente y perteneciente a la comida: delega el borrado en el repositorio")
         void itemExistenteYPerteneciente_delegaBorrado() {
+            when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
             when(comidaRepository.findItemById(ITEM_ID))
                     .thenReturn(Optional.of(itemMock(COMIDA_ID)));
 
-            service.deleteItem(COMIDA_ID, ITEM_ID);
+            service.deleteItem(COMIDA_ID, ITEM_ID, USUARIO_ID);
 
             verify(comidaRepository).deleteItemById(ITEM_ID);
         }
 
         @Test
+        @DisplayName("comida de otro usuario: lanza UnauthorizedException sin consultar el item")
+        void comidaDeOtroUsuario_lanzaUnauthorized() {
+            when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
+
+            assertThatThrownBy(() -> service.deleteItem(COMIDA_ID, ITEM_ID, 999L))
+                    .isInstanceOf(com.nutrifit.backend.common.exception.UnauthorizedException.class);
+
+            verify(comidaRepository, never()).findItemById(anyLong());
+            verify(comidaRepository, never()).deleteItemById(anyLong());
+        }
+
+        @Test
         @DisplayName("item inexistente: lanza ResourceNotFoundException con el id del item en el mensaje")
         void itemInexistente_lanzaExcepcion() {
+            when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
             when(comidaRepository.findItemById(ITEM_ID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.deleteItem(COMIDA_ID, ITEM_ID))
+            assertThatThrownBy(() -> service.deleteItem(COMIDA_ID, ITEM_ID, USUARIO_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining(String.valueOf(ITEM_ID));
 
@@ -367,10 +404,11 @@ class ComidaServiceImplTest {
         @DisplayName("item que no pertenece a la comida: lanza ResourceNotFoundException con ambos ids en el mensaje")
         void itemDeOtraComida_lanzaExcepcionSinBorrar() {
             Long otraComidaId = 999L;
+            when(comidaRepository.findById(COMIDA_ID)).thenReturn(Optional.of(comidaMock()));
             when(comidaRepository.findItemById(ITEM_ID))
                     .thenReturn(Optional.of(itemMock(otraComidaId)));
 
-            assertThatThrownBy(() -> service.deleteItem(COMIDA_ID, ITEM_ID))
+            assertThatThrownBy(() -> service.deleteItem(COMIDA_ID, ITEM_ID, USUARIO_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining(String.valueOf(ITEM_ID))
                     .hasMessageContaining(String.valueOf(COMIDA_ID));

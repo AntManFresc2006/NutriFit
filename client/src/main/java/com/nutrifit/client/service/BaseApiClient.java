@@ -2,6 +2,7 @@ package com.nutrifit.client.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nutrifit.client.config.AppConfig;
 import com.nutrifit.client.session.SessionManager;
 
@@ -25,7 +26,8 @@ public abstract class BaseApiClient {
             .build();
 
     protected final ObjectMapper objectMapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .registerModule(new JavaTimeModule());
 
     protected static String bearerToken() {
         return "Bearer " + SessionManager.getToken();

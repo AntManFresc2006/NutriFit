@@ -12,10 +12,10 @@ import java.nio.charset.StandardCharsets;
 
 public class HidratacionApiClient extends BaseApiClient {
 
-    private static final String BASE_URL = BACKEND_URL + "/api/usuarios";
+    private static final String BASE_URL = BACKEND_URL + "/api/hidratacion";
 
     public HidratacionDto obtenerResumen(Long usuarioId, String fecha) throws IOException, InterruptedException {
-        String url = BASE_URL + "/" + usuarioId + "/hidratacion?fecha=" + URLEncoder.encode(fecha, StandardCharsets.UTF_8);
+        String url = BASE_URL + "?usuarioId=" + usuarioId + "&fecha=" + URLEncoder.encode(fecha, StandardCharsets.UTF_8);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -28,7 +28,7 @@ public class HidratacionApiClient extends BaseApiClient {
     }
 
     public void registrarHidratacion(Long usuarioId, int cantidadMl, String fuente, String fecha) throws IOException, InterruptedException {
-        String url = BASE_URL + "/" + usuarioId + "/hidratacion";
+        String url = BASE_URL + "?usuarioId=" + usuarioId;
 
         RegistroHidratacionDto registro = new RegistroHidratacionDto(cantidadMl, fuente, fecha);
         String body = objectMapper.writeValueAsString(registro);

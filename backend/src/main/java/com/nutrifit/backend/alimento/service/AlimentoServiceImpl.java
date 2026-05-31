@@ -32,7 +32,7 @@ import java.util.Map;
 public class AlimentoServiceImpl implements AlimentoService {
 
     private static final String OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String MODEL = "google/gemma-3-27b-it:free";
+    private static final String MODEL = "google/gemma-4-31b-it:free";
 
     @Value("${openrouter.gemma.api.key}")
     private String gemmaApiKey;

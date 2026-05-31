@@ -22,7 +22,7 @@ import java.util.Optional;
 public class PlanSemanalServiceImpl implements PlanSemanalService {
 
     private static final String MODEL_PRIMARY  = "google/gemma-4-31b-it:free";
-    private static final String MODEL_FALLBACK = "deepseek/deepseek-v4-flash:free";
+    private static final String MODEL_FALLBACK = "openai/gpt-oss-20b:free";
 
     @Value("${openrouter.gemma.api.key}")
     private String gemmaApiKey;

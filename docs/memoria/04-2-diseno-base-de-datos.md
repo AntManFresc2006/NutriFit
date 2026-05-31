@@ -1,6 +1,6 @@
 # 4.2 Diseño de la base de datos
 
-El modelo de datos de NutriFit es relacional y se gestiona íntegramente a través de PostgreSQL. El esquema está versionado con Flyway en veintidós migraciones (V1 a V22) y se compone de más de veinte tablas que cubren desde el núcleo de autenticación y nutrición hasta integraciones avanzadas de IA, gamificación e historial. Este apartado describe la estructura de las tablas principales, las relaciones entre ellas y las decisiones de diseño más relevantes.
+El modelo de datos de NutriFit es relacional y se gestiona íntegramente a través de PostgreSQL. El esquema está versionado con Flyway en veintiocho migraciones (V1 a V28) y se compone de más de veinte tablas que cubren desde el núcleo de autenticación y nutrición hasta integraciones avanzadas de IA, gamificación e historial. Este apartado describe la estructura de las tablas principales, las relaciones entre ellas y las decisiones de diseño más relevantes.
 
 **Figura 4.3** — Diagrama entidad-relación del esquema completo.
 

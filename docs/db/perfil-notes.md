@@ -1,7 +1,7 @@
 # Notas de base de datos - perfil de usuario, biometría y cálculos nutricionales
 
 ## Objetivo
-El módulo de perfil almacena información biométrica del usuario y calcula sus necesidades calóricas diarias mediante la fórmula de Harris-Benedict (TMB) y TDEE (Total Daily Energy Expenditure), que sirven como objetivos para el seguimiento nutricional.
+El módulo de perfil almacena información biométrica del usuario y calcula sus necesidades calóricas diarias mediante la fórmula de Mifflin-St Jeor (TMB) y TDEE (Total Daily Energy Expenditure), que sirven como objetivos para el seguimiento nutricional.
 
 ---
 
@@ -63,16 +63,16 @@ Ejemplo:
 ### TMB (Tasa Metabólica Basal)
 Es la cantidad de calorías que el cuerpo gasta en reposo solo por mantener funciones vitales.
 
-**Fórmula de Harris-Benedict (revisada 1984):**
+**Fórmula de Mifflin-St Jeor (1990):**
 
 Hombres:
 ```
-TMB = 88.362 + (13.397 × peso_kg) + (4.799 × altura_cm) - (5.677 × edad_anos)
+TMB = (10 × peso_kg) + (6.25 × altura_cm) - (5 × edad_anos) + 5
 ```
 
 Mujeres:
 ```
-TMB = 447.593 + (9.247 × peso_kg) + (3.098 × altura_cm) - (4.330 × edad_anos)
+TMB = (10 × peso_kg) + (6.25 × altura_cm) - (5 × edad_anos) - 161
 ```
 
 Ejemplo (usuario masculino):
@@ -81,9 +81,9 @@ Ejemplo (usuario masculino):
 - Edad: 28 años
 
 ```
-TMB = 88.362 + (13.397 × 75) + (4.799 × 175) - (5.677 × 28)
-    = 88.362 + 1004.775 + 839.825 - 158.956
-    = 1774.01 kcal/día
+TMB = (10 × 75) + (6.25 × 175) - (5 × 28) + 5
+    = 750 + 1093.75 - 140 + 5
+    = 1708.75 kcal/día
 ```
 
 ---
@@ -108,7 +108,7 @@ Factores de actividad estándar:
 
 Continuando el ejemplo anterior con factor_actividad = 1.55:
 ```
-TDEE = 1774.01 × 1.55 = 2749.72 kcal/día
+TDEE = 1708.75 × 1.55 = 2648.56 kcal/día
 ```
 
 ---
@@ -126,9 +126,9 @@ SELECT
     u.sexo,
     CASE
         WHEN u.sexo = 'M' THEN
-            88.362 + (13.397 * u.peso_actual_kg) + (4.799 * u.altura_cm) - (5.677 * u.edad_anos)
+            (10 * u.peso_actual_kg) + (6.25 * u.altura_cm) - (5 * u.edad_anos) + 5
         WHEN u.sexo = 'F' THEN
-            447.593 + (9.247 * u.peso_actual_kg) + (3.098 * u.altura_cm) - (4.330 * u.edad_anos)
+            (10 * u.peso_actual_kg) + (6.25 * u.altura_cm) - (5 * u.edad_anos) - 161
     END AS tmb_kcal,
     u.factor_actividad,
     CASE
@@ -150,7 +150,7 @@ WHERE u.id = ?;
 public class PerfilService {
     
     /**
-     * Calcula la Tasa Metabólica Basal (TMB) usando Harris-Benedict
+     * Calcula la Tasa Metabólica Basal (TMB) usando Mifflin-St Jeor
      */
     public double calcularTMB(Usuario usuario) {
         double peso = usuario.getPesoActualKg();
@@ -159,9 +159,9 @@ public class PerfilService {
         char sexo = usuario.getSexo();
         
         if (sexo == 'M') {
-            return 88.362 + (13.397 * peso) + (4.799 * altura) - (5.677 * edad);
+            return (10 * peso) + (6.25 * altura) - (5 * edad) + 5;
         } else {
-            return 447.593 + (9.247 * peso) + (3.098 * altura) - (4.330 * edad);
+            return (10 * peso) + (6.25 * altura) - (5 * edad) - 161;
         }
     }
     

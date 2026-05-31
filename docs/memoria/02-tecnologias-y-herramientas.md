@@ -14,7 +14,7 @@ La siguiente tabla recoge las tecnologías principales con su versión y el pape
 | Spring Security Crypto | gestionada por el BOM | Backend | Hashing de contraseñas con BCrypt |
 | PostgreSQL | 12+ | Base de datos | Motor relacional que almacena el estado del sistema; reemplaza MariaDB |
 | `postgresql-driver` | gestionada por el BOM | Backend | Driver JDBC para PostgreSQL |
-| Flyway | gestionada por el BOM | Backend | Migraciones de esquema versionadas (22 versiones: V1 a V22) |
+| Flyway | gestionada por el BOM | Backend | Migraciones de esquema versionadas (28 versiones: V1 a V28) |
 | springdoc-openapi | 2.x | Backend | Generación de Swagger UI y especificación OpenAPI 3 |
 | React | 18.x | Frontend | Framework para interfaz de usuario web (SPA) |
 | TypeScript | 5.x | Frontend | Lenguaje con tipado estático compilado a JavaScript |
@@ -65,7 +65,7 @@ PostgreSQL actúa como motor de persistencia relacional, reemplazando a MariaDB 
 
 Flyway controla el ciclo de vida del esquema de la base de datos. Al arrancar el backend aplica automáticamente los scripts de migración almacenados en `backend/src/main/resources/db/migration/`, numerados de `V1` a `V22`. Si las migraciones ya están aplicadas, Flyway valida la consistencia del esquema y no ejecuta nada. Esto garantiza que cualquier entorno —local, CI, evaluación del tribunal— arranca con exactamente el mismo esquema sin intervención manual. Las dependencias `flyway-core` se gestionan a través del BOM de Spring Boot.
 
-Las veintidós migraciones incluyen:
+Las veintiocho migraciones incluyen:
 - V1–V5: Núcleo (usuarios, alimentos, sesiones, comidas, ítems de comidas)
 - V6–V7: Ejercicios (tabla de tipos, datos semilla)
 - V8–V9: Stored procedure para resumen diario

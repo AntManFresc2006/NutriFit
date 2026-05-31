@@ -45,7 +45,7 @@ La implementación está desplegada en producción: el backend en Render y la in
 
 ## 1.5 Arquitectura y tecnologías
 
-El sistema se organiza en tres capas independientes. El cliente web, implementado con React 18 + TypeScript + Vite + Tailwind CSS, actúa como single-page application y se comunica con el backend mediante peticiones HTTP. El backend, implementado con Spring Boot 3, expone una API REST sobre PostgreSQL bajo un esquema gestionado íntegramente por Flyway (22 migraciones versionadas).
+El sistema se organiza en tres capas independientes. El cliente web, implementado con React 19 + TypeScript + Vite + Tailwind CSS, actúa como single-page application y se comunica con el backend mediante peticiones HTTP. El backend, implementado con Spring Boot 3, expone una API REST sobre PostgreSQL bajo un esquema gestionado íntegramente por Flyway (28 migraciones versionadas).
 
 El acceso a datos se realiza con `JdbcTemplate` y `RowMapper` manuales, sin ORM. La autenticación usa tokens opacos UUID almacenados en la tabla `sesiones`, con expiración a siete días y borrado explícito en logout. Un `HandlerInterceptor` valida el token en todos los endpoints protegidos. La comunicación HTTPS está garantizada por los proveedores de hosting (Render y Vercel). La integración de IA se realiza mediante OpenRouter API con configuración por usuario (modelo, API key, proxy URL opcional). El manejo de errores está centralizado en un `@RestControllerAdvice` que garantiza una estructura de respuesta uniforme para cualquier tipo de excepción. Estas y otras decisiones de diseño se desarrollan en §4 con sus alternativas consideradas.
 

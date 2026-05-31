@@ -210,7 +210,7 @@ src/main/resources/db/migration/
 
 ## Decisiones técnicas relacionadas
 
-- **Flyway**: versionado de migraciones en 22 versiones (V1 a V22)
+- **Flyway**: versionado de migraciones en 28 versiones (V1 a V28)
 - **JdbcTemplate**: acceso manual a datos sin ORM, SQL explícito
 - **RowMapper**: cada entidad mapea manualmente sus resultados
 - **Índices**: creados explícitamente en migraciones Flyway
@@ -220,7 +220,7 @@ src/main/resources/db/migration/
 ## Alcance implementado
 
 ✅ PostgreSQL 14 en Render
-✅ 22 migraciones Flyway (V1–V22)
+✅ 28 migraciones Flyway (V1–V28)
 ✅ 18 módulos backend usando JdbcTemplate
 ✅ Tablas: usuarios, sesiones, alimentos, comidas, comida_alimentos, resumen_diario, perfil, ejercicios, etc.
 ✅ Full ACID compliance

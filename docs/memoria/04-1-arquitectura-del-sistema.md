@@ -135,7 +135,7 @@ Controller → Service → Repository → JdbcTemplate → PostgreSQL
 
 ## 4.1.4 Capa de persistencia: PostgreSQL y Flyway
 
-PostgreSQL almacena el estado del sistema en una base de datos llamada `nutrifit`. El esquema está compuesto por veintidós migraciones versionadas (V1 a V22) que cubren:
+PostgreSQL almacena el estado del sistema en una base de datos llamada `nutrifit`. El esquema está compuesto por veintiocho migraciones versionadas (V1 a V28) que cubren:
 
 - **Núcleo (V1–V5):** Tablas `usuarios`, `alimentos`, `sesiones`, `comidas`, `comida_alimentos`
 - **Ejercicios (V6–V7):** Tabla `ejercicios_tipo` (tipos disponibles) y tabla `ejercicios_registro` (sesiones del usuario)
@@ -227,7 +227,7 @@ La separación entre las tres capas tiene consecuencias prácticas sobre el desa
 
 Esta sección describe la arquitectura a nivel de componentes y responsabilidades. Las secciones siguientes desarrollan los elementos introducidos aquí:
 
-- **§4.2** — Diseño detallado del esquema de base de datos (22 migraciones) y las decisiones sobre tablas y relaciones.
+- **§4.2** — Diseño detallado del esquema de base de datos (28 migraciones) y las decisiones sobre tablas y relaciones.
 - **§5** — Implementación módulo por módulo: autenticación, alimentos, comidas, resumen diario, perfil, ejercicios, hidratación, IA, gamificación, y el resto de 18 módulos.
 - **§6** — Estrategia de pruebas: tests unitarios del backend y pruebas manuales de la API.
 - **§7** — Seguridad: gestión de contraseñas, mecanismo de autenticación por token opaco UUID, interceptor de validación, HTTPS en producción.

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class DetectiveServiceImpl implements DetectiveService {
 
     private static final String MODEL_PRIMARY  = "google/gemma-4-31b-it:free";
-    private static final String MODEL_FALLBACK = "deepseek/deepseek-v4-flash:free";
+    private static final String MODEL_FALLBACK = "openai/gpt-oss-20b:free";
 
     @Value("${openrouter.gemma.api.key}")
     private String gemmaApiKey;

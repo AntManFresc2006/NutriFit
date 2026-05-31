@@ -316,4 +316,4 @@ public class CorsConfig {
 1. Configurar Uptimerobot (free) para ping cada 15 min (evita cold start)
 2. Monitorear logs en Render durante demo para detectar errores
 3. Si performance insuficiente, considerar Render Standard (~$7/mes)
-4. Documentar URL actual y credenciales en CLAUDE.md para acceso rápido durante demo
+4. Documentar la URL actual en un archivo de notas local para acceso rápido durante la demo

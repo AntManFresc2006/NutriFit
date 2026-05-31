@@ -26,11 +26,6 @@
 frontend/node_modules/
 frontend/dist/
 
-# Claude Code
-CLAUDE.md
-.claudeignore
-~/.claude/settings.json
-
 # Archivos auxiliares fuera del código
 NutriFit_Plan_Semanal_Tablas.docx
 TFG_NutriFit_Antonio_Manuel_Fresco_Gomez (2).pdf

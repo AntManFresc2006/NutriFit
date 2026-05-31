@@ -72,4 +72,14 @@ public interface AlimentoRepository {
     boolean deleteById(Long id);
 
     void ocultarParaUsuario(Long usuarioId, Long alimentoId);
+
+    /**
+     * Deja de ocultar un alimento para un usuario, si estaba oculto.
+     * Permite que un alimento previamente eliminado vuelva a aparecer en su
+     * catálogo cuando se registra de nuevo.
+     *
+     * @param usuarioId identificador del usuario
+     * @param alimentoId identificador del alimento
+     */
+    void mostrarParaUsuario(Long usuarioId, Long alimentoId);
 }

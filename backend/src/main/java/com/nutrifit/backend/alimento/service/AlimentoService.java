@@ -29,12 +29,15 @@ public interface AlimentoService {
     AlimentoResponse findById(Long id);
 
     /**
-     * Guarda un nuevo alimento en la base de datos.
+     * Guarda un nuevo alimento en la base de datos. Si ya existe uno con el mismo
+     * nombre, devuelve el existente. En ambos casos lo desoculta para el usuario,
+     * de modo que un alimento previamente eliminado reaparece al registrarse de nuevo.
      *
      * @param request datos del alimento a crear
+     * @param usuarioId usuario que registra el alimento
      * @return alimento creado en formato de respuesta
      */
-    AlimentoResponse save(AlimentoRequest request);
+    AlimentoResponse save(AlimentoRequest request, Long usuarioId);
 
     /**
      * Actualiza un alimento existente.

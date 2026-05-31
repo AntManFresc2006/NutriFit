@@ -208,4 +208,10 @@ public class JdbcAlimentoRepository implements AlimentoRepository {
                 """;
         jdbcTemplate.update(sql, usuarioId, alimentoId);
     }
+
+    @Override
+    public void mostrarParaUsuario(Long usuarioId, Long alimentoId) {
+        String sql = "DELETE FROM alimentos_ocultos WHERE usuario_id = ? AND alimento_id = ?";
+        jdbcTemplate.update(sql, usuarioId, alimentoId);
+    }
 }

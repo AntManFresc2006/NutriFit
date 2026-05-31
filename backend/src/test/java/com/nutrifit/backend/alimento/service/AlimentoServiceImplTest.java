@@ -169,7 +169,7 @@ class AlimentoServiceImplTest {
             Alimento guardado = alimentoMock(); // tiene id=1 y nombre sin espacios
             when(alimentoRepository.save(any(Alimento.class))).thenReturn(guardado);
 
-            AlimentoResponse resultado = service.save(requestMock());
+            AlimentoResponse resultado = service.save(requestMock(), 1L);
 
             assertThat(resultado.getId()).isEqualTo(1L);
             assertThat(resultado.getNombre()).isEqualTo("Pollo a la plancha");
@@ -183,7 +183,7 @@ class AlimentoServiceImplTest {
             when(alimentoRepository.save(argThat(a -> "Pollo a la plancha".equals(a.getNombre()))))
                     .thenReturn(guardado);
 
-            service.save(requestMock()); // el request tiene "  Pollo a la plancha  "
+            service.save(requestMock(), 1L); // el request tiene "  Pollo a la plancha  "
 
             verify(alimentoRepository).save(argThat(a -> "Pollo a la plancha".equals(a.getNombre())));
         }
@@ -194,10 +194,21 @@ class AlimentoServiceImplTest {
             when(alimentoRepository.findByNombreExacto("Pollo a la plancha"))
                     .thenReturn(Optional.of(alimentoMock()));
 
-            AlimentoResponse resultado = service.save(requestMock());
+            AlimentoResponse resultado = service.save(requestMock(), 1L);
 
             assertThat(resultado.getId()).isEqualTo(1L);
             verify(alimentoRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("registrar un alimento lo desoculta para el usuario (alimento eliminado y reescaneado)")
+        void registrar_desocultaParaUsuario() {
+            when(alimentoRepository.findByNombreExacto("Pollo a la plancha"))
+                    .thenReturn(Optional.of(alimentoMock())); // ya existía (estaba oculto)
+
+            service.save(requestMock(), 7L);
+
+            verify(alimentoRepository).mostrarParaUsuario(7L, 1L);
         }
     }
 

@@ -96,20 +96,26 @@ public class AlimentoServiceImpl implements AlimentoService {
      */
     @Override
     @Transactional
-    public AlimentoResponse save(AlimentoRequest request) {
+    public AlimentoResponse save(AlimentoRequest request, Long usuarioId) {
         String nombre = request.getNombre().trim();
-        return alimentoRepository.findByNombreExacto(nombre)
-                .map(this::toResponse)
+        Alimento alimento = alimentoRepository.findByNombreExacto(nombre)
                 .orElseGet(() -> {
                     try {
-                        return toResponse(alimentoRepository.save(toModel(request)));
+                        return alimentoRepository.save(toModel(request));
                     } catch (DataIntegrityViolationException e) {
                         // Carrera entre dos inserciones concurrentes con el mismo nombre
                         return alimentoRepository.findByNombreExacto(nombre)
-                                .map(this::toResponse)
                                 .orElseThrow(() -> e);
                     }
                 });
+
+        // Registrar un alimento lo desoculta para el usuario: si lo había
+        // eliminado antes, vuelve a aparecer en su catálogo.
+        if (usuarioId != null) {
+            alimentoRepository.mostrarParaUsuario(usuarioId, alimento.getId());
+        }
+
+        return toResponse(alimento);
     }
 
     /**

@@ -92,8 +92,10 @@ public class AlimentoController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AlimentoResponse create(@Valid @RequestBody AlimentoRequest request) {
-        return alimentoService.save(request);
+    public AlimentoResponse create(@Valid @RequestBody AlimentoRequest request,
+                                   HttpServletRequest httpRequest) {
+        Long usuarioId = (Long) httpRequest.getAttribute("authenticatedUserId");
+        return alimentoService.save(request, usuarioId);
     }
 
     /**

@@ -36,15 +36,15 @@ Mockito instancia el servicio inyectando el repositorio simulado, sin intervenci
 
 ## 6.2 Pruebas unitarias del backend
 
-La suite está compuesta por 116 tests distribuidos en diez clases, una por cada servicio con lógica de negocio relevante.
+La suite está compuesta por 120 tests distribuidos en diez clases, una por cada servicio con lógica de negocio relevante.
 
 **Tabla 6.1 — Distribución de la suite de pruebas unitarias del backend**
 
 | Clase de test                       | Tests | Operaciones cubiertas                                                                 |
 |-------------------------------------|-------|---------------------------------------------------------------------------------------|
-| `AlimentoServiceImplTest`           | 17    | findAll, findById, save, update, deleteById, escanearFoto                             |
+| `AlimentoServiceImplTest`           | 18    | findAll, findById, save, update, deleteById, escanearFoto                             |
 | `AuthServiceImplTest`               | 9     | register, login, logout                                                               |
-| `ComidaServiceImplTest`             | 18    | save, findByUsuarioAndFecha, deleteById, addAlimentoToComida, findDetalleItemsByComidaId, deleteItem |
+| `ComidaServiceImplTest`             | 21    | save, findByUsuarioAndFecha, deleteById, addAlimentoToComida, findDetalleItemsByComidaId, deleteItem |
 | `EjercicioServiceImplTest`          | 9     | findAll (4 ramas), findById, save                                                     |
 | `ResumenDiarioServiceImplTest`      | 14    | obtenerResumenDiario, enriquecerConTdee, estadoBalance, enriquecerConFechaObjetivo    |
 | `PerfilServiceImplTest`             | 5     | getPerfil, updatePerfil                                                               |
@@ -52,11 +52,11 @@ La suite está compuesta por 116 tests distribuidos en diez clases, una por cada
 | `HidratacionServiceImplTest`        | 8     | registrar, getDiario, eliminar                                                        |
 | `PesoHistorialServiceImplTest`      | 8     | upsert, findByUsuario, deleteByUsuarioAndFecha                                        |
 | `GamificacionServiceTest`           | 14    | calcular, calcularRacha, calcularNutriScore, verificarBalance, verificarProteina, verificarEjercicio, verificarVariedad |
-| **Total**                           | **116**|                                                                                      |
+| **Total**                           | **120**|                                                                                      |
 
-> **Nota:** Los 116 tests se ejecutan sin base de datos ni contexto de Spring. Cada test aislado se ejecuta en menos de 100 ms. La suite completa finaliza en menos de tres segundos.
+> **Nota:** Los 120 tests se ejecutan sin base de datos ni contexto de Spring. Cada test aislado se ejecuta en menos de 100 ms. La suite completa finaliza en menos de tres segundos.
 
-### AlimentoServiceImpl — 16 tests
+### AlimentoServiceImpl — 18 tests
 
 Esta clase cubre el servicio con mayor superficie de operaciones. Los tests se organizan en seis clases anidadas: `FindAll`, `FindById`, `Save`, `Update`, `DeleteById` y `EscanearFoto`.
 
@@ -143,7 +143,7 @@ assertThat(resultado.getBalanceReal()).isEqualTo(500.0);
 
 **FechaObjetivo (5 tests).** Verifican el cálculo de proyección: sin peso objetivo no se calcula fecha, con déficit suficiente se calculan los días para perder peso, con superávit suficiente se calculan los días para ganar peso, con déficit insuficiente (< 50 kcal) no se genera fecha, y cuando el historial de 7 días tiene media no nula se usa esa media en lugar del balance del día actual.
 
-### ComidaServiceImpl — 17 tests
+### ComidaServiceImpl — 21 tests
 
 Los tests se organizan en seis clases anidadas: `Save`, `FindByUsuarioAndFecha`, `DeleteById`, `AddAlimentoToComida`, `FindDetalleItemsByComidaId` y `DeleteItem`. Los dos colaboradores del servicio —`ComidaRepository` y `AlimentoRepository`— se sustituyen por mocks.
 
@@ -152,6 +152,8 @@ Los tests se organizan en seis clases anidadas: `Save`, `FindByUsuarioAndFecha`,
 **Validación fail-fast.** Los tests de `addAlimentoToComida` y `deleteItem` comprueban con `verify(..., never())` que las operaciones destructivas no se invocan cuando la validación previa falla: si la comida no existe, el servicio no consulta el alimento; si el ítem no pertenece a la comida indicada, no se llama a `deleteItemById`.
 
 **Pertenencia del ítem.** El test `itemDeOtraComida_lanzaExcepcionSinBorrar` verifica que el mensaje de error incluye tanto el id del ítem como el de la comida, lo que facilita el diagnóstico en el cliente.
+
+**Verificación de propiedad (control de acceso).** Las operaciones sobre los ítems de una comida —añadir, consultar y eliminar— comprueban que la comida pertenece al usuario autenticado antes de actuar. Tres tests (`comidaDeOtroUsuario_lanzaUnauthorized`, uno por operación) verifican que el acceso a una comida ajena lanza `UnauthorizedException` sin consultar ni modificar datos, cerrando una posible referencia directa a objeto insegura (IDOR).
 
 ### PerfilServiceImpl — 5 tests
 
@@ -390,4 +392,4 @@ Los controladores quedan fuera de la cobertura de JaCoCo porque no contienen ló
 
 ## Cierre de la sección
 
-La suite de pruebas suma 195 tests en total: 116 unitarios del backend, 17 de integración con Testcontainers, 31 del cliente JavaFX y 31 del frontend React. Los tests unitarios del backend se ejecutan sin base de datos ni contexto de Spring, finalizando en menos de tres segundos. Los de integración levantan un contenedor PostgreSQL real y verifican los flujos completos contra la base de datos. Los del cliente JavaFX verifican el comportamiento de la sesión, los modelos observables y la comunicación HTTP sin requerir un display ni el toolkit gráfico. Las pruebas manuales, respaldadas por los archivos `.http` y por Swagger UI, complementan la cobertura automatizada verificando el comportamiento extremo a extremo.
+La suite de pruebas suma 199 tests en total: 120 unitarios del backend, 17 de integración con Testcontainers, 31 del cliente JavaFX y 31 del frontend React. Los tests unitarios del backend se ejecutan sin base de datos ni contexto de Spring, finalizando en menos de tres segundos. Los de integración levantan un contenedor PostgreSQL real y verifican los flujos completos contra la base de datos. Los del cliente JavaFX verifican el comportamiento de la sesión, los modelos observables y la comunicación HTTP sin requerir un display ni el toolkit gráfico. Las pruebas manuales, respaldadas por los archivos `.http` y por Swagger UI, complementan la cobertura automatizada verificando el comportamiento extremo a extremo.

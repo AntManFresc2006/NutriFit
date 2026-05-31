@@ -215,7 +215,7 @@
   <li>§4 — Análisis de requisitos: requisitos funcionales y no funcionales.</li>
   <li>§5 — Diseño: arquitectura, esquema de base de datos y decisiones de diseño.</li>
   <li>§6 — Implementación: descripción módulo a módulo.</li>
-  <li>§7 — Pruebas: estrategia y suite de 195 tests.</li>
+  <li>§7 — Pruebas: estrategia y suite de 199 tests.</li>
   <li>§8 — Seguridad: medidas implementadas y limitaciones conocidas.</li>
   <li>§9 — Conclusiones y líneas futuras.</li>
 </ul>
@@ -599,15 +599,15 @@ Mujeres:  TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) − 161</p
 <h1>7. Pruebas</h1>
 
 <h2>7.1 Estrategia de pruebas</h2>
-<p>La estrategia combina cuatro enfoques. Los tests unitarios del backend verifican la capa de servicio con Mockito, sin base de datos ni contexto de Spring, y se ejecutan en pocos segundos. Los tests de integración levantan un PostgreSQL real con Testcontainers y prueban los endpoints de extremo a extremo. El cliente JavaFX tiene tests unitarios sobre sus modelos, su cliente base y varios controladores. El frontend tiene tests de componentes con Vitest. En total, 195 tests automatizados.</p>
+<p>La estrategia combina cuatro enfoques. Los tests unitarios del backend verifican la capa de servicio con Mockito, sin base de datos ni contexto de Spring, y se ejecutan en pocos segundos. Los tests de integración levantan un PostgreSQL real con Testcontainers y prueban los endpoints de extremo a extremo. El cliente JavaFX tiene tests unitarios sobre sus modelos, su cliente base y varios controladores. El frontend tiene tests de componentes con Vitest. En total, 199 tests automatizados.</p>
 <p>La cobertura automatizada se concentra en la lógica de negocio, que es donde residen las reglas de dominio, los casos de error y los cálculos nutricionales. Los endpoints se cubren además con los tests de integración y con peticiones manuales documentadas.</p>
 
 <h2>7.2 Tests unitarios del backend</h2>
 <p>Usan JUnit 5, Mockito y AssertJ. Ningún test de esta categoría levanta el contexto de Spring: todos usan <code>@ExtendWith(MockitoExtension.class)</code>.</p>
 <table>
   <tr><th>Clase de test</th><th>Tests</th><th>Operaciones cubiertas</th></tr>
-  <tr><td>AlimentoServiceImplTest</td><td>17</td><td>CRUD, búsqueda, análisis de foto con IA</td></tr>
-  <tr><td>ComidaServiceImplTest</td><td>18</td><td>comidas, ítems, cálculo de macros, propiedad</td></tr>
+  <tr><td>AlimentoServiceImplTest</td><td>18</td><td>CRUD, búsqueda, análisis de foto con IA</td></tr>
+  <tr><td>ComidaServiceImplTest</td><td>21</td><td>comidas, ítems, cálculo de macros, control de acceso</td></tr>
   <tr><td>RegistroEjercicioServiceImplTest</td><td>14</td><td>registro, cálculo MET aeróbico y anaeróbico</td></tr>
   <tr><td>ResumenDiarioServiceImplTest</td><td>14</td><td>balance, TDEE, estado, fecha objetivo</td></tr>
   <tr><td>GamificacionServiceTest</td><td>14</td><td>NutriScore (A–F), racha, criterios</td></tr>
@@ -616,7 +616,7 @@ Mujeres:  TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) − 161</p
   <tr><td>HidratacionServiceImplTest</td><td>8</td><td>registro, total diario, borrado</td></tr>
   <tr><td>PesoHistorialServiceImplTest</td><td>8</td><td>upsert, historial, borrado</td></tr>
   <tr><td>PerfilServiceImplTest</td><td>5</td><td>getPerfil, updatePerfil, TMB/TDEE</td></tr>
-  <tr><td><strong>Subtotal unitarios</strong></td><td><strong>116</strong></td><td></td></tr>
+  <tr><td><strong>Subtotal unitarios</strong></td><td><strong>120</strong></td><td></td></tr>
 </table>
 
 <h2>7.3 Tests de integración del backend (Testcontainers)</h2>
@@ -631,7 +631,7 @@ Mujeres:  TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) − 161</p
   <tr><td>BaseIntegrationTest</td><td>1</td><td>arranque del contexto e infraestructura</td></tr>
   <tr><td><strong>Subtotal integración</strong></td><td><strong>17</strong></td><td></td></tr>
 </table>
-<p class="nota"><strong>Total backend:</strong> 116 unitarios + 17 de integración = 133 tests.</p>
+<p class="nota"><strong>Total backend:</strong> 120 unitarios + 17 de integración = 137 tests.</p>
 
 <h2>7.4 Tests del cliente JavaFX</h2>
 <table>
@@ -664,10 +664,10 @@ Mujeres:  TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) − 161</p
 <h2>7.6 Resumen y aspectos destacados</h2>
 <table>
   <tr><th>Módulo</th><th>Tests</th><th>Framework</th></tr>
-  <tr><td>Backend (unit + integración)</td><td>133</td><td>JUnit 5 + Mockito + AssertJ + Testcontainers</td></tr>
+  <tr><td>Backend (unit + integración)</td><td>137</td><td>JUnit 5 + Mockito + AssertJ + Testcontainers</td></tr>
   <tr><td>Cliente JavaFX</td><td>31</td><td>JUnit 5 + Mockito + AssertJ</td></tr>
   <tr><td>Frontend React</td><td>31</td><td>Vitest + Testing Library</td></tr>
-  <tr><td><strong>Total</strong></td><td><strong>195</strong></td><td></td></tr>
+  <tr><td><strong>Total</strong></td><td><strong>199</strong></td><td></td></tr>
 </table>
 <p>Algunos tests merecen mención. Los de <code>AuthServiceImplTest</code> comprueban que el registro con email duplicado lanza la excepción antes de invocar <code>save</code>, que la sesión creada tiene token y expiración futura (verificado con <code>ArgumentCaptor</code>) y que el mensaje de error es idéntico para email inexistente y contraseña incorrecta. Los de <code>PerfilServiceImplTest</code> verifican la fórmula de Mifflin-St Jeor con valores calculados a mano para cada sexo, usando una fecha de nacimiento relativa para no depender del día de ejecución. Los de <code>RegistroEjercicioServiceImplTest</code> comprueban el redondeo: MET 5,0, 70 kg y 20 min producen 116,67 kcal, no 116,66.</p>
 
@@ -711,7 +711,7 @@ Mujeres:  TMB = (10 × peso_kg) + (6,25 × altura_cm) − (5 × edad) − 161</p
 
 <h2>9.1 Valoración del proyecto</h2>
 <p>NutriFit es un sistema funcional y desplegado que permite registrar alimentos, comidas y ejercicios, calcular el gasto energético estimado, evaluar la dieta con inteligencia artificial y visualizar tendencias a lo largo del tiempo. Se sostiene sobre cuatro capas (frontend React, cliente JavaFX, backend Spring Boot y PostgreSQL) en las que cada componente tiene responsabilidades delimitadas y se comunica con el siguiente a través de interfaces bien definidas.</p>
-<p>El sistema no es un prototipo: los dieciocho prefijos de endpoint están implementados, probados y desplegados en producción accesible públicamente. El esquema está gestionado por Flyway con veintiocho migraciones. Los 195 tests cubren la lógica de negocio relevante; los unitarios corren sin infraestructura y los de integración sobre un PostgreSQL real.</p>
+<p>El sistema no es un prototipo: los dieciocho prefijos de endpoint están implementados, probados y desplegados en producción accesible públicamente. El esquema está gestionado por Flyway con veintiocho migraciones. Los 199 tests cubren la lógica de negocio relevante; los unitarios corren sin infraestructura y los de integración sobre un PostgreSQL real.</p>
 
 <h2>9.2 Aportación del sistema</h2>
 <p>NutriFit demuestra que es posible construir un sistema multicapa completo dentro del alcance de un proyecto formativo, partiendo de decisiones técnicas justificadas. Las más relevantes son: acceso a datos con JdbcTemplate sin ORM, que mantiene las consultas SQL visibles y trazables; autenticación con token opaco en base de datos, que hace el logout inmediato y real; cálculo del resumen diario con una sola consulta de agregación; integración de modelos de lenguaje sin acoplarse a un proveedor; seguridad repartida en varias defensas independientes; y manejo de errores centralizado con respuesta uniforme.</p>
